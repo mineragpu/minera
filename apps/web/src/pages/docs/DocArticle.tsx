@@ -1,5 +1,6 @@
 import type { DocContent } from 'virtual:docs';
 import { Kicker } from '../../components/Kicker.tsx';
+import { DocPager } from './DocPager.tsx';
 import { useCodeCopy } from './useCodeCopy.ts';
 import './doc-article.css';
 
@@ -23,6 +24,7 @@ export function DocArticle({ doc, group, summary }: DocArticleProps) {
         <p className="doc__summary">{summary}</p>
       </header>
       <div className="doc-body" ref={body} dangerouslySetInnerHTML={{ __html: doc.html }} />
+      <DocPager slug={doc.slug} />
     </article>
   );
 }
