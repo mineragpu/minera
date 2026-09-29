@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/hero.png" alt="The landing page: a cluster of metal compute blocks with iridescent edges beside the headline Deploy a GPU like you would launch a token." width="100%">
+
 # DayaGPU
 
 **Deploy a GPU like you'd launch a token.**
@@ -8,6 +10,8 @@ A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tok
 and mine from a pool that only fills.
 
 *Daya means power.*
+
+[Website](https://web-production-360d4.up.railway.app) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
 
 </div>
 
@@ -75,8 +79,25 @@ ops/              deployment configuration
 | Phase | Scope | State |
 |---|---|---|
 | 0 · Identity | Brand, design system, site | In progress |
-| 1 · Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | Planned |
+| 1 · Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | In progress: contracts live |
 | 2 · Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in ETH or a tokenized stock | Planned |
+
+## Testnet contracts
+
+Deployed on the testnet (chain ID 46630) and verified with an exact source match.
+
+| Contract | Address |
+|---|---|
+| Burn Pool | [`0xcc31Debc633c9F482E37213B975D3671Fd05a1f9`](https://explorer.testnet.chain.robinhood.com/address/0xcc31Debc633c9F482E37213B975D3671Fd05a1f9) |
+| Rig registry | [`0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8`](https://explorer.testnet.chain.robinhood.com/address/0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8) |
+| Pair zap | [`0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1`](https://explorer.testnet.chain.robinhood.com/address/0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) |
+
+| Parameter | Testnet value |
+|---|---|
+| Challenge delay before a settlement is claimable | 30 minutes |
+| Share of the uncommitted pool releasable per day | 10% |
+| Publisher rotation delay | 1 hour |
+| Delay before a new pair or zap can be used | 10 minutes / 30 minutes |
 
 ## Security
 
