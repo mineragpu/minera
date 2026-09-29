@@ -1,0 +1,27 @@
+/* A docs page: its head, then the rendered body */
+.doc {
+  min-width: 0;
+}
+
+.doc__head {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.doc__title {
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+  font: 700 var(--step-3) / 1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.doc__summary {
+  max-width: 60ch;
+  margin-top: 16px;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--silver);
+  text-wrap: pretty;
+}

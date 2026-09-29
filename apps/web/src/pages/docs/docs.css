@@ -1,0 +1,205 @@
+/* Docs frame: the page list beside the article, stacked on narrow screens */
+.docs {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  padding-top: clamp(24px, 4vw, 56px);
+}
+
+.docs__main {
+  min-width: 0;
+}
+
+.docs-skip:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.docs-skip:focus {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  padding: 10px 14px;
+  border-radius: var(--r-tag);
+  background: var(--bright);
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Page list */
+.docs-nav {
+  min-width: 0;
+}
+
+.docs-nav__toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--seam-2);
+  border-radius: var(--r-input);
+  background: var(--metal-ghost);
+  color: var(--silver);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.docs-nav__toggle:hover {
+  border-color: var(--seam-hover);
+  color: var(--bright);
+}
+
+.docs-nav__toggle-label {
+  flex: none;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.docs-nav__toggle-page {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--bright);
+}
+
+.docs-nav__chevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  transform: rotate(90deg);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.docs-nav__toggle[aria-expanded="true"] .docs-nav__chevron {
+  transform: rotate(-90deg);
+}
+
+.docs-nav__list {
+  display: none;
+  gap: 22px;
+  margin-top: 8px;
+  padding: 18px 14px;
+  border: 1px solid var(--seam);
+  border-radius: var(--r-input);
+  background: rgba(15, 19, 27, 0.94);
+}
+
+.docs-nav__list--open {
+  display: grid;
+}
+
+.docs-nav__home {
+  justify-self: start;
+  padding: 4px 12px;
+  border-radius: var(--r-tag);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--silver);
+  text-decoration: underline;
+  text-decoration-color: var(--seam-hover);
+  text-underline-offset: 3px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.docs-nav__home:hover {
+  color: var(--teal);
+  text-decoration-color: currentColor;
+}
+
+.docs-nav__heading {
+  padding-left: 12px;
+  margin-bottom: 8px;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.docs-nav ul {
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.docs-nav ul a {
+  position: relative;
+  display: block;
+  padding: 7px 12px;
+  border-radius: var(--r-tag);
+  font-size: var(--step--1);
+  line-height: 1.4;
+  color: var(--silver);
+  text-decoration: none;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.docs-nav ul a:hover {
+  color: var(--bright);
+  background: rgba(34, 42, 57, 0.55);
+}
+
+.docs-nav ul a[aria-current="page"] {
+  color: var(--bright);
+  background: rgba(34, 42, 57, 0.85);
+  font-weight: 600;
+}
+
+.docs-nav ul a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--iri-rail);
+}
+
+@media (min-width: 960px) {
+  .docs {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 56px);
+  }
+
+  .docs-nav {
+    position: sticky;
+    top: calc(var(--topbar-offset) + 8px);
+    max-height: calc(100vh - var(--topbar-offset) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Room for focus rings inside the scrolling list */
+    margin: -8px 0 0 -8px;
+    padding: 8px 8px 24px;
+    scrollbar-width: thin;
+  }
+
+  .docs-nav__toggle {
+    display: none;
+  }
+
+  .docs-nav__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+}

@@ -105,6 +105,18 @@ export const DOC_GROUPS: readonly DocGroup[] = [
 /** Every page in reading order, for previous and next links and for build checks. */
 export const DOC_ORDER: readonly DocEntry[] = DOC_GROUPS.flatMap((group) => group.pages);
 
+/** The docs index. */
+export const DOCS_PATH = '/docs';
+
 export function docPath(slug: string): string {
-  return `/docs/${slug}`;
+  return `${DOCS_PATH}/${slug}`;
+}
+
+/** The page at `slug` and the group it belongs to, or null for an unknown slug. */
+export function findDoc(slug: string): { group: DocGroup; page: DocEntry } | null {
+  for (const group of DOC_GROUPS) {
+    const page = group.pages.find((entry) => entry.slug === slug);
+    if (page) return { group, page };
+  }
+  return null;
 }
