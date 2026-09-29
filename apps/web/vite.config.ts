@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { BRAND } from '@dayagpu/shared';
+import { docsPlugin } from './plugins/docs/plugin.ts';
 
 const HTML_ESCAPES: Readonly<Record<string, string>> = {
   '&': '&amp;',
@@ -33,7 +34,7 @@ function brandHtml(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), brandHtml()],
+  plugins: [react(), brandHtml(), docsPlugin('../../docs')],
   build: {
     target: 'es2022',
     sourcemap: false,
