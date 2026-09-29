@@ -6,6 +6,7 @@ import { DeployPanel } from '../sections/DeployPanel.tsx';
 import { Hero } from '../sections/Hero.tsx';
 import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
+import { PairWith } from '../sections/PairWith.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 import { Story } from '../sections/Story.tsx';
 import { WhatsLive } from '../sections/WhatsLive.tsx';
@@ -16,6 +17,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   Story,
   HowItWorks,
   DeployPanel,
+  PairWith,
   BurnPool,
   Launchpad,
   PlaygroundSection,
