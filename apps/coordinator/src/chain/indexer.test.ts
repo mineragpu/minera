@@ -1,14 +1,9 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import {
-  encodeAbiParameters,
-  encodeEventTopics,
-  parseEventLogs,
-  type AbiEvent,
-  type Log,
-} from 'viem';
+import { parseEventLogs, type Log } from 'viem';
 import { DEPLOYMENTS, type Address, type Hex } from '@dayagpu/shared';
 import { createMemoryStore } from '../store/memory/index.ts';
+import { encodeLog } from '../testing/encodeLog.ts';
 import { indexedEvents } from './abi.ts';
 import { indexNextRange, type ChainReader } from './indexer.ts';
 
@@ -19,30 +14,6 @@ const OPERATOR = '0x00000000000000000000000000000000000000b2' as Address;
 const STOCK = '0x00000000000000000000000000000000000000c3' as Address;
 const IMPOSTOR = '0x00000000000000000000000000000000000000d4' as Address;
 const hex32 = (n: number): Hex => `0x${n.toString(16).padStart(64, '0')}` as Hex;
-
-function rawLog(
-  address: Address,
-  eventName: string,
-  args: Record<string, unknown>,
-  blockNumber: bigint,
-  logIndex: number,
-): Log {
-  const event = indexedEvents.find((entry) => entry.name === eventName) as AbiEvent;
-  const topics = encodeEventTopics({ abi: [event], eventName, args } as Parameters<typeof encodeEventTopics>[0]);
-  const plain = event.inputs.filter((input) => !input.indexed);
-  const data = encodeAbiParameters(plain, plain.map((input) => args[input.name ?? '']));
-  return {
-    address,
-    topics: topics as [Hex, ...Hex[]],
-    data,
-    blockNumber,
-    blockHash: hex32(Number(blockNumber)),
-    transactionHash: hex32(Number(blockNumber) * 100 + logIndex),
-    transactionIndex: 0,
-    logIndex,
-    removed: false,
-  };
-}
 
 function fakeChain(head: bigint, logs: Log[]): ChainReader & { requests: [bigint, bigint][] } {
   const decoded = parseEventLogs({ abi: indexedEvents, logs, strict: true });
@@ -63,12 +34,12 @@ describe('indexNextRange', () => {
   it('reads bounded ranges from the start block and applies registry and pool events', async () => {
     const store = createMemoryStore();
     const chain = fakeChain(START + 25n, [
-      rawLog(deployment.rigRegistry, 'RigDeployed', { nodeKey: NODE, operator: OPERATOR, pair: '0x0000000000000000000000000000000000000000', name: 'basement' }, START + 2n, 0),
-      rawLog(IMPOSTOR, 'RigDeployed', { nodeKey: IMPOSTOR, operator: IMPOSTOR, pair: IMPOSTOR, name: 'fake' }, START + 3n, 0),
-      rawLog(deployment.rigRegistry, 'PairChanged', { nodeKey: NODE, pair: STOCK }, START + 12n, 1),
-      rawLog(deployment.burnPool, 'Burned', { from: OPERATOR, amount: 5n * 10n ** 17n, campaignId: 1n, memo: hex32(0) }, START + 12n, 2),
-      rawLog(deployment.burnPool, 'SettlementPublished', { index: 1n, root: hex32(7), total: 10n, claimableAt: 1_790_001_800n, inputs: hex32(8) }, START + 20n, 0),
-      rawLog(deployment.burnPool, 'Claimed', { account: OPERATOR, index: 1n, amount: 4n, via: '0x0000000000000000000000000000000000000000' }, START + 25n, 0),
+      encodeLog(deployment.rigRegistry, 'RigDeployed', { nodeKey: NODE, operator: OPERATOR, pair: '0x0000000000000000000000000000000000000000', name: 'basement' }, START + 2n, 0),
+      encodeLog(IMPOSTOR, 'RigDeployed', { nodeKey: IMPOSTOR, operator: IMPOSTOR, pair: IMPOSTOR, name: 'fake' }, START + 3n, 0),
+      encodeLog(deployment.rigRegistry, 'PairChanged', { nodeKey: NODE, pair: STOCK }, START + 12n, 1),
+      encodeLog(deployment.burnPool, 'Burned', { from: OPERATOR, amount: 5n * 10n ** 17n, campaignId: 1n, memo: hex32(0) }, START + 12n, 2),
+      encodeLog(deployment.burnPool, 'SettlementPublished', { index: 1n, root: hex32(7), total: 10n, claimableAt: 1_790_001_800n, inputs: hex32(8) }, START + 20n, 0),
+      encodeLog(deployment.burnPool, 'Claimed', { account: OPERATOR, index: 1n, amount: 4n, via: '0x0000000000000000000000000000000000000000' }, START + 25n, 0),
     ]);
 
     const first = await indexNextRange({ client: chain, store, deployment, range: 10n });
