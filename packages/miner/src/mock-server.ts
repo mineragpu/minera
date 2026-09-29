@@ -1,10 +1,13 @@
 /**
  * A local HTTP server on an ephemeral port that stands in for the model runtime or the
- * coordinator in tests. It records every request and answers with whatever the handler returns.
+ * coordinator in tests. It records every request and answers with whatever the handler returns;
+ * `signerOf` checks a recorded request the way the coordinator does.
  */
 
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { NODE_HEADERS, signedMessage, type Hex } from '@dayagpu/shared';
+import { keccak256, recoverMessageAddress } from 'viem';
 
 export interface RecordedRequest {
   method: string;
@@ -65,4 +68,18 @@ export async function startMockServer(handler: MockHandler): Promise<MockServer>
         server.close(() => resolve());
       }),
   };
+}
+
+/** Recovers the node key that signed a request, the way the coordinator checks it. */
+export function signerOf(request: RecordedRequest): Promise<string> {
+  const header = (name: string): string => String(request.headers[name] ?? '');
+  const path = new URL(request.url, 'http://placeholder').pathname;
+  const message = signedMessage(
+    request.method,
+    path,
+    Number(header(NODE_HEADERS.timestamp)),
+    header(NODE_HEADERS.nonce),
+    keccak256(request.body),
+  );
+  return recoverMessageAddress({ message, signature: header(NODE_HEADERS.signature) as Hex });
 }
