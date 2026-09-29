@@ -1,0 +1,43 @@
+.tx {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--r-input);
+  background: var(--readout-well);
+  box-shadow: inset 0 0 0 1px var(--seam-2);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--silver);
+}
+
+.tx--done {
+  box-shadow: inset 0 0 0 1px var(--state-open-edge);
+}
+
+.tx--failed {
+  background: var(--state-none-bg);
+  box-shadow: inset 0 0 0 1px var(--state-none-edge);
+  color: var(--state-none);
+}
+
+.tx code {
+  font: 500 0.95em / 1 var(--font-mono);
+  color: var(--bright);
+}
+
+.tx__hash {
+  font: 400 var(--step--2) / 1.4 var(--font-mono);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.tx__link {
+  justify-self: start;
+  color: var(--bright);
+  text-underline-offset: 3px;
+  border-radius: var(--r-tag);
+}
+
+.tx__link:hover {
+  color: var(--teal);
+}
