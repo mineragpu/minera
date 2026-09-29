@@ -1,17 +1,21 @@
 import { LatticeBackground } from './components/LatticeBackground.tsx';
 import { SvgDefs } from './components/SvgDefs.tsx';
-import { BurnPool } from './sections/BurnPool.tsx';
-import { Campaigns } from './sections/Campaigns.tsx';
-import { DeployPanel } from './sections/DeployPanel.tsx';
+import { RouteView } from './pages/RouteView.tsx';
+import { useLocation } from './router/history.ts';
+import { matchRoute } from './router/routes.ts';
+import { useLinkInterception } from './router/useLinkInterception.ts';
+import { useNavigationEffects } from './router/useNavigationEffects.ts';
 import { Footer } from './sections/Footer.tsx';
-import { Hero } from './sections/Hero.tsx';
-import { HowItWorks } from './sections/HowItWorks.tsx';
-import { Launchpad } from './sections/Launchpad.tsx';
 import { Nav } from './sections/Nav.tsx';
 import { ConnectDialogProvider } from './wallet/ConnectDialogProvider.tsx';
 import { WalletProvider } from './wallet/WalletProvider.tsx';
 
 export function App() {
+  const location = useLocation();
+  const route = matchRoute(location.pathname);
+  useLinkInterception();
+  useNavigationEffects(location);
+
   return (
     <WalletProvider>
       <ConnectDialogProvider>
@@ -23,12 +27,7 @@ export function App() {
           <LatticeBackground />
           <Nav />
           <main id="main">
-            <Hero />
-            <DeployPanel />
-            <BurnPool />
-            <Launchpad />
-            <HowItWorks />
-            <Campaigns />
+            <RouteView route={route} />
           </main>
           <Footer />
         </div>

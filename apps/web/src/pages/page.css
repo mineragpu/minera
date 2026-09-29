@@ -1,0 +1,35 @@
+.page-head {
+  padding-top: clamp(40px, 7vw, 104px);
+}
+
+.page-head__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 18px;
+}
+
+.page-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font: 700 var(--step-4) / 1.02 var(--font-display);
+  letter-spacing: -0.025em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.page-head .lede {
+  margin-top: 20px;
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.page-body {
+  margin-top: clamp(32px, 4vw, 56px);
+}

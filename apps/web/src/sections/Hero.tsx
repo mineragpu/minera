@@ -18,7 +18,7 @@ export function Hero() {
           <LiveDot />
           Contracts live on testnet
         </p>
-        <h1 className="hero__title" id="hero-title">
+        <h1 className="hero__title" id="hero-title" tabIndex={-1}>
           <span className="ln rise" style={rise(0.12)}>
             Deploy a GPU
           </span>

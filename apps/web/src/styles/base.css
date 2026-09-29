@@ -148,6 +148,12 @@ input:focus-visible,
   box-shadow: var(--focus-ring);
 }
 
+/* A page heading takes focus after navigation only to move the reading position; it is not a control. */
+h1[tabindex="-1"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
