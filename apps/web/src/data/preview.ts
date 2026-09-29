@@ -12,16 +12,6 @@ export const PREVIEW_CAMPAIGN = {
   poolSharePercent: 40,
 } as const;
 
-export const PREVIEW_POOL = {
-  /** ETH still in the pool. */
-  balanceEth: 12.84,
-  /** ETH paid out to miners so far. */
-  paidEth: 3.91,
-  /** Every deposit ever burned in: balance plus paid. */
-  depositedEth: 16.75,
-  depositCount: 214,
-} as const;
-
 export interface RigPreview {
   readonly id: string;
   readonly name: string;

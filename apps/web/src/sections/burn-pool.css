@@ -100,6 +100,11 @@
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
 }
 
+.band {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .band b {
   font-weight: 600;
 }
@@ -121,13 +126,6 @@
   bottom: -1px;
   width: 2px;
   background: var(--iri-rail);
-}
-
-.readout__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
 }
 
 .rlabel {
@@ -181,6 +179,17 @@
 .mid .unit {
   font: 500 var(--step--1) / 1 var(--font-mono);
   color: var(--silver);
+}
+
+.readout__foot {
+  margin-top: 18px;
+  font: 400 var(--step--2) / 1.4 var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.readout-error {
+  margin-top: 22px;
 }
 
 .oneway {

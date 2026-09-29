@@ -1,17 +1,15 @@
-import { formatNumber } from '../../lib/format.ts';
 import { at, points, project, segment, type Point3 } from './isometric.ts';
+import { SCALE_SLABS, formatScale } from './scale.ts';
 import './vessel.css';
 
 /** Vessel width and depth, in drawing units. */
 const W = 150;
 /** Vessel height, in drawing units. */
 const H = 242;
-/** Drawing units per ETH: one slab. */
+/** Drawing units per slab. */
 const SLAB = 13;
 /** Gap between the slabs and the glass. */
 const INSET = 9;
-/** The scale runs to this many ETH. */
-const SCALE_MAX = 18;
 
 const X0 = INSET;
 const X1 = W - INSET;
@@ -20,8 +18,9 @@ const Z1 = W - INSET;
 
 const SLAB_EDGES = ['var(--teal)', 'var(--blue)', 'var(--violet)', 'var(--magenta)', 'var(--gold)'];
 
-function level(eth: number): number {
-  return 2 + eth * SLAB;
+/** Height of a level measured in slabs. */
+function level(slabCount: number): number {
+  return 2 + slabCount * SLAB;
 }
 
 function floorGrid(): string {
@@ -30,13 +29,16 @@ function floorGrid(): string {
   return path;
 }
 
-function scale(): { path: string; labels: { eth: number; x: string; y: string }[] } {
-  let path = segment([W, level(0), -4], [W, level(SCALE_MAX), -4]);
-  const labels: { eth: number; x: string; y: string }[] = [];
-  for (let eth = 0; eth <= SCALE_MAX; eth++) {
-    const major = eth % 4 === 0;
-    path += segment([W, level(eth), -4], [W, level(eth), major ? -14 : -9]);
-    if (major) labels.push({ eth, ...at([W, level(eth), -22]) });
+/** Ticks every slab, labelled every fourth in ETH. */
+function scale(unitEth: number): { path: string; labels: { text: string; x: string; y: string }[] } {
+  let path = segment([W, level(0), -4], [W, level(SCALE_SLABS), -4]);
+  const labels: { text: string; x: string; y: string }[] = [];
+  for (let count = 0; count <= SCALE_SLABS; count++) {
+    const major = count % 4 === 0;
+    path += segment([W, level(count), -4], [W, level(count), major ? -14 : -9]);
+    if (!major) continue;
+    const value = formatScale(count * unitEth, unitEth);
+    labels.push({ text: count === 16 ? `${value} ETH` : value, ...at([W, level(count), -22]) });
   }
   return { path, labels };
 }
@@ -47,14 +49,14 @@ interface Slab {
   top: number;
 }
 
-/** One slab per whole ETH, plus a thinner one for the remainder. */
-function slabs(balance: number): Slab[] {
-  const whole = Math.floor(balance);
-  const remainder = balance - whole;
+/** One slab per whole unit, plus a thinner one for the remainder. */
+function slabs(filled: number): Slab[] {
+  const whole = Math.floor(filled);
+  const remainder = filled - whole;
   const count = whole + (remainder > 0.001 ? 1 : 0);
   return Array.from({ length: count }, (_, index) => {
     const bottom = level(index);
-    const thickness = (index < whole ? SLAB : remainder * SLAB) - 2.5;
+    const thickness = Math.max(1, (index < whole ? SLAB : remainder * SLAB) - 2.5);
     return { index, bottom, top: bottom + thickness };
   });
 }
@@ -77,7 +79,6 @@ function Drop({ x, y, phase, fall }: { x: number; y: number; phase: number; fall
 }
 
 const FLOOR_GRID = floorGrid();
-const SCALE = scale();
 const EDGES =
   segment([W, 0, 0], [W, H, 0]) +
   segment([0, 0, W], [0, H, W]) +
@@ -85,33 +86,46 @@ const EDGES =
   segment([W, 0, 0], [W, 0, W]) +
   segment([W, 0, W], [0, 0, W]);
 
+interface VesselLevel {
+  /** In ETH, for drawing. */
+  eth: number;
+  /** As the page shows it. */
+  text: string;
+}
+
 interface VesselProps {
-  balanceEth: number;
-  paidEth: number;
-  depositedEth: number;
+  /** Deposited ETH no settlement has committed yet. */
+  uncommitted: VesselLevel;
+  /** ETH committed to miners by settlements, claimed or not. */
+  committed: VesselLevel;
+  /** Every deposit ever made: uncommitted plus committed. */
+  deposited: VesselLevel;
+  /** ETH per slab, chosen so every deposit fits the scale. */
+  unitEth: number;
+  unitText: string;
 }
 
 /**
- * The Burn Pool drawn to scale: filled slabs are ETH still in the pool, the hatched band above
- * them is what was paid to miners, and the dashed line marks all deposits.
+ * The Burn Pool drawn to scale: filled slabs are ETH no settlement has committed yet, the hatched
+ * band above them is what settlements committed to miners, and the dashed line marks all deposits.
  */
-export function Vessel({ balanceEth, paidEth, depositedEth }: VesselProps) {
-  const filled = slabs(balanceEth);
+export function Vessel({ uncommitted, committed, deposited, unitEth, unitText }: VesselProps) {
+  const filled = slabs(uncommitted.eth / unitEth);
   const surface = filled[filled.length - 1]?.top ?? level(0);
-  const low = level(balanceEth);
-  const high = level(depositedEth);
+  const low = level(uncommitted.eth / unitEth);
+  const high = level(deposited.eth / unitEth);
   const marker = (y: number, dz: number) => at([0, y, W + dz]);
   const balanceMark = [marker(low, 4), marker(low, 16)] as const;
   const depositMark = [marker(high, 4), marker(high, 16)] as const;
   const bracket = [marker(low, 11), marker(high, 11)] as const;
-  const balance = formatNumber(balanceEth, 2);
-  const deposited = formatNumber(depositedEth, 2);
-  const paid = formatNumber(paidEth, 2);
+  const scaleMarks = scale(unitEth);
+  const anyDeposit = deposited.eth > 0;
+  const anyCommitted = committed.eth > 0;
 
   return (
     <svg viewBox="-228 -305 430 515" role="img" aria-labelledby="vessel-title" focusable="false">
       <title id="vessel-title">
-        {`Burn Pool vessel. Filled slabs show ${balance} ETH still in the pool. The hatched band above shows the ${paid} ETH paid to miners. The dashed line marks all deposits, ${deposited} ETH. One slab is 1 ETH.`}
+        {`Burn Pool vessel. Filled slabs show ${uncommitted.text} ETH not yet committed. The hatched band above shows the ${committed.text} ETH committed to miners. The dashed line marks all deposits, ${deposited.text} ETH. One slab is ${unitText} ETH.`}
       </title>
       <defs>
         <linearGradient id="vs-top" x1="0" y1="0" x2="1" y2="1">
@@ -199,22 +213,24 @@ export function Vessel({ balanceEth, paidEth, depositedEth }: VesselProps) {
         </g>
       </g>
 
-      <g className="ghost">
-        <polygon points={points([[X0, low, Z1], [X1, low, Z1], [X1, high, Z1], [X0, high, Z1]])} fill="url(#vs-hatch)" />
-        <polygon
-          points={points([[X1, low, Z0], [X1, low, Z1], [X1, high, Z1], [X1, high, Z0]])}
-          fill="url(#vs-hatch)"
-          opacity=".7"
-        />
-        <polygon points={points(box(high))} fill="none" stroke="#C9D1DC" strokeOpacity=".75" strokeDasharray="4 4" />
-        <path
-          d={segment([X1, low, Z0], [X1, high, Z0]) + segment([X1, low, Z1], [X1, high, Z1]) + segment([X0, low, Z1], [X0, high, Z1])}
-          stroke="#C9D1DC"
-          strokeOpacity=".5"
-          strokeDasharray="3 4"
-          fill="none"
-        />
-      </g>
+      {anyDeposit && (
+        <g className="ghost">
+          <polygon points={points([[X0, low, Z1], [X1, low, Z1], [X1, high, Z1], [X0, high, Z1]])} fill="url(#vs-hatch)" />
+          <polygon
+            points={points([[X1, low, Z0], [X1, low, Z1], [X1, high, Z1], [X1, high, Z0]])}
+            fill="url(#vs-hatch)"
+            opacity=".7"
+          />
+          <polygon points={points(box(high))} fill="none" stroke="#C9D1DC" strokeOpacity=".75" strokeDasharray="4 4" />
+          <path
+            d={segment([X1, low, Z0], [X1, high, Z0]) + segment([X1, low, Z1], [X1, high, Z1]) + segment([X0, low, Z1], [X0, high, Z1])}
+            stroke="#C9D1DC"
+            strokeOpacity=".5"
+            strokeDasharray="3 4"
+            fill="none"
+          />
+        </g>
+      )}
 
       <polygon points={points([[0, 0, W], [W, 0, W], [W, H, W], [0, H, W]])} fill="url(#vs-glass)" />
       <polygon points={points([[W, 0, 0], [W, 0, W], [W, H, W], [W, H, 0]])} fill="url(#vs-glass)" opacity=".7" />
@@ -229,29 +245,39 @@ export function Vessel({ balanceEth, paidEth, depositedEth }: VesselProps) {
         strokeLinejoin="round"
       />
 
-      <path d={SCALE.path} stroke="#8C98AA" strokeOpacity=".7" fill="none" />
+      <path d={scaleMarks.path} stroke="#8C98AA" strokeOpacity=".7" fill="none" />
       <g fill="#8C98AA" fontSize="12" dominantBaseline="middle">
-        {SCALE.labels.map(({ eth, x, y }) => (
-          <text key={eth} x={x} y={y}>
-            {eth === 16 ? `${eth} ETH` : eth}
+        {scaleMarks.labels.map(({ text, x, y }) => (
+          <text key={text} x={x} y={y}>
+            {text}
           </text>
         ))}
       </g>
 
-      <path d={`M${balanceMark[0].x} ${balanceMark[0].y}L${balanceMark[1].x} ${balanceMark[1].y}`} style={{ stroke: 'var(--teal)' }} strokeWidth="1.6" />
-      <path d={`M${depositMark[0].x} ${depositMark[0].y}L${depositMark[1].x} ${depositMark[1].y}`} stroke="#C9D1DC" strokeDasharray="3 3" />
-      <path d={`M${bracket[0].x} ${bracket[0].y}L${bracket[1].x} ${bracket[1].y}`} stroke="#95A0B2" strokeOpacity=".7" />
-      <g fontSize="12" textAnchor="end" dominantBaseline="middle">
-        <text {...marker(low, 22)} style={{ fill: 'var(--teal)' }}>
-          {balance}
-        </text>
-        <text {...marker(high, 22)} fill="#C9D1DC">
-          {deposited}
-        </text>
-        <text {...marker((low + high) / 2, 22)} fill="#8C98AA">
-          {paid} paid
-        </text>
-      </g>
+      {anyDeposit && (
+        <>
+          <path d={`M${balanceMark[0].x} ${balanceMark[0].y}L${balanceMark[1].x} ${balanceMark[1].y}`} style={{ stroke: 'var(--teal)' }} strokeWidth="1.6" />
+          <g fontSize="12" textAnchor="end" dominantBaseline="middle">
+            <text {...marker(low, 22)} style={{ fill: 'var(--teal)' }}>
+              {uncommitted.text}
+            </text>
+          </g>
+        </>
+      )}
+      {anyCommitted && (
+        <>
+          <path d={`M${depositMark[0].x} ${depositMark[0].y}L${depositMark[1].x} ${depositMark[1].y}`} stroke="#C9D1DC" strokeDasharray="3 3" />
+          <path d={`M${bracket[0].x} ${bracket[0].y}L${bracket[1].x} ${bracket[1].y}`} stroke="#95A0B2" strokeOpacity=".7" />
+          <g fontSize="12" textAnchor="end" dominantBaseline="middle">
+            <text {...marker(high, 22)} fill="#C9D1DC">
+              {deposited.text}
+            </text>
+            <text {...marker((low + high) / 2, 22)} fill="#8C98AA">
+              {committed.text} committed
+            </text>
+          </g>
+        </>
+      )}
 
       <path d="M0 -292V-186" stroke="#C9D1DC" strokeOpacity=".18" strokeDasharray="2 5" />
       <Drop x={0} y={-290} phase={0} fall={104} />

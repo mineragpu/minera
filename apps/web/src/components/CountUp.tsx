@@ -1,15 +1,16 @@
 import { useRef } from 'react';
-import { formatNumber } from '../lib/format.ts';
 import { useCountUp } from '../motion/useCountUp.ts';
 
 interface CountUpProps {
+  /** The figure as a number, for the animation. */
   value: number;
-  decimals: number;
+  /** The figure as it reads at rest; its decimals set the animation's. */
+  text: string;
   run: boolean;
 }
 
-export function CountUp({ value, decimals, run }: CountUpProps) {
+export function CountUp({ value, text, run }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  useCountUp(ref, value, decimals, run);
-  return <span ref={ref}>{formatNumber(value, decimals)}</span>;
+  useCountUp(ref, value, text, run);
+  return <span ref={ref}>{text}</span>;
 }
