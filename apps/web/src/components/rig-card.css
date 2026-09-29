@@ -69,6 +69,26 @@
   font: 700 var(--step-1) / 1.1 var(--font-display);
   letter-spacing: -0.01em;
   color: var(--bright);
+  overflow-wrap: anywhere;
+}
+
+.rig__name a {
+  text-decoration: none;
+  border-radius: var(--r-tag);
+}
+
+/* The name's link covers the whole card, so the card is one target. */
+.rig__name a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.rig__name a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .rig__meta {
@@ -109,8 +129,7 @@
   background: var(--cell-2);
 }
 
-.rig__stats dt,
-.rig__label {
+.rig__stats dt {
   font: 500 var(--step--2) / 1.2 var(--font-mono);
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -124,66 +143,25 @@
   color: var(--bright);
 }
 
-.rig__earned {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.rig__value {
-  font: 600 var(--step-2) / 1 var(--font-body);
-  font-variant-numeric: tabular-nums;
-  color: var(--bright);
-  white-space: nowrap;
-}
-
-.rig__value small {
-  font: 500 var(--step--2) / 1 var(--font-mono);
-  letter-spacing: 0.06em;
-  color: var(--silver);
-}
-
-.rig__uptime {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: var(--step--1);
-  color: var(--silver);
-}
-
-.rig__uptime b {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--bright);
-}
-
 .rig__foot {
   margin-top: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding-top: 14px;
   border-top: 1px solid var(--seam);
 }
 
-.rig__backers {
+.rig__checks {
   font-size: var(--step--1);
   color: var(--muted);
   white-space: nowrap;
 }
 
-.rig__backers b {
+.rig__checks b {
   font-family: var(--font-mono);
   font-weight: 500;
   color: var(--silver);
-}
-
-.btn--back .ck {
-  display: none;
-}
-
-.btn--back[aria-pressed="true"] .ck {
-  display: block;
 }

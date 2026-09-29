@@ -1,67 +1,49 @@
-import { Button } from './Button.tsx';
-import { CubeGlyph } from './CubeGlyph.tsx';
-import { Sparkline } from './Sparkline.tsx';
-import { CheckIcon } from './icons.tsx';
-import type { RigPreview } from '../data/preview.ts';
-import { formatNumber } from '../lib/format.ts';
+import type { RigSummary } from '../api/schemas.ts';
+import { formatCount } from '../lib/amount.ts';
+import { pairLabel } from '../lib/pairLabel.ts';
+import { rigHue } from '../lib/rigHue.ts';
+import { timeFromNow } from '../lib/time.ts';
 import { useSheenFollow } from '../motion/useSheenFollow.ts';
+import { rigPath } from '../router/routes.ts';
+import { CubeGlyph } from './CubeGlyph.tsx';
+import { RigState } from './RigState.tsx';
 import './rig-card.css';
 
-interface RigCardProps {
-  rig: RigPreview;
-  backed: boolean;
-  onToggleBack: (id: string) => void;
-}
-
-export function RigCard({ rig, backed, onToggleBack }: RigCardProps) {
+/** A rig on the launchpad board. The whole card links to the rig's page. */
+export function RigCard({ rig }: { rig: RigSummary }) {
   const sheen = useSheenFollow<HTMLElement>();
-  const titleId = `rig-${rig.id}`;
-  const unit = rig.pair === 'eth' ? 'ETH' : 'STOCK';
+  const titleId = `rig-${rig.nodeKey}`;
+  const pair = pairLabel(rig.pair);
 
   return (
-    <article ref={sheen} className="rig__card" aria-labelledby={titleId}>
+    <article ref={sheen} className="rig__card" aria-labelledby={titleId} style={{ '--hue': rigHue(rig.nodeKey) }}>
       <div className="rig__top">
-        <CubeGlyph className="glyph" color={rig.glyph} />
+        <CubeGlyph className="glyph" color={rigHue(rig.nodeKey)} />
         <div>
           <h3 className="rig__name" id={titleId}>
-            {rig.name}
+            <a href={rigPath(rig.nodeKey)}>{rig.name}</a>
           </h3>
-          <p className="rig__meta">Deployed {rig.deployedDaysAgo} days ago</p>
+          <p className="rig__meta">Deployed {timeFromNow(rig.deployedAt)}</p>
         </div>
-        <span className={`badge badge--${rig.pair}`}>
+        <span className={`badge badge--${pair.kind === 'native' ? 'eth' : 'stock'}`}>
           <span className="sr-only">Paired with </span>
-          {unit}
+          {pair.text}
         </span>
       </div>
       <dl className="rig__stats">
         <div>
-          <dt>VRAM</dt>
-          <dd>{rig.vramGb} GB</dd>
+          <dt>This epoch</dt>
+          <dd>{formatCount(rig.verifiedUnits.epoch)} units</dd>
         </div>
         <div>
-          <dt>Verified work</dt>
-          <dd>{formatNumber(rig.verifiedUnits, 0)} units</dd>
+          <dt>Lifetime</dt>
+          <dd>{formatCount(rig.verifiedUnits.lifetime)} units</dd>
         </div>
       </dl>
-      <div className="rig__earned">
-        <span className="rig__label">Earned this campaign</span>
-        <span className="rig__value">
-          {rig.earned} <small>{unit}</small>
-        </span>
-      </div>
-      <div className="rig__uptime">
-        <Sparkline values={rig.uptimeHourly} />
-        <span>
-          <b>{rig.uptimePercent}%</b> uptime
-        </span>
-      </div>
       <div className="rig__foot">
-        <Button variant="ghost" size="sm" className="btn--back" aria-pressed={backed} onClick={() => onToggleBack(rig.id)}>
-          <CheckIcon className="ck" />
-          Back this rig<span className="sr-only">: {rig.name}</span>
-        </Button>
-        <span className="rig__backers">
-          <b>{rig.backers + (backed ? 1 : 0)}</b> backers
+        <RigState online={rig.online} lastSeenAt={rig.lastSeenAt} />
+        <span className="rig__checks">
+          <b>{formatCount(rig.checks.failed)}</b> failed checks
         </span>
       </div>
     </article>
