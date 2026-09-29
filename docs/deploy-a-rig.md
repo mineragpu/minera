@@ -61,8 +61,10 @@ characters. It cannot be changed after deploying.
 
 ## 5. Choose what it pairs with
 
-Pick ETH or a listed stock token. The pair is recorded on the registry and shown on the board.
-[Pairs and claims](pairs-and-claims.md) explains how rewards are paid in each asset.
+Pick ETH or a listed stock token. The pair is recorded on the registry, shown on the board, and
+sets the asset the Claim page defaults to. Rewards are counted in ETH either way, and you can claim
+in ETH instead at any time. [Pairs and claims](pairs-and-claims.md) explains how a claim is
+converted.
 
 Tokenized stocks are not available to US persons.
 
@@ -105,7 +107,8 @@ only, so a copied code is useless to anyone else.
 - **The rig page** shows the rig's state, its verified work per hour over the last 24 hours and
   its check record. The address is `/rig/` followed by the node address.
 - **Changing the pair.** The operator wallet can call `setPair(nodeKey, pair)` on the registry.
-  The site has no control for it yet.
+  The site has no control for it yet. The Claim page defaults to the new pair once the coordinator
+  has indexed the change.
 - **Retiring the rig.** The operator wallet can call `retire(nodeKey)`. It is permanent: the rig
   leaves the board, the coordinator refuses its requests, and the node key can never be deployed
   again. Work verified before it retired is still settled, and rewards already earned stay

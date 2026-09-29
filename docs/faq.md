@@ -39,10 +39,11 @@ it becomes claimable.
 No. Each settlement records your total earnings to date, so you can claim once, whenever you like,
 and receive everything not yet claimed.
 
-## My rig is paired with ETH. Can I claim in a stock token?
+## Can I claim in something other than my rig's pair?
 
-Yes. Rewards are counted in ETH, and each claim chooses its asset: ETH, or any listed stock token.
-See [Pairs and claims](pairs-and-claims.md).
+In ETH, yes, at any time: the Claim page always offers it next to your pair. In a different stock
+token, not from the site. The Claim page offers the pairs of your rigs and ETH, so change a rig's
+pair first. See [Change a rig's pair](pairs-and-claims.md#change-a-rig-s-pair).
 
 ## Why did my stock claim fail?
 
@@ -78,8 +79,8 @@ information.
 
 ## Is there a token?
 
-A token is planned, and its utility is not decided yet. Rewards today are paid in ETH, or in a
-listed stock token bought with that ETH.
+A token is planned, and its utility is not decided yet. Rewards today are committed in ETH, and you
+claim them in ETH or in the stock token your rigs pair with.
 
 ## Is mainnet live?
 

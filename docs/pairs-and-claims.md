@@ -1,8 +1,8 @@
 # Pairs and claims
 
 Every rig is paired with an asset: ETH, or a stock token listed on the network. Rewards are earned
-in ETH, and when you claim you choose how to receive them: as ETH, or swapped into a listed stock
-token on the way out.
+in ETH. The [Claim page](/claim) defaults to the pair of your rigs: when that is a stock token, the
+pair zap swaps the ETH into it as you claim. You can claim in ETH instead at any time.
 
 ## Listed assets on testnet
 
@@ -25,9 +25,25 @@ ETH is address zero and is always a valid pair. Tokenized stocks are not availab
 ## How rewards are counted
 
 Rewards are counted in ETH, per operator wallet. Every rig a wallet operates adds to the same
-balance, and the pair does not change how much a rig earns. The pair is recorded on the registry
-and shown on the board and the rig page. It does not lock a claim to that asset: the claim page
-offers ETH and every listed stock token.
+balance, and the pair does not change how much a rig earns. The pair is recorded on the registry,
+shown on the board and the rig page, and sets the asset the Claim page defaults to.
+
+The contracts do not enforce the pair. `claimVia` accepts any asset the pair zap has a route for,
+and `claim` always pays ETH. The default is chosen by the site.
+
+## Which asset a claim defaults to
+
+The Claim page reads the connected wallet's rigs from the coordinator, with
+[`GET /v1/rigs`](api.md#get-v1-rigs) and the wallet as `operator`, and preselects:
+
+- the pair of your rigs, when every rig has the same one;
+- the pair of the rig with the most lifetime verified units, when they differ. The page then lists
+  each rig with its pair;
+- ETH, when the wallet operates no rig on the board, for example after retiring them all, or when
+  the rigs cannot be read.
+
+The page offers the stock tokens your rigs pair with, and ETH. A pair this site does not list
+cannot be priced, so the claim defaults to ETH instead.
 
 ## Claim your rewards
 
@@ -39,7 +55,8 @@ Open the [Claim page](/claim) with the operator wallet. It shows:
 - the settlement the claim comes from, and a newer settlement still inside its challenge delay,
   with the time it becomes claimable.
 
-Then choose how to receive the claim.
+The asset the claim defaults to is preselected. Keep it, or choose ETH or another pair of your
+rigs, then claim.
 
 ### Claim in ETH
 
@@ -56,9 +73,9 @@ the minimum output and a deadline.
 
 ## The quote and slippage
 
-For each listed stock token, the site reads a quote for swapping your claimable ETH along the
-zap's own route, from the quoter contract. It shows about how much you would receive and the
-least you would accept with 1% slippage.
+For each stock token your rigs pair with, the site reads a quote for swapping your claimable ETH
+along the zap's own route, from the quoter contract. It shows about how much you would receive and
+the least you would accept with 1% slippage.
 
 When you press claim, the site reads a fresh quote and sets:
 
@@ -90,4 +107,5 @@ blocklist: it works whenever your wallet can receive ETH.
 ## Change a rig's pair
 
 The operator wallet can call `setPair(nodeKey, pair)` on the rig registry. The new pair must be ETH
-or a listed asset past its listing delay. The site has no control for it yet.
+or a listed asset past its listing delay. The site has no control for it yet. The Claim page
+defaults to the new pair once the coordinator has indexed the change.

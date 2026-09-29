@@ -102,8 +102,9 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
   committed at once.
 - **Campaign ids are not reserved.** Anyone can burn under any campaign id, and the campaign
   figures count every such burn.
-- **A rig's pair does not bind its claims.** Rewards are counted in ETH per operator wallet, and
-  each claim chooses its own asset.
+- **A rig's pair is a default, not a rule.** Rewards are counted in ETH per operator wallet. The
+  Claim page defaults to the pair of the wallet's rigs and always offers ETH, but the contracts do
+  not enforce the pair: the account can call `claimVia` with any asset the pair zap routes.
 - **Playground prompts are not private.** Prompts go to rigs run by independent operators, who can
   read them.
 - **The node key is stored unencrypted,** in a file only your user can read on systems that

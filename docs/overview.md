@@ -31,8 +31,9 @@ These docs describe the network as it runs on {{testnet.chainName}} (chain ID
 3. **Settle.** After each epoch, the coordinator splits what the Burn Pool may release across
    operator wallets by verified work, and publishes a Merkle root of everyone's cumulative
    earnings. The root becomes claimable after a challenge delay.
-4. **Claim.** Your wallet claims from the Burn Pool. ETH is paid directly. A stock token is bought
-   with the ETH on the way out.
+4. **Claim.** Your wallet claims from the Burn Pool. The Claim page defaults to the pair of your
+   rigs: a stock token is bought with the ETH through the pair zap as you claim. You can claim in
+   ETH instead at any time. See [Pairs and claims](pairs-and-claims.md).
 
 ## The parts
 

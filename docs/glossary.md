@@ -25,7 +25,8 @@ registry, on one chain. It is not a secret.
 **Operator.** The wallet that deployed a rig. It is the only wallet that can change the rig's pair
 or retire it, and it receives the rig's rewards.
 
-**Pair.** The asset recorded for a rig: ETH, or a listed stock token. See
+**Pair.** The asset recorded for a rig: ETH, or a listed stock token. The Claim page defaults to
+it, and ETH is always available instead. The contracts do not enforce it. See
 [Pairs and claims](pairs-and-claims.md).
 
 **Retire.** Taking a rig off the network for good. A retired rig takes no work, and its node key
