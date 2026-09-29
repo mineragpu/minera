@@ -240,3 +240,35 @@
   font: inherit;
   white-space: pre;
 }
+
+.doc-code__bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 6px 8px 8px 16px;
+}
+
+.doc-code__note {
+  margin-right: auto;
+  font: 400 var(--step--2) / 1.3 var(--font-mono);
+  color: var(--muted);
+}
+
+.doc-code__copy {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-btn);
+  background: var(--metal-ghost);
+  box-shadow: inset 0 0 0 1px var(--seam-2);
+  color: var(--silver);
+  font: 500 var(--step--1) / 1 var(--font-body);
+  cursor: pointer;
+  transition: color 0.2s, box-shadow 0.2s;
+}
+
+.doc-code__copy:hover {
+  color: var(--bright);
+  box-shadow: inset 0 0 0 1px var(--seam-hover);
+}
