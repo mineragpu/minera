@@ -18,6 +18,7 @@ const ETH = 10n ** 18n;
 let harness: TestApp;
 
 const get = (url: string, headers: Record<string, string> = {}) => harness.app.inject({ method: 'GET', url, headers });
+const post = (url: string, payload: unknown) => harness.app.inject({ method: 'POST', url, payload: payload as object });
 
 function snapshot(overrides: Partial<PoolSnapshot> = {}): PoolSnapshot {
   const timestamp = BigInt(harness.clock.now.getTime() / 1000);
@@ -192,5 +193,26 @@ describe('public routes', () => {
     assert.equal(allowed.headers['access-control-allow-origin'], 'https://site.example');
     const other = await get('/health', { origin: 'https://elsewhere.example' });
     assert.equal(other.headers['access-control-allow-origin'], undefined);
+  });
+
+  it('queues playground prompts, validates them and limits each address', async () => {
+    const empty = await post('/v1/playground/jobs', { prompt: '   ' });
+    assert.equal(empty.statusCode, 400);
+    assert.equal(empty.json().error.details[0].message, 'Enter a prompt.');
+    assert.equal((await post('/v1/playground/jobs', { prompt: 'x'.repeat(2_001) })).statusCode, 400);
+
+    const accepted = await post('/v1/playground/jobs', { prompt: 'What is a GPU?' });
+    assert.equal(accepted.statusCode, 202);
+    const { id } = accepted.json();
+    const view = (await get(`/v1/playground/jobs/${id}`)).json();
+    assert.deepEqual([view.status, view.output, view.crossChecked, view.prompt], ['queued', null, false, 'What is a GPU?']);
+    assert.match(view.rule, /Only verified work earns rewards/);
+    assert.equal((await get('/v1/playground/jobs/00000000-0000-4000-8000-0000000fffff')).statusCode, 404);
+    assert.equal((await get('/v1/playground/jobs/nope')).statusCode, 400);
+
+    for (let i = 0; i < 2; i += 1) await post('/v1/playground/jobs', { prompt: `Question ${i}` });
+    const limited = await post('/v1/playground/jobs', { prompt: 'One more' });
+    assert.equal(limited.statusCode, 429);
+    assert.equal(limited.json().error.code, 'rate_limited');
   });
 });
