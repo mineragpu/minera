@@ -41,7 +41,7 @@ export const DOC_GROUPS: readonly DocGroup[] = [
       {
         slug: 'pairs-and-claims',
         title: 'Pairs and claims',
-        summary: 'Claim rewards in ETH, or have them swapped into a listed stock token on the way out.',
+        summary: 'Claims default to your rigs’ pair, converted from ETH as you claim. ETH always works.',
       },
       {
         slug: 'verification-and-rewards',
