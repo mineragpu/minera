@@ -1,4 +1,5 @@
 import { at, points, project, segment, type Point3 } from './isometric.ts';
+import { spreadLabels } from './labels.ts';
 import { SCALE_SLABS, formatScale } from './scale.ts';
 import './vessel.css';
 
@@ -17,6 +18,13 @@ const Z0 = INSET;
 const Z1 = W - INSET;
 
 const SLAB_EDGES = ['var(--teal)', 'var(--blue)', 'var(--violet)', 'var(--magenta)', 'var(--gold)'];
+
+/** Line height of a side label, in drawing units, for 12-unit text. */
+const LABEL_LINE = 14;
+/** How far in front of the glass the side labels end. */
+const LABEL_DZ = 22;
+/** The lowest a side label may sit: two lines below the vessel floor. */
+const LABEL_FLOOR = project([0, 0, W + LABEL_DZ])[1] + 2 * LABEL_LINE;
 
 /** Height of a level measured in slabs. */
 function level(slabCount: number): number {
@@ -70,6 +78,58 @@ function box(y: number): Point3[] {
   ];
 }
 
+interface SideLabel {
+  key: string;
+  lines: readonly string[];
+  fill: string;
+  /** The level the label names, and how far out its mark ends. */
+  level: number;
+  markDz: number;
+}
+
+/**
+ * The figures beside the vessel, stacked so they never overlap: each keeps to its level when there
+ * is room, moves just enough when there is not, and a leader ties it back to its mark.
+ */
+function SideLabels({ labels }: { labels: readonly SideLabel[] }) {
+  const edge = (level: number, dz: number) => project([0, level, W + dz]);
+  const heights = labels.map((label) => label.lines.length * LABEL_LINE);
+  const gaps = heights.slice(1).map((height, i) => ((heights[i] ?? 0) + height) / 2 + 2);
+  const centers = spreadLabels(
+    labels.map((label) => edge(label.level, LABEL_DZ)[1]),
+    gaps,
+    LABEL_FLOOR,
+  );
+  const [x] = edge(0, LABEL_DZ);
+
+  return (
+    <g fontSize="12" textAnchor="end" dominantBaseline="middle">
+      {labels.map((label, i) => {
+        const center = centers[i] ?? 0;
+        const [markX, markY] = edge(label.level, label.markDz);
+        const top = center - ((heights[i] ?? 0) - LABEL_LINE) / 2;
+        return (
+          <g key={label.key}>
+            <path
+              d={`M${markX.toFixed(1)} ${markY.toFixed(1)}L${(x + 3).toFixed(1)} ${center.toFixed(1)}`}
+              style={{ stroke: label.fill }}
+              strokeOpacity=".6"
+              fill="none"
+            />
+            <text style={{ fill: label.fill }}>
+              {label.lines.map((line, row) => (
+                <tspan key={line} x={x.toFixed(1)} y={(top + row * LABEL_LINE).toFixed(1)}>
+                  {line}
+                </tspan>
+              ))}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 function Drop({ x, y, phase, fall }: { x: number; y: number; phase: number; fall: number }) {
   return (
     <g className="drop" style={{ '--k': phase, '--dy': `${fall}px` }}>
@@ -121,6 +181,14 @@ export function Vessel({ uncommitted, committed, deposited, unitEth, unitText }:
   const scaleMarks = scale(unitEth);
   const anyDeposit = deposited.eth > 0;
   const anyCommitted = committed.eth > 0;
+  const sideLabels: SideLabel[] = [];
+  if (anyCommitted) {
+    sideLabels.push(
+      { key: 'deposited', lines: [deposited.text], fill: '#C9D1DC', level: high, markDz: 16 },
+      { key: 'committed', lines: [committed.text, 'committed'], fill: '#8C98AA', level: (low + high) / 2, markDz: 11 },
+    );
+  }
+  if (anyDeposit) sideLabels.push({ key: 'uncommitted', lines: [uncommitted.text], fill: 'var(--teal)', level: low, markDz: 16 });
 
   return (
     <svg viewBox="-228 -305 430 515" role="img" aria-labelledby="vessel-title" focusable="false">
@@ -255,29 +323,15 @@ export function Vessel({ uncommitted, committed, deposited, unitEth, unitText }:
       </g>
 
       {anyDeposit && (
-        <>
-          <path d={`M${balanceMark[0].x} ${balanceMark[0].y}L${balanceMark[1].x} ${balanceMark[1].y}`} style={{ stroke: 'var(--teal)' }} strokeWidth="1.6" />
-          <g fontSize="12" textAnchor="end" dominantBaseline="middle">
-            <text {...marker(low, 22)} style={{ fill: 'var(--teal)' }}>
-              {uncommitted.text}
-            </text>
-          </g>
-        </>
+        <path d={`M${balanceMark[0].x} ${balanceMark[0].y}L${balanceMark[1].x} ${balanceMark[1].y}`} style={{ stroke: 'var(--teal)' }} strokeWidth="1.6" />
       )}
       {anyCommitted && (
         <>
           <path d={`M${depositMark[0].x} ${depositMark[0].y}L${depositMark[1].x} ${depositMark[1].y}`} stroke="#C9D1DC" strokeDasharray="3 3" />
           <path d={`M${bracket[0].x} ${bracket[0].y}L${bracket[1].x} ${bracket[1].y}`} stroke="#95A0B2" strokeOpacity=".7" />
-          <g fontSize="12" textAnchor="end" dominantBaseline="middle">
-            <text {...marker(high, 22)} fill="#C9D1DC">
-              {deposited.text}
-            </text>
-            <text {...marker((low + high) / 2, 22)} fill="#8C98AA">
-              {committed.text} committed
-            </text>
-          </g>
         </>
       )}
+      <SideLabels labels={sideLabels} />
 
       <path d="M0 -292V-186" stroke="#C9D1DC" strokeOpacity=".18" strokeDasharray="2 5" />
       <Drop x={0} y={-290} phase={0} fall={104} />
