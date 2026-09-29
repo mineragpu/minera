@@ -6,6 +6,9 @@ COPY apps/web/package.json apps/web/
 RUN npm ci --workspace @dayagpu/web --include-workspace-root=false
 COPY tsconfig.base.json ./
 COPY packages/shared packages/shared
+# The docs are rendered at build time, with contract parameters from the deploy config.
+COPY packages/contracts/deploy packages/contracts/deploy
+COPY docs/*.md docs/
 COPY apps/web apps/web
 # Vite inlines VITE_* values at build time, and the platform passes service
 # variables to a build only when they are declared here.
