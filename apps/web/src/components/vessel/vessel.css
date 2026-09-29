@@ -1,0 +1,106 @@
+.vessel svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 660px;
+  overflow: visible;
+}
+
+.vessel text {
+  font-family: var(--font-mono);
+}
+
+.drop {
+  opacity: 0;
+}
+
+/*
+ * At rest the vessel is full and still. `.play` restacks the slabs once, when it first comes
+ * into view; drops and the top sheen run while it is on screen.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .vessel.play .slab {
+    animation: slab-in 0.9s var(--ease-out) calc(var(--i) * 80ms) both;
+  }
+
+  .vessel.play .ghost {
+    animation: ghost-in 1s ease-out 1.1s both;
+  }
+
+  .vessel .drop {
+    animation: drop 3s var(--ease-drop) infinite;
+    animation-delay: calc(var(--k) * -1s);
+  }
+
+  .vessel .sheen {
+    animation: sheen 8s var(--ease-io) 2.2s infinite;
+  }
+
+  .vessel[data-idle] .drop,
+  .vessel[data-idle] .sheen {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop {
+    display: none;
+  }
+}
+
+@keyframes slab-in {
+  from {
+    transform: translateY(-70px);
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes ghost-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(var(--dy, 100px));
+    opacity: 0;
+  }
+}
+
+@keyframes sheen {
+  0% {
+    transform: translateX(0);
+  }
+
+  32%,
+  100% {
+    transform: translateX(420px);
+  }
+}
