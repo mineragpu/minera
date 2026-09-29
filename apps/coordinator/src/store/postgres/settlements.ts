@@ -91,11 +91,17 @@ export function postgresSettlements(db: Queryable): SettlementStore {
     },
 
     async markSent(id, txHash) {
-      await db`UPDATE settlements SET status = 'sent', tx_hash = ${txHash} WHERE id = ${id}`;
+      await db`
+        UPDATE settlements SET status = 'sent', tx_hash = ${txHash}
+        WHERE id = ${id} AND settlement_index IS NULL AND status = 'sending'
+      `;
     },
 
     async markFailed(id, error) {
-      await db`UPDATE settlements SET status = 'failed', error = ${error} WHERE id = ${id}`;
+      await db`
+        UPDATE settlements SET status = 'failed', error = ${error}
+        WHERE id = ${id} AND settlement_index IS NULL AND status IN ('sending', 'sent')
+      `;
     },
 
     async recordPublished(published) {

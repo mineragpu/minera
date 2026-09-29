@@ -275,9 +275,12 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       };
       await store.settlements.recordPublished(first);
       await store.settlements.recordPublished(first);
+      await store.settlements.markFailed(id, 'a late failure');
+      await store.settlements.markSent(id, hash(0x99));
       assert.equal((await store.settlements.recent(10)).length, 1);
       const published = await store.settlements.byIndex(1);
       assert.equal(published?.id, id);
+      assert.deepEqual([published?.txHash, published?.error], [hash(0x77), null]);
       assert.deepEqual(
         [published?.status, published?.total, published?.blockNumber, published?.inputs],
         ['published', 1_000n, 500n, '{"version":1}'],

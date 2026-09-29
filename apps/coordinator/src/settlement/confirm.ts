@@ -1,5 +1,6 @@
 import {
   parseEventLogs,
+  TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
   type TransactionReceipt,
@@ -9,7 +10,10 @@ import { burnPoolEvents } from '../chain/abi.ts';
 import type { ChainClient } from '../chain/client.ts';
 import type { PublishedSettlement } from '../store/records.ts';
 
-export type ReceiptReader = Pick<ChainClient, 'getTransactionReceipt' | 'waitForTransactionReceipt' | 'getBlock'>;
+export type ReceiptReader = Pick<
+  ChainClient,
+  'getTransaction' | 'getTransactionReceipt' | 'waitForTransactionReceipt' | 'getBlock'
+>;
 
 export type Confirmation =
   | { status: 'pending' }
@@ -25,6 +29,17 @@ async function receiptOf(client: ReceiptReader, hash: Hex, waitMs: number): Prom
     if (error instanceof TransactionReceiptNotFoundError || error instanceof WaitForTransactionReceiptTimeoutError) {
       return null;
     }
+    throw error;
+  }
+}
+
+/** Whether the RPC still knows a transaction, mined or waiting to be. */
+export async function isTransactionKnown(client: ReceiptReader, hash: Hex): Promise<boolean> {
+  try {
+    await client.getTransaction({ hash });
+    return true;
+  } catch (error) {
+    if (error instanceof TransactionNotFoundError) return false;
     throw error;
   }
 }

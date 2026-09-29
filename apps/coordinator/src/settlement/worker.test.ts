@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
-import { TransactionReceiptNotFoundError, type TransactionReceipt } from 'viem';
+import { TransactionNotFoundError, TransactionReceiptNotFoundError, type TransactionReceipt } from 'viem';
 import { releasable, type Address, type Hex } from '@dayagpu/shared';
 import { poolState, type PoolSnapshot } from '../chain/pool.ts';
 import { epochOf } from '../epoch.ts';
@@ -21,6 +21,7 @@ const PUBLISHER = '0x00000000000000000000000000000000000000e1' as Address;
 const OPERATOR = '0x00000000000000000000000000000000000000a1' as Address;
 const RIG = '0x00000000000000000000000000000000000000b1' as Address;
 const TX = `0x${'77'.repeat(32)}` as Hex;
+const RESENT_TX = `0x${'88'.repeat(32)}` as Hex;
 
 function snapshot(overrides: Partial<PoolSnapshot> = {}): PoolSnapshot {
   const base: PoolSnapshot = {
@@ -41,8 +42,12 @@ function snapshot(overrides: Partial<PoolSnapshot> = {}): PoolSnapshot {
   return { ...base, releasable: releasable(poolState(base), base.timestamp) };
 }
 
-/** A chain that mines whatever the publisher sends, emitting the event the pool would. */
-function fakeChain(sent: SettlementDraft[], mined: boolean): ReceiptReader {
+/**
+ * A chain that mines what the publisher sends and emits the event the pool would, or leaves it
+ * waiting, or has dropped it.
+ */
+function fakeChain(sent: SettlementDraft[], state: 'mined' | 'pending' | 'dropped'): ReceiptReader {
+  const mined = state === 'mined';
   const receipt = (): TransactionReceipt => {
     const draft = sent.at(-1);
     assert.ok(draft);
@@ -61,6 +66,10 @@ function fakeChain(sent: SettlementDraft[], mined: boolean): ReceiptReader {
   return {
     waitForTransactionReceipt: async () => (mined ? receipt() : missing()),
     getTransactionReceipt: async () => (mined ? receipt() : missing()),
+    getTransaction: async () => {
+      if (state === 'dropped') throw new TransactionNotFoundError({ hash: TX });
+      return {};
+    },
     getBlock: async () => ({ timestamp: CHAIN_NOW + 5n }),
   } as unknown as ReceiptReader;
 }
@@ -71,7 +80,7 @@ function publisher(sent: SettlementDraft[], address = PUBLISHER, fail = false): 
     send: async (draft) => {
       if (fail) throw new Error('execution reverted: SettlementPending(1)');
       sent.push(draft as SettlementDraft);
-      return TX;
+      return sent.length === 1 ? TX : RESENT_TX;
     },
   };
 }
@@ -83,7 +92,7 @@ function deps(overrides: Partial<SettlementWorkerDeps> = {}): SettlementWorkerDe
   return {
     store,
     readPool: async () => snapshot(),
-    client: fakeChain(sent, true),
+    client: fakeChain(sent, 'mined'),
     publisher: publisher(sent),
     now: () => NOW,
     epochSeconds: EPOCH_SECONDS,
@@ -144,9 +153,9 @@ describe('settleOnce', () => {
   });
 
   it('waits for an unconfirmed transaction before planning another', async () => {
-    const outcome = await settleOnce(deps({ client: fakeChain(sent, false) }));
+    const outcome = await settleOnce(deps({ client: fakeChain(sent, 'pending') }));
     assert.deepEqual(outcome, { kind: 'sent', txHash: TX });
-    const again = await settleOnce(deps({ client: fakeChain(sent, false) }));
+    const again = await settleOnce(deps({ client: fakeChain(sent, 'pending') }));
     assert.equal(again.kind, 'waiting');
     const confirmed = await settleOnce(deps());
     assert.deepEqual(confirmed, { kind: 'waiting', reason: 'settlement 1 was confirmed' });
@@ -157,6 +166,20 @@ describe('settleOnce', () => {
       reason: 'the chain read is behind settlement 1; waiting for it to catch up',
     });
     assert.equal(sent.length, 1);
+  });
+});
+
+describe('settleOnce after a dropped transaction', () => {
+  it('gives up on a transaction no RPC knows and publishes again', async () => {
+    assert.deepEqual(await settleOnce(deps({ client: fakeChain(sent, 'pending') })), { kind: 'sent', txHash: TX });
+    const soon = new Date(NOW.getTime() + 5 * 60_000);
+    const early = await settleOnce(deps({ client: fakeChain(sent, 'dropped'), now: () => soon }));
+    assert.equal(early.kind, 'waiting');
+
+    const later = new Date(NOW.getTime() + 16 * 60_000);
+    const outcome = await settleOnce(deps({ client: fakeChain(sent, 'dropped'), now: () => later }));
+    assert.deepEqual(outcome, { kind: 'sent', txHash: RESENT_TX });
+    assert.deepEqual((await store.settlements.open()).map((row) => row.txHash), [RESENT_TX]);
   });
 });
 

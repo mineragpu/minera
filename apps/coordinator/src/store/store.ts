@@ -93,7 +93,9 @@ export interface WorkStore {
 export interface SettlementStore {
   /** Store a settlement and its entitlements before its transaction is sent. */
   createDraft(draft: SettlementDraft): Promise<number>;
+  /** Only a draft still being sent changes. */
   markSent(id: number, txHash: Hex): Promise<void>;
+  /** Only an open draft changes, so a settlement already seen on-chain is never downgraded. */
   markFailed(id: number, error: string): Promise<void>;
   /**
    * Record a settlement seen on-chain: matched by index, then by root among unconfirmed drafts,

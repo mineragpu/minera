@@ -3,7 +3,7 @@ import type { PoolSnapshot } from '../chain/pool.ts';
 import { epochOf, epochStart } from '../epoch.ts';
 import { errorSummary } from '../log.ts';
 import type { Store } from '../store/store.ts';
-import { confirmPublish, type ReceiptReader } from './confirm.ts';
+import { confirmPublish, isTransactionKnown, type ReceiptReader } from './confirm.ts';
 import { epochRange, planSettlement, type BaseSettlement } from './plan.ts';
 import type { Publisher } from './publisher.ts';
 
@@ -28,6 +28,8 @@ export type SettleOutcome =
 
 /** A draft still without a transaction hash after this long was never sent. */
 const SENDING_GRACE_MS = 10 * 60_000;
+/** A sent transaction no RPC knows after this long was dropped and will not be mined. */
+const DROPPED_AFTER_MS = 15 * 60_000;
 const RECEIPT_WAIT_MS = 90_000;
 /** Settle a little after each epoch ends, so results verified at the boundary are included. */
 const EPOCH_GRACE_MS = 60_000;
@@ -40,6 +42,11 @@ async function reconcile(deps: SettlementWorkerDeps): Promise<SettleOutcome | nu
     if (draft.status === 'sent' && draft.txHash) {
       const confirmation = await confirmPublish(deps.client, deps.burnPool, draft.txHash);
       if (confirmation.status === 'pending') {
+        const age = deps.now().getTime() - draft.createdAt.getTime();
+        if (age >= DROPPED_AFTER_MS && !(await isTransactionKnown(deps.client, draft.txHash))) {
+          await store.settlements.markFailed(draft.id, 'the publish transaction was dropped before it was mined');
+          continue;
+        }
         return { kind: 'waiting', reason: `transaction ${draft.txHash} is not confirmed yet` };
       }
       if (confirmation.status === 'reverted') {

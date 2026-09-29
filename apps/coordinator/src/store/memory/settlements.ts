@@ -42,12 +42,14 @@ export function memorySettlements(box: StateBox): SettlementStore {
 
     async markSent(id, txHash) {
       const row = find(id);
+      if (row.index !== null || row.status !== 'sending') return;
       row.status = 'sent';
       row.txHash = txHash;
     },
 
     async markFailed(id, error) {
       const row = find(id);
+      if (row.index !== null || (row.status !== 'sending' && row.status !== 'sent')) return;
       row.status = 'failed';
       row.error = error;
     },
