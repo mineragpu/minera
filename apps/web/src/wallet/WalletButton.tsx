@@ -31,7 +31,7 @@ export function WalletButton() {
           <span className="wallet-button__label">
             <span className="sr-only">Wallet </span>
             {shortAddress(address)}
-          </span>
+          </span>{' '}
           <span className="wallet-button__badge">
             <NetworkBadge correct />
           </span>
