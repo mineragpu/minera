@@ -1,6 +1,7 @@
 import { LatticeBackground } from './components/LatticeBackground.tsx';
 import { SvgDefs } from './components/SvgDefs.tsx';
 import { Hero } from './sections/Hero.tsx';
+import { DeployPanel } from './sections/DeployPanel.tsx';
 import { Nav } from './sections/Nav.tsx';
 
 export function App() {
@@ -15,6 +16,7 @@ export function App() {
         <Nav />
         <main id="main">
           <Hero />
+          <DeployPanel />
         </main>
       </div>
     </>

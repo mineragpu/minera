@@ -1,0 +1,37 @@
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.kicker b {
+  font-weight: 600;
+  color: var(--bright);
+}
+
+.kicker i {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--iri-line);
+}
+
+.h2 {
+  margin-top: 18px;
+  font: 700 var(--step-3) / 1.04 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--silver);
+  max-width: 36em;
+  text-wrap: pretty;
+}

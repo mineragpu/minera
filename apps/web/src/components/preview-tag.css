@@ -1,0 +1,22 @@
+.pv {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px 4px;
+  border: 1px dashed var(--seam-dashed);
+  border-radius: var(--r-tag);
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.pv::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  flex: none;
+}
