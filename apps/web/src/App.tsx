@@ -4,6 +4,7 @@ import { Hero } from './sections/Hero.tsx';
 import { BurnPool } from './sections/BurnPool.tsx';
 import { Campaigns } from './sections/Campaigns.tsx';
 import { DeployPanel } from './sections/DeployPanel.tsx';
+import { Footer } from './sections/Footer.tsx';
 import { HowItWorks } from './sections/HowItWorks.tsx';
 import { Launchpad } from './sections/Launchpad.tsx';
 import { Nav } from './sections/Nav.tsx';
@@ -26,6 +27,7 @@ export function App() {
           <HowItWorks />
           <Campaigns />
         </main>
+        <Footer />
       </div>
     </>
   );

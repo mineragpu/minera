@@ -1,0 +1,72 @@
+.foot {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--section-y);
+  padding-block: 44px 52px;
+  border-top: 1px solid var(--seam);
+}
+
+.foot__inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 26px 48px;
+  align-items: center;
+}
+
+.foot nav {
+  justify-self: end;
+}
+
+.foot nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  list-style: none;
+}
+
+.foot nav a {
+  display: inline-block;
+  padding: 6px 0;
+  font-size: var(--step--1);
+  color: var(--silver);
+  text-decoration: none;
+  border-radius: var(--r-tag);
+}
+
+.foot nav a:hover {
+  color: var(--bright);
+}
+
+.foot__note {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding-top: 22px;
+  border-top: 1px solid var(--seam);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.foot__note .brand-story {
+  color: var(--silver);
+}
+
+.foot__note .copy {
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .foot__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .foot nav {
+    justify-self: start;
+  }
+
+  .foot__note .copy {
+    margin-left: 0;
+  }
+}
