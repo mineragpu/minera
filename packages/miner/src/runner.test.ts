@@ -67,6 +67,16 @@ describe('createJobRunner', () => {
     );
   });
 
+  it('accepts a deadline that is not a whole number of seconds', async () => {
+    await withRuntime(
+      () => ({ json: reply }),
+      async (server) => {
+        const result = await createJobRunner(server.url)({ ...job, deadlineSeconds: 57.3219 }, new AbortController().signal);
+        assert.equal(result.output, 'Paris');
+      },
+    );
+  });
+
   it('reports zero counts and a measured duration when the runtime omits them', async () => {
     await withRuntime(
       () => ({ json: { message: { role: 'assistant', content: '' } } }),

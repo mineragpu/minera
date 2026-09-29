@@ -25,7 +25,8 @@ const MIN_BUDGET_MS = 1_000;
 
 export function createJobRunner(runtimeUrl: string): JobRunner {
   return async (job, stop) => {
-    const budget = AbortSignal.timeout(Math.max(MIN_BUDGET_MS, job.deadlineSeconds * 1000 - UPLOAD_MARGIN_MS));
+    const budgetMs = Math.max(MIN_BUDGET_MS, Math.floor(job.deadlineSeconds * 1000) - UPLOAD_MARGIN_MS);
+    const budget = AbortSignal.timeout(budgetMs);
     const request = {
       model: job.model,
       messages: job.messages,
