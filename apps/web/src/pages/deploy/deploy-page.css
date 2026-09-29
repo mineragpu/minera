@@ -86,16 +86,6 @@
   gap: 18px;
 }
 
-.eligibility {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-left: 2px solid var(--gold);
-  background: var(--state-draft-bg);
-  font-size: var(--step--1);
-  line-height: 1.45;
-  color: var(--state-draft);
-}
-
 /* Send panel */
 .send-panel {
   position: sticky;

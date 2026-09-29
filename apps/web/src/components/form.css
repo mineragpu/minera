@@ -93,3 +93,14 @@ textarea.input {
   font: 500 0.95em / 1 var(--font-mono);
   color: var(--bright);
 }
+
+/* An eligibility or risk note that sits with a choice. */
+.eligibility {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--gold);
+  background: var(--state-draft-bg);
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--state-draft);
+}
