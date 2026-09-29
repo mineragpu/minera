@@ -6,7 +6,7 @@ import type { ChainClient } from './client.ts';
 import { toChainEvent, type ChainEvent } from './events.ts';
 
 /** Blocks per log request, small enough for public endpoints' range limits. */
-export const LOG_RANGE = 5_000n;
+const LOG_RANGE = 5_000n;
 
 export type ChainReader = Pick<ChainClient, 'getBlockNumber' | 'getBlock' | 'getLogs'>;
 

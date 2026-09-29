@@ -14,7 +14,7 @@ import {
 
 const RECENT = 20;
 
-export interface PoolState extends PoolSummary {
+interface PoolState extends PoolSummary {
   releaseBpsPerDay: string;
   challengeDelaySeconds: string;
   deployedAt: string;
@@ -24,7 +24,7 @@ export interface PoolState extends PoolSummary {
   pending: { index: number; claimableAt: string } | null;
 }
 
-export interface PoolView {
+interface PoolResponse {
   state: PoolState | null;
   campaign: CampaignView | null;
   burns: BurnSummary[];
@@ -34,7 +34,7 @@ export interface PoolView {
 export function registerPoolRoute(app: FastifyInstance, context: RouteContext): void {
   const { store, pool } = context;
 
-  app.get('/v1/pool', async (): Promise<PoolView> => {
+  app.get('/v1/pool', async (): Promise<PoolResponse> => {
     const [burns, settlements, campaign] = await Promise.all([
       store.chain.recentBurns(RECENT),
       store.settlements.recent(RECENT),

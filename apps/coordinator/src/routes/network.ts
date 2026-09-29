@@ -6,7 +6,7 @@ import { campaignView, poolSummary, WORK_RULES, type CampaignView, type PoolSumm
 
 const DAY_MS = 86_400_000;
 
-export interface NetworkView {
+interface NetworkView {
   network: string;
   chainId: number;
   rigs: { online: number; total: number };

@@ -37,7 +37,7 @@ const BURN_POOL_ERRORS = [
   'error TotalAboveRelease(uint256 releasable, uint256 total)',
 ] as const;
 
-export const rigRegistryEvents = parseAbi(RIG_REGISTRY_EVENTS);
+const rigRegistryEvents = parseAbi(RIG_REGISTRY_EVENTS);
 export const burnPoolEvents = parseAbi(BURN_POOL_EVENTS);
 export const burnPoolAbi = parseAbi([...BURN_POOL_EVENTS, ...BURN_POOL_FUNCTIONS, ...BURN_POOL_ERRORS]);
 

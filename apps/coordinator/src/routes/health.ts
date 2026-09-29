@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import packageJson from '../../package.json' with { type: 'json' };
 import type { RouteContext } from './context.ts';
 
-export interface Health {
+interface Health {
   status: 'ok';
   version: string;
   network: string;

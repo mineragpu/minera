@@ -5,7 +5,7 @@ import type { RouteContext } from './context.ts';
 import { iso } from './format.ts';
 import { addressSchema, parse } from './validate.ts';
 
-export interface ClaimView {
+interface ClaimView {
   account: Address;
   /** Cumulative entitlement in the newest claimable settlement, in wei. */
   cumulative: string;

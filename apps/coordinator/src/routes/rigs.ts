@@ -18,7 +18,7 @@ const listQuery = z.object({
   offset: z.coerce.number().int().min(0).max(100_000).default(0),
 });
 
-export interface RigBoard {
+interface RigBoard {
   total: number;
   limit: number;
   offset: number;
@@ -26,7 +26,7 @@ export interface RigBoard {
   rigs: RigSummary[];
 }
 
-export interface RigDetail extends RigSummary {
+interface RigDetail extends RigSummary {
   retired: boolean;
   retiredAt: string | null;
   deployedBlock: string;

@@ -19,7 +19,7 @@ export function unixIso(seconds: bigint): string {
 }
 
 /** A burn memo as text when it holds printable text, otherwise `null`. */
-export function memoText(memo: Hex): string | null {
+function memoText(memo: Hex): string | null {
   const bytes = Buffer.from(memo.slice(2), 'hex');
   let end = bytes.length;
   while (end > 0 && bytes[end - 1] === 0) end -= 1;

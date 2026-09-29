@@ -7,9 +7,9 @@ import { ApiError } from './errors.ts';
 import { iso, WORK_RULES } from './format.ts';
 import { jobIdSchema, parse } from './validate.ts';
 
-export const MAX_PROMPT_CHARS = 2_000;
+const MAX_PROMPT_CHARS = 2_000;
 /** Prompts per visitor address. The queue itself is capped too, whatever the number of addresses. */
-export const PLAYGROUND_RATE_LIMIT = { max: 5, timeWindow: '1 minute' } as const;
+const PLAYGROUND_RATE_LIMIT = { max: 5, timeWindow: '1 minute' } as const;
 
 const promptSchema = z.object({
   prompt: z
@@ -19,7 +19,7 @@ const promptSchema = z.object({
     .max(MAX_PROMPT_CHARS, `Keep the prompt to ${MAX_PROMPT_CHARS} characters or fewer.`),
 });
 
-export interface PlaygroundJobView extends Omit<PlaygroundView, 'createdAt' | 'finishedAt'> {
+interface PlaygroundJobView extends Omit<PlaygroundView, 'createdAt' | 'finishedAt'> {
   createdAt: string;
   finishedAt: string | null;
   rule: string;

@@ -8,7 +8,7 @@ export interface ErrorDetail {
 }
 
 /** Every error response has this shape. */
-export interface ErrorBody {
+interface ErrorBody {
   error: { code: string; message: string; details?: ErrorDetail[] };
 }
 

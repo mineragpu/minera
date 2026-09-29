@@ -12,7 +12,7 @@ const HOW_TO_VERIFY =
   'cumulative))) and pairs are hashed sorted. `inputsDigest`, published on-chain with the root, is keccak256 of ' +
   'the UTF-8 bytes of `inputsJson`, which lists the budget, the verified work per rig and every allocation.';
 
-export interface SettlementDetail extends SettlementSummary {
+interface SettlementDetail extends SettlementSummary {
   inputsDigest: Hex | null;
   /** The inputs document byte for byte as hashed; `null` for a settlement this service did not build. */
   inputsJson: string | null;
