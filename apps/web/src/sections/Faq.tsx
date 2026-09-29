@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { BRAND } from '@dayagpu/shared';
 import { Kicker } from '../components/Kicker.tsx';
+import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';
 import './faq.css';
 
@@ -151,6 +152,11 @@ export function Faq({ index }: { index: string }) {
             Questions, answered plainly.
           </h2>
           <p className="lede">If an answer here and the contracts ever disagree, the contracts are right.</p>
+          <p className="faq__more">
+            <a className="text-link" href={docPath('faq')}>
+              More answers in the docs
+            </a>
+          </p>
         </div>
         <div className="faq__list">
           {QUESTIONS.map(({ question, answer }) => (

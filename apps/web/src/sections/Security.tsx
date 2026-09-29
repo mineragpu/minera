@@ -3,6 +3,7 @@ import { fetchPool } from '../api/coordinator.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { docPath } from '../pages/docs/manifest.ts';
 import './security.css';
 
 const REFRESH_MS = 120_000;
@@ -140,7 +141,10 @@ export function Security({ index }: { index: string }) {
 
       <p className="trust__audit">
         <b>Not audited yet</b> The contracts have not had an external audit. Their source is verified against the
-        deployed code.
+        deployed code.{' '}
+        <a className="text-link" href={docPath('security')}>
+          Read the security notes
+        </a>
       </p>
     </section>
   );

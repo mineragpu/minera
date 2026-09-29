@@ -6,6 +6,7 @@ import { StatusTag, type StatusTone } from '../components/StatusTag.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
 import { useSheenFollow } from '../motion/useSheenFollow.ts';
+import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';
 import './ways-in.css';
 
@@ -31,7 +32,7 @@ const WAYS: readonly Way[] = [
     status: `Live on ${NETWORK}`,
     color: 'var(--teal)',
     action: { label: 'Deploy a GPU', href: PATHS.deploy },
-    more: { label: 'How it works', href: sectionPath('how-it-works') },
+    more: { label: 'Read the quickstart', href: docPath('quickstart') },
   },
   {
     audience: 'Anyone',
