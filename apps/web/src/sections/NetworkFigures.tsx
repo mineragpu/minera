@@ -29,11 +29,11 @@ export function NetworkFigures({ style }: { style: CSSProperties }) {
           <dd>{data ? `${formatCount(data.rigs.online)} of ${formatCount(data.rigs.total)}` : skeleton}</dd>
         </div>
         <div>
-          <dt>Verified work, 24 h</dt>
+          <dt>Verified, 24 h</dt>
           <dd>{data ? `${formatCount(data.last24h.verifiedUnits)} units` : skeleton}</dd>
         </div>
         <div>
-          <dt>Burned into the pool</dt>
+          <dt>Burned in</dt>
           <dd>{data ? (data.pool ? `${formatAmount(data.pool.totalBurned)} ETH` : 'Not read yet') : skeleton}</dd>
         </div>
       </dl>
