@@ -7,6 +7,11 @@ import { toChainEvent, type ChainEvent } from './events.ts';
 
 /** Blocks per log request, small enough for public endpoints' range limits. */
 const LOG_RANGE = 5_000n;
+/**
+ * Blocks left unread behind the head, so a short sequencer reorg cannot leave events that never
+ * happened. The chain makes several blocks a second, so this costs a couple of seconds.
+ */
+const CONFIRMATIONS = 10n;
 
 export type ChainReader = Pick<ChainClient, 'getBlockNumber' | 'getBlock' | 'getLogs'>;
 
@@ -21,7 +26,7 @@ export interface IndexedRange {
   from: bigint;
   to: bigint;
   events: number;
-  /** Whether the cursor reached the head the range was planned against. */
+  /** Whether the cursor reached the confirmed head the range was planned against. */
   caughtUp: boolean;
 }
 
@@ -42,12 +47,12 @@ async function blockTimes(client: ChainReader, blockNumbers: Iterable<bigint>): 
 export async function indexNextRange(deps: IndexerDeps): Promise<IndexedRange | null> {
   const { client, store, deployment } = deps;
   const range = deps.range ?? LOG_RANGE;
-  const head = await client.getBlockNumber({ cacheTime: 0 });
+  const confirmed = (await client.getBlockNumber({ cacheTime: 0 })) - CONFIRMATIONS;
   const cursor = (await store.chain.cursor()) ?? BigInt(deployment.startBlock) - 1n;
-  if (cursor >= head) return null;
+  if (cursor >= confirmed) return null;
 
   const from = cursor + 1n;
-  const to = cursor + range < head ? cursor + range : head;
+  const to = cursor + range < confirmed ? cursor + range : confirmed;
   const logs = await client.getLogs({
     address: [deployment.rigRegistry, deployment.burnPool],
     events: indexedEvents,
@@ -67,5 +72,5 @@ export async function indexNextRange(deps: IndexerDeps): Promise<IndexedRange | 
   }
 
   await applyChainEvents(store, events, to);
-  return { from, to, events: events.length, caughtUp: to === head };
+  return { from, to, events: events.length, caughtUp: to === confirmed };
 }

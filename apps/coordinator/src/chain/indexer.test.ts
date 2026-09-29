@@ -35,9 +35,9 @@ function fakeChain(head: bigint, logs: Log[]): ChainReader & { requests: [bigint
 }
 
 describe('indexNextRange', () => {
-  it('reads bounded ranges from the start block and applies registry and pool events', async () => {
+  it('reads bounded ranges from the start block to a confirmed head and applies events', async () => {
     const store = createMemoryStore();
-    const chain = fakeChain(START + 25n, [
+    const chain = fakeChain(START + 35n, [
       encodeLog(
         deployment.rigRegistry,
         'RigDeployed',
