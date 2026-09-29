@@ -1,0 +1,230 @@
+.verdicts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.verdict {
+  --tone: var(--state-open);
+  --tone-bg: var(--state-open-bg);
+  --tone-edge: var(--state-open-edge);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(20px, 2.4vw, 28px);
+  background: var(--brushed), var(--metal);
+  border: 1px solid var(--seam);
+}
+
+.verdict::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: -1px;
+  height: 2px;
+  background: var(--tone);
+  opacity: 0.8;
+}
+
+.verdict--gates {
+  --tone: var(--state-draft);
+  --tone-bg: var(--state-draft-bg);
+  --tone-edge: var(--state-draft-edge);
+}
+
+.verdict--none {
+  --tone: var(--state-none);
+  --tone-bg: var(--state-none-bg);
+  --tone-edge: var(--state-none-edge);
+  background: rgba(15, 19, 27, 0.55);
+  border-style: dashed;
+  border-color: var(--seam-2);
+}
+
+.verdict__tag {
+  align-self: start;
+  padding: 6px 9px 5px;
+  border-radius: var(--r-tag);
+  background: var(--tone-bg);
+  box-shadow: inset 0 0 0 1px var(--tone-edge);
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tone);
+}
+
+.verdict__title {
+  margin: 4px 0 0;
+  font: 700 var(--step-2) / 1.12 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.verdict__body {
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--silver);
+}
+
+.verdict__list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--silver);
+}
+
+.verdict__list li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.verdict__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 9px;
+  height: 1.5px;
+  background: var(--state-none);
+}
+
+.verdict__list b {
+  font-weight: 600;
+  color: var(--bright);
+}
+
+/* Two rigs from different operators feed one comparison. */
+.xcheck {
+  display: grid;
+  grid-template-columns: auto 22px auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  justify-content: start;
+  column-gap: 0;
+  row-gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.xcheck__rig {
+  grid-column: 1;
+  padding: 7px 10px 6px;
+  border: 1px solid var(--seam-2);
+  background: var(--well);
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--silver);
+  white-space: nowrap;
+}
+
+.xcheck__join {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  margin: 13px 0;
+  border: 1px solid var(--teal);
+  border-left: 0;
+}
+
+.xcheck__out {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  position: relative;
+  margin-left: 12px;
+  padding: 7px 10px 6px;
+  border-radius: var(--r-tag);
+  background: var(--state-open-bg);
+  box-shadow: inset 0 0 0 1px var(--state-open-edge);
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--state-open);
+  white-space: nowrap;
+}
+
+.xcheck__out::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: var(--teal);
+}
+
+/* A known-answer check, as an example */
+.kcheck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: auto;
+  border: 1px solid var(--seam-2);
+  background: var(--well);
+}
+
+.kcheck > div {
+  padding: 10px 12px;
+}
+
+.kcheck > div + div {
+  border-left: 1px solid var(--seam-2);
+}
+
+.kcheck dt {
+  font: 500 var(--step--2) / 1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kcheck dd {
+  margin-top: 6px;
+  font: 500 var(--step--1) / 1.3 var(--font-mono);
+  color: var(--bright);
+}
+
+.kcheck > div + div dd {
+  color: var(--state-draft);
+}
+
+/* The coordinator's rules, quoted */
+.rules-quote {
+  margin-top: 16px;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--seam);
+  background: var(--readout-well);
+}
+
+.rules-quote blockquote {
+  margin: 0;
+  padding-left: 20px;
+  border-left: 2px solid var(--violet);
+  border-image: linear-gradient(180deg, #2ee6c8, #8c6bff 55%, #ff4fa3) 1;
+  display: grid;
+  gap: 10px;
+  max-width: 62em;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  color: var(--bright);
+}
+
+.rules-quote figcaption {
+  margin-top: 16px;
+  font: 400 var(--step--2) / 1.4 var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.rules-quote-error {
+  margin-top: 16px;
+}
+
+@media (max-width: 1100px) {
+  .verdicts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

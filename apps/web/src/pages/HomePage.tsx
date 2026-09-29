@@ -9,6 +9,7 @@ import { Launchpad } from '../sections/Launchpad.tsx';
 import { PairWith } from '../sections/PairWith.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 import { Story } from '../sections/Story.tsx';
+import { VerifiedWork } from '../sections/VerifiedWork.tsx';
 import { WhatsLive } from '../sections/WhatsLive.tsx';
 
 /** The numbered sections under the hero, in reading order; each kicker shows its position. */
@@ -19,6 +20,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   DeployPanel,
   PairWith,
   BurnPool,
+  VerifiedWork,
   Launchpad,
   PlaygroundSection,
   Campaigns,
