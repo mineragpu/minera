@@ -78,6 +78,7 @@ Values that decide payment are never taken from the request. The coordinator mea
 
 | Status | Code | Meaning |
 |---|---|---|
+| 400 | `invalid_request` | The body failed validation, for example an unsupported protocol version. |
 | 401 | `missing_header` | A signing header is missing. |
 | 401 | `malformed_header` | A signing header has the wrong format. |
 | 401 | `stale_request` | The timestamp is more than {{protocol.skewSeconds}} seconds away from the coordinator's clock. |
