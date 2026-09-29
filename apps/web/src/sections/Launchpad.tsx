@@ -51,7 +51,7 @@ function EmptyBoard() {
   );
 }
 
-export function Launchpad() {
+export function Launchpad({ index }: { index: string }) {
   const [filter, setFilter] = useState<Filter>('all');
   const [announcement, setAnnouncement] = useState('');
   const board = usePoll(fetchRigs, { key: 'rigs', intervalMs: REFRESH_MS });
@@ -98,7 +98,7 @@ export function Launchpad() {
     <section className="section shell" id="launchpad" aria-labelledby="board-title">
       <div className="board__head">
         <div>
-          <Kicker index="03">Launchpad</Kicker>
+          <Kicker index={index}>Launchpad</Kicker>
           <h2 className="h2" id="board-title">
             Rigs on the board.
           </h2>

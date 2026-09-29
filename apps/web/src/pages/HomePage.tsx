@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import { useDocumentTitle } from '../router/useDocumentTitle.ts';
 import { BurnPool } from '../sections/BurnPool.tsx';
 import { Campaigns } from '../sections/Campaigns.tsx';
@@ -7,17 +8,24 @@ import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 
+/** The numbered sections under the hero, in reading order; each kicker shows its position. */
+const SECTIONS: readonly ComponentType<{ index: string }>[] = [
+  HowItWorks,
+  DeployPanel,
+  BurnPool,
+  Launchpad,
+  PlaygroundSection,
+  Campaigns,
+];
+
 export function HomePage() {
   useDocumentTitle(null);
   return (
     <>
       <Hero />
-      <DeployPanel />
-      <BurnPool />
-      <Launchpad />
-      <PlaygroundSection />
-      <HowItWorks />
-      <Campaigns />
+      {SECTIONS.map((Section, position) => (
+        <Section key={position} index={String(position + 1).padStart(2, '0')} />
+      ))}
     </>
   );
 }

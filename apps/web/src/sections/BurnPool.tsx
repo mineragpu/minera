@@ -42,7 +42,7 @@ function level(value: bigint) {
   return { eth: toFloat(value), text: formatAmount(value) };
 }
 
-export function BurnPool() {
+export function BurnPool({ index }: { index: string }) {
   const vesselRef = useRef<HTMLElement>(null);
   const { playing, onScreen } = useVesselFill(vesselRef);
   const pool = usePoll(fetchPool, { key: 'pool', intervalMs: REFRESH_MS });
@@ -57,7 +57,7 @@ export function BurnPool() {
     <section className="section shell" id="burn-pool" aria-labelledby="pool-title">
       <div className="pool">
         <div className="pool__head">
-          <Kicker index="02">Burn Pool</Kicker>
+          <Kicker index={index}>Burn Pool</Kicker>
           <h2 className="h2" id="pool-title">
             A pool that only fills.
           </h2>

@@ -6,12 +6,12 @@ import './campaigns.css';
 
 const LATER_CAMPAIGNS = ['02', '03'] as const;
 
-export function Campaigns() {
+export function Campaigns({ index }: { index: string }) {
   return (
     <section className="section shell" id="campaigns" aria-labelledby="camp-title">
       <div className="split-head">
         <div>
-          <Kicker index="06">Campaigns</Kicker>
+          <Kicker index={index}>Campaigns</Kicker>
           <h2 className="h2" id="camp-title">
             Each campaign sets the share.
           </h2>

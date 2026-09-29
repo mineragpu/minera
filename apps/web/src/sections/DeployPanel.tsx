@@ -16,12 +16,12 @@ const STEPS: readonly { title: string; detail: string }[] = [
   { title: 'Send one transaction', detail: 'The registry records the rig. You pay only the network fee.' },
 ];
 
-export function DeployPanel() {
+export function DeployPanel({ index }: { index: string }) {
   return (
     <section className="section shell" id="deploy" aria-labelledby="deploy-title">
       <div className="deploy">
         <div className="deploy__copy">
-          <Kicker index="01">Deploy</Kicker>
+          <Kicker index={index}>Deploy</Kicker>
           <h2 className="h2" id="deploy-title">
             Name&nbsp;it. Pair&nbsp;it. Deploy&nbsp;it.
           </h2>

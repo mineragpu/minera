@@ -32,12 +32,12 @@ const STEPS: readonly Step[] = [
   },
 ];
 
-export function HowItWorks() {
+export function HowItWorks({ index }: { index: string }) {
   return (
     <section className="section shell" id="how-it-works" aria-labelledby="how-title">
       <div className="split-head">
         <div>
-          <Kicker index="05">How it works</Kicker>
+          <Kicker index={index}>How it works</Kicker>
           <h2 className="h2" id="how-title">
             Four steps, in order.
           </h2>

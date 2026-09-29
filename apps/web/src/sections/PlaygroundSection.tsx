@@ -1,12 +1,12 @@
 import { Kicker } from '../components/Kicker.tsx';
 import { Playground } from '../playground/Playground.tsx';
 
-export function PlaygroundSection() {
+export function PlaygroundSection({ index }: { index: string }) {
   return (
     <section className="section shell" id="playground" aria-labelledby="playground-title">
       <div className="split-head">
         <div>
-          <Kicker index="04">Playground</Kicker>
+          <Kicker index={index}>Playground</Kicker>
           <h2 className="h2" id="playground-title">
             Ask the network.
           </h2>
