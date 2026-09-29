@@ -22,7 +22,7 @@ and mine from a pool that only fills.
 | | |
 |---|---|
 | **Deploy** | Register a GPU the way a token gets launched. Name the rig, run one command, and the node detects and benchmarks the card. |
-| **Pair with** | Choose the asset your rig is paid in: ETH, or a tokenized stock listed on the network. You can change the pair for the next block. |
+| **Pair with** | Choose the asset your rig's claims default to: ETH, or a tokenized stock listed on the network. The pair zap converts the ETH as you claim, and claiming in ETH always works. The operator can change the pair on the registry. |
 | **Mine** | Rigs earn by doing verified GPU work. Wall-clock uptime alone earns nothing. |
 | **Burn Pool** | Rewards come from a pool with no withdraw function. What goes in can only leave as mining rewards. |
 | **Campaigns** | Each campaign announces the share that is burned into the pool, and when. |
@@ -36,7 +36,7 @@ flowchart LR
     R2[Rig · paired with a stock token] -- verified work --> C
     C -- block root --> P
     P -- claim in ETH --> R1
-    P -- claim, swapped to the pair --> R2
+    P -- claim in the pair, or in ETH --> R2
 ```
 
 1. **Deploy.** A rig registers with a signed node key and its chosen pair.
@@ -44,8 +44,9 @@ flowchart LR
    rig.
 3. **Settle.** Each block, the coordinator publishes a cumulative Merkle root and the full claim
    table. A root becomes claimable only after a challenge delay.
-4. **Claim.** A miner claims from the Burn Pool. ETH is paid directly. Any other pair is swapped
-   on the way out and delivered in that asset.
+4. **Claim.** The operator wallet claims from the Burn Pool. The claim page defaults to the rigs'
+   pair: a stock token is bought with the ETH through the pair zap as the claim is paid. Claiming
+   in ETH always works, and the contracts do not enforce the pair.
 
 ## The Burn Pool
 
@@ -80,7 +81,7 @@ ops/              deployment configuration
 |---|---|---|
 | 0 · Identity | Brand, design system, site | In progress |
 | 1 · Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | In progress: contracts live |
-| 2 · Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in ETH or a tokenized stock | Planned |
+| 2 · Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in the rigs' pair or in ETH | Planned |
 
 ## Testnet contracts
 
