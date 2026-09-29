@@ -33,11 +33,4 @@
 
 .tx__link {
   justify-self: start;
-  color: var(--bright);
-  text-underline-offset: 3px;
-  border-radius: var(--r-tag);
-}
-
-.tx__link:hover {
-  color: var(--teal);
 }

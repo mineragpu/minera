@@ -48,67 +48,6 @@
   line-height: 1.5;
 }
 
-/* Panel: brushed metal with a chamfered corner and a lit bevel line */
-.panel {
-  position: relative;
-  padding: clamp(20px, 3vw, 36px);
-  background: var(--brushed), var(--metal);
-  border: 1px solid var(--seam);
-  clip-path: polygon(0 0, calc(100% - var(--chamfer-panel)) 0, 100% var(--chamfer-panel), 100% 100%, 0 100%);
-}
-
-.panel::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: var(--chamfer-panel);
-  height: 1px;
-  background: var(--iri-line);
-  opacity: 0.9;
-}
-
-.panel::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: calc(100% - var(--chamfer-panel));
-  width: calc(var(--chamfer-panel) * 1.4142);
-  height: 1.5px;
-  background: var(--iri-line);
-  transform-origin: 0 0;
-  transform: rotate(45deg);
-}
-
-.panel__head {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px 12px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--seam);
-}
-
-.panel__title {
-  font: 700 var(--step-2) / 1.1 var(--font-display);
-  color: var(--bright);
-}
-
-.panel__head .pv {
-  margin-left: auto;
-}
-
-.status {
-  padding: 5px 8px 4px;
-  border-radius: var(--r-tag);
-  background: var(--state-draft-bg);
-  box-shadow: inset 0 0 0 1px var(--state-draft-edge);
-  font: 500 var(--step--2) / 1 var(--font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--state-draft);
-}
-
 /* Detected hardware readout */
 .hw {
   position: relative;
@@ -177,59 +116,6 @@
   display: grid;
   gap: 22px;
   margin-top: 24px;
-}
-
-.field {
-  display: grid;
-  gap: 9px;
-  min-width: 0;
-}
-
-.fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.fieldset legend {
-  margin-bottom: 10px;
-}
-
-.flabel {
-  display: block;
-  padding: 0;
-  font: 500 var(--step--2) / 1.2 var(--font-mono);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.hint {
-  font-size: var(--step--1);
-  line-height: 1.45;
-  color: var(--muted);
-}
-
-.fieldset .hint {
-  margin-top: 10px;
-}
-
-.input {
-  width: 100%;
-  min-height: 50px;
-  padding: 0 14px;
-  border: 1px solid var(--seam-2);
-  border-radius: var(--r-input);
-  background: var(--field);
-  color: var(--bright);
-  font: 500 var(--step-0) / 1.2 var(--font-body);
-  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.45);
-  transition: border-color 0.2s;
-}
-
-.input:hover {
-  border-color: var(--seam-hover);
 }
 
 .affix {

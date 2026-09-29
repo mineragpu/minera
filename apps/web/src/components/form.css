@@ -1,0 +1,95 @@
+/* Form fields, shared by every page that takes input. */
+.field {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.fieldset legend {
+  margin-bottom: 10px;
+}
+
+.flabel {
+  display: block;
+  padding: 0;
+  font: 500 var(--step--2) / 1.2 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.fieldset .hint {
+  margin-top: 10px;
+}
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--seam-2);
+  border-radius: var(--r-input);
+  background: var(--field);
+  color: var(--bright);
+  font: 500 var(--step-0) / 1.2 var(--font-body);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.45);
+  transition: border-color 0.2s;
+}
+
+.input:hover {
+  border-color: var(--seam-hover);
+}
+
+.input:disabled {
+  border-color: var(--seam);
+  color: var(--silver);
+  cursor: not-allowed;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--state-none-edge);
+}
+
+textarea.input {
+  min-height: 104px;
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.input--mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  overflow-wrap: anywhere;
+}
+
+.field-status {
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--silver);
+}
+
+.field-status--error {
+  color: var(--state-none);
+}
+
+.field-status--ok {
+  color: var(--state-open);
+}
+
+.field-status code {
+  font: 500 0.95em / 1 var(--font-mono);
+  color: var(--bright);
+}

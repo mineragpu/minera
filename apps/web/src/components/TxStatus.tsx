@@ -13,7 +13,7 @@ interface TxStatusProps {
 
 function ExplorerLink({ hash }: { hash: Hex }) {
   return (
-    <a className="tx__link" href={txUrl(hash)} target="_blank" rel="noreferrer">
+    <a className="text-link tx__link" href={txUrl(hash)} target="_blank" rel="noreferrer">
       View the transaction on the explorer
     </a>
   );

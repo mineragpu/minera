@@ -2,6 +2,8 @@ import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { Ticker } from '../components/Ticker.tsx';
 import { DeployForm } from './DeployForm.tsx';
+import '../components/form.css';
+import '../components/panel.css';
 import './deploy.css';
 
 export function DeployPanel() {
