@@ -37,7 +37,7 @@ export class ConfigError extends Error {
   override name = 'ConfigError';
 }
 
-const httpUrl = z.httpUrl();
+const httpUrl = z.url({ protocol: /^https?$/ });
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65_535).default(8080),

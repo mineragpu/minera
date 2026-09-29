@@ -26,11 +26,11 @@ describe('loadConfig', () => {
     const config = loadConfig({
       DATABASE_URL,
       RPC_URL: 'https://a.example, https://b.example',
-      CORS_ORIGINS: 'https://site.example,,',
+      CORS_ORIGINS: 'https://site.example,,http://localhost:5173',
       PORT: '',
     });
     assert.deepEqual(config.rpcUrls, ['https://a.example', 'https://b.example']);
-    assert.deepEqual(config.corsOrigins, ['https://site.example']);
+    assert.deepEqual(config.corsOrigins, ['https://site.example', 'http://localhost:5173']);
     assert.equal(config.port, 8080);
   });
 
