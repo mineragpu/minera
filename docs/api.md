@@ -114,6 +114,7 @@ The launchpad board. Retired rigs are left out.
 |---|---|---|
 | `sort` | `new` (newest first), `top` (most lifetime verified units), `epoch` (most verified units this epoch) | `new` |
 | `pair` | `eth`, or a token address | all pairs |
+| `operator` | an operator wallet address | all operators |
 | `limit` | 1 to 100 | 50 |
 | `offset` | 0 to 100,000 | 0 |
 
@@ -140,7 +141,10 @@ The launchpad board. Retired rigs are left out.
 }
 ```
 
-`pair` is the zero address for ETH.
+- `pair` is the zero address for ETH.
+- `operator` returns only the rigs that wallet operates. The [Claim page](/claim) uses it to
+  default a claim to the asset those rigs pair with. An address that operates no live rig gets
+  `total` 0 and an empty list.
 
 ## GET /v1/rigs/:nodeKey
 
