@@ -15,6 +15,8 @@ interface NetworkView {
   pool: PoolSummary | null;
   campaign: CampaignView | null;
   epoch: { index: number; seconds: number; startedAt: string; endsAt: string };
+  /** The model open jobs run on, so operators know which one to load before starting a rig. */
+  jobs: { model: string; maxTokens: number };
   rules: typeof WORK_RULES;
 }
 
@@ -45,6 +47,7 @@ export function registerNetworkRoute(app: FastifyInstance, context: RouteContext
         startedAt: epochStart(epoch, config.epochSeconds).toISOString(),
         endsAt: epochStart(epoch + 1, config.epochSeconds).toISOString(),
       },
+      jobs: { model: config.playground.model, maxTokens: config.playground.maxTokens },
       rules: WORK_RULES,
     };
   });

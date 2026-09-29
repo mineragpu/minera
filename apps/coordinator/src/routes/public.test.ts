@@ -68,6 +68,9 @@ describe('public routes', () => {
     assert.equal(body.pool, null);
     assert.equal(body.epoch.seconds, 3_600);
     assert.match(body.rules.verification, /earn nothing on their own/);
+    assert.equal(typeof body.jobs.model, "string");
+    assert.ok(body.jobs.model.length > 0);
+    assert.ok(body.jobs.maxTokens > 0);
 
     harness.pool.snapshot = snapshot();
     body = (await get('/v1/network')).json();
