@@ -4,6 +4,7 @@ import { ApiError } from '../api/errors.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Button } from '../components/Button.tsx';
 import { formatCount } from '../lib/amount.ts';
+import { HowChecked } from './HowChecked.tsx';
 import { JobResult } from './JobResult.tsx';
 import { useCooldown } from './useCooldown.ts';
 import '../components/form.css';
@@ -110,7 +111,11 @@ export function Playground({ initialJobId = null, onJob }: PlaygroundProps) {
           </p>
         )}
       </form>
-      {jobId && <JobResult key={jobId} id={jobId} rigsOnline={network.data?.rigs.online ?? null} />}
+      {jobId ? (
+        <JobResult key={jobId} id={jobId} rigsOnline={network.data?.rigs.online ?? null} />
+      ) : (
+        <HowChecked network={network.data} />
+      )}
     </div>
   );
 }
