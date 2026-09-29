@@ -2,6 +2,7 @@ import type { Address } from '@dayagpu/shared';
 
 export type Route =
   | { name: 'home' }
+  | { name: 'launchpad' }
   | { name: 'deploy' }
   | { name: 'playground' }
   | { name: 'claim' }
@@ -12,6 +13,7 @@ export type RouteName = Route['name'];
 
 export const PATHS = {
   home: '/',
+  launchpad: '/launchpad',
   deploy: '/deploy',
   playground: '/playground',
   claim: '/claim',
@@ -31,6 +33,8 @@ export function matchRoute(pathname: string): Route {
   switch (path) {
     case PATHS.home:
       return { name: 'home' };
+    case PATHS.launchpad:
+      return { name: 'launchpad' };
     case PATHS.deploy:
       return { name: 'deploy' };
     case PATHS.playground:

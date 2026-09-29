@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Skeleton } from '../components/Skeleton.tsx';
 import type { Route } from '../router/routes.ts';
 import { HomePage } from './HomePage.tsx';
+import { LaunchpadPage } from './launchpad/LaunchpadPage.tsx';
 import { NotFoundPage } from './NotFoundPage.tsx';
 import { PlaygroundPage } from './PlaygroundPage.tsx';
 import { RigPage } from './rig/RigPage.tsx';
@@ -24,6 +25,8 @@ function Page({ route }: { route: Route }) {
   switch (route.name) {
     case 'home':
       return <HomePage />;
+    case 'launchpad':
+      return <LaunchpadPage />;
     case 'deploy':
       return <DeployPage />;
     case 'claim':
