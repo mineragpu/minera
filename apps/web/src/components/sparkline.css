@@ -28,3 +28,34 @@
   stroke: var(--graphite);
   stroke-width: 1.5;
 }
+
+.spark .sp-hit {
+  fill: transparent;
+}
+
+.spark .sp-guide,
+.spark .sp-mark {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.spark .sp-guide {
+  stroke: var(--seam-hover);
+  stroke-dasharray: 2 3;
+}
+
+.spark .sp-mark {
+  fill: var(--bright);
+  stroke: var(--graphite);
+  stroke-width: 1.5;
+}
+
+.spark .sp-point:hover .sp-guide,
+.spark .sp-point:hover .sp-mark {
+  opacity: 1;
+}
+
+.spark--wide {
+  width: 100%;
+  height: auto;
+}
