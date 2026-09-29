@@ -11,7 +11,7 @@ and mine from a pool that only fills.
 
 *Daya means power.*
 
-[Website](https://web-production-360d4.up.railway.app) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
+[Website](https://web-production-360d4.up.railway.app) · [Docs](docs/overview.md) · [Run a node](docs/quickstart.md) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
 
 </div>
 
@@ -106,7 +106,8 @@ Deployed on the testnet (chain ID 46630) and verified with an exact source match
   server-side.
 - Known limitations and trust assumptions are published in the docs as each part ships.
 
-Report a vulnerability privately to **security@dayagpu.com**.
+Report a vulnerability privately through the repository's security advisories. Please do not open a
+public issue for it.
 
 ## License
 
