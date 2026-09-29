@@ -4,7 +4,9 @@
 binds the rig to the operator's wallet, and runs inference jobs from the coordinator on a local
 model runtime.
 
-**Status:** the testnet is not open yet, so there is no public coordinator URL to start against.
+**Status:** the testnet is open. Start against the testnet coordinator at
+`https://coordinator-production-cf00.up.railway.app`. Its `GET /v1/network` reports the model open
+jobs use as `jobs.model`; load that model into your runtime before you start.
 
 ## Requirements
 
