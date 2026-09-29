@@ -65,4 +65,16 @@ describe('keystore', () => {
     writeFileSync(path, JSON.stringify({ privateKey: '0x1234', address }));
     assert.throws(() => loadNodeKey(path), /valid private key/);
   });
+
+  it('rejects a key outside the curve order without printing it', () => {
+    const path = join(directory, 'out-of-range.json');
+    const address = '0x0000000000000000000000000000000000000001';
+    const outOfRange = `0x${'f'.repeat(64)}`;
+    writeFileSync(path, JSON.stringify({ privateKey: outOfRange, address }));
+    assert.throws(
+      () => loadNodeKey(path),
+      (error: Error) =>
+        /valid private key/.test(error.message) && !/\d{20}/.test(error.message) && !error.message.includes('ffff'),
+    );
+  });
 });

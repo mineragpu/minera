@@ -86,7 +86,13 @@ export function loadNodeKey(path: string): NodeKey | null {
   if (typeof privateKey !== 'string' || !PRIVATE_KEY_PATTERN.test(privateKey)) {
     throw new Error(`The node key at ${path} does not hold a valid private key.`);
   }
-  const account = privateKeyToAccount(privateKey as `0x${string}`);
+  // The curve library's range error prints the rejected scalar, so it is replaced as well.
+  let account: LocalAccount;
+  try {
+    account = privateKeyToAccount(privateKey as `0x${string}`);
+  } catch {
+    throw new Error(`The node key at ${path} does not hold a valid private key.`);
+  }
   if (typeof address !== 'string' || address.toLowerCase() !== account.address.toLowerCase()) {
     throw new Error(`The node key at ${path} does not match the address recorded in it.`);
   }
