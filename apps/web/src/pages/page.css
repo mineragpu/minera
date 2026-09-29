@@ -33,3 +33,9 @@
 .page-body {
   margin-top: clamp(32px, 4vw, 56px);
 }
+
+.page-loading {
+  display: grid;
+  gap: 20px;
+  padding-top: clamp(56px, 9vw, 128px);
+}

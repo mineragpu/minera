@@ -1,12 +1,37 @@
+import { lazy, Suspense } from 'react';
+import { Skeleton } from '../components/Skeleton.tsx';
 import type { Route } from '../router/routes.ts';
 import { HomePage } from './HomePage.tsx';
 import { NotFoundPage } from './NotFoundPage.tsx';
+import './page.css';
 
-export function RouteView({ route }: { route: Route }) {
+// The contract pages carry the encoding and signature code, so they load only when opened.
+const DeployPage = lazy(() => import('./deploy/DeployPage.tsx').then((module) => ({ default: module.DeployPage })));
+
+function PageLoading() {
+  return (
+    <div className="shell page-loading" aria-busy="true">
+      <Skeleton width="min(60%, 520px)" height="3.2em" />
+      <Skeleton width="min(80%, 640px)" height="1.2em" />
+    </div>
+  );
+}
+
+function Page({ route }: { route: Route }) {
   switch (route.name) {
     case 'home':
       return <HomePage />;
+    case 'deploy':
+      return <DeployPage />;
     default:
       return <NotFoundPage />;
   }
+}
+
+export function RouteView({ route }: { route: Route }) {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <Page route={route} />
+    </Suspense>
+  );
 }

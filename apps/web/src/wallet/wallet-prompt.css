@@ -1,0 +1,28 @@
+.wallet-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--silver);
+}
+
+.wallet-prompt > p {
+  flex: 1 1 18em;
+}
+
+.wallet-prompt b {
+  color: var(--bright);
+  font-weight: 600;
+}
+
+.wallet-prompt__address {
+  font-family: var(--font-mono);
+  color: var(--bright);
+}
+
+.wallet-prompt__error {
+  flex-basis: 100%;
+  color: var(--state-none);
+}

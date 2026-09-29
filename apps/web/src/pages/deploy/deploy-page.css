@@ -1,0 +1,204 @@
+.deploy-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(28px, 4vw, 72px);
+  align-items: start;
+}
+
+/* Steps: a numbered rail, solid where steps are done */
+.flow {
+  list-style: none;
+  display: grid;
+}
+
+.flow-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 18px;
+  padding-bottom: 40px;
+}
+
+.flow-step::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 48px;
+  bottom: 6px;
+  width: 1px;
+  background: repeating-linear-gradient(180deg, var(--seam-2) 0 5px, transparent 5px 10px);
+}
+
+.flow-step--done::before {
+  background: var(--iri-rail);
+  opacity: 0.7;
+}
+
+.flow-step:last-child::before {
+  display: none;
+}
+
+.flow-step__marker {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--metal-raised);
+  box-shadow: inset 0 0 0 1px var(--seam-2);
+  font: 600 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  color: var(--silver);
+}
+
+.flow-step--done .flow-step__marker {
+  box-shadow: inset 0 0 0 1.5px var(--teal);
+  color: var(--teal);
+}
+
+.flow-step__marker svg {
+  width: 18px;
+  height: 18px;
+}
+
+.flow-step__body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.flow-step__title {
+  font: 700 var(--step-2) / 1.15 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+}
+
+.flow-step__text {
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--silver);
+  max-width: 40em;
+}
+
+.flow-fields {
+  display: grid;
+  gap: 18px;
+}
+
+.eligibility {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--gold);
+  background: var(--state-draft-bg);
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--state-draft);
+}
+
+/* Send panel */
+.send-panel {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 18px;
+}
+
+.send-summary {
+  display: grid;
+  gap: 1px;
+  margin-top: 4px;
+  border: 1px solid var(--seam);
+  border-radius: var(--r-input);
+  overflow: hidden;
+  background: var(--seam);
+}
+
+.send-summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 11px 14px;
+  background: var(--cell);
+}
+
+.send-summary dt {
+  font: 500 var(--step--2) / 1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.send-summary dd {
+  min-width: 0;
+  font: 500 var(--step--1) / 1.4 var(--font-mono);
+  color: var(--bright);
+  overflow-wrap: anywhere;
+}
+
+.send-panel__fee,
+.send-panel__note {
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.send-panel__note:empty {
+  display: none;
+}
+
+.send-panel > .btn--ghost {
+  justify-self: start;
+}
+
+/* After the deploy lands */
+.deployed {
+  display: grid;
+  gap: 10px;
+  color: var(--silver);
+}
+
+.deployed__title {
+  font: 700 var(--step-1) / 1.2 var(--font-display);
+  color: var(--bright);
+  overflow-wrap: anywhere;
+}
+
+.deployed__index {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--bright);
+}
+
+@media (max-width: 920px) {
+  .deploy-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .send-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .flow-step {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .flow-step__marker {
+    width: 34px;
+    height: 34px;
+  }
+
+  .flow-step::before {
+    left: 16px;
+    top: 38px;
+  }
+
+  .flow-step__body {
+    padding-top: 4px;
+  }
+}
