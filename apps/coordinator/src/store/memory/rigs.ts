@@ -77,6 +77,7 @@ export function memoryRigs(box: StateBox): RigStore {
         rig.qualifiedAt = now;
       } else {
         rig.checksFailed += 1;
+        rig.qualifiedAt = null;
       }
     },
 

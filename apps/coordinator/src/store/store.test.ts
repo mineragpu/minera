@@ -134,7 +134,7 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.deepEqual(rig?.models, ['other']);
       assert.equal(rig?.runtimeVersion, null);
       assert.deepEqual([rig?.checksPassed, rig?.checksFailed], [1, 1]);
-      assert.deepEqual(rig?.qualifiedAt, at(41));
+      assert.equal(rig?.qualifiedAt, null);
       assert.deepEqual(rig?.lastChallengeAt, at(43));
       assert.deepEqual(await store.rigs.counts(at(30)), { total: 3, online: 1 });
     });
@@ -232,10 +232,9 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.deepEqual([closed?.status, closed?.finishedAt], ['cancelled', at(80)]);
 
       assert.deepEqual(await store.jobs.completedSince(at(0)), { chat: 1, benchmark: 1, challenge: 1 });
-      assert.equal(await store.jobs.verifiedUnitsSince(at(0)), 5n);
-      assert.equal(await store.jobs.verifiedUnitsSince(at(30)), 2n);
+      assert.equal(await store.jobs.verifiedUnitsSince(at(0)), 2n);
+      assert.equal(await store.jobs.verifiedUnitsSince(at(76)), 0n);
       assert.deepEqual(await store.jobs.hourlyVerifiedUnits(RIG_3, at(0)), [
-        { hour: new Date(Date.UTC(2026, 8, 29, 12)), units: 3n },
         { hour: new Date(Date.UTC(2026, 8, 29, 13)), units: 2n },
       ]);
     });

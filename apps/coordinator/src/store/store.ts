@@ -28,7 +28,10 @@ export interface RigStore {
   retire(nodeKey: Address, at: Date): Promise<void>;
   recordHello(nodeKey: Address, report: NodeReport, now: Date): Promise<void>;
   recordHeartbeat(nodeKey: Address, runtime: RuntimeInfo, now: Date): Promise<void>;
-  /** Count a known-answer or cross-check outcome; a pass also qualifies the rig for open jobs. */
+  /**
+   * Count a known-answer or cross-check outcome. A pass qualifies the rig for open jobs; a failure
+   * withdraws that until the rig passes again.
+   */
   recordCheck(nodeKey: Address, passed: boolean, now: Date): Promise<void>;
   markChallenged(nodeKey: Address, now: Date): Promise<void>;
   list(query: RigListQuery): Promise<RigListPage>;
@@ -74,7 +77,7 @@ export interface JobStore {
   stale(now: Date): Promise<JobRecord[]>;
   /** Jobs finished since the given time, per kind. */
   completedSince(since: Date): Promise<Record<JobKind, number>>;
-  /** Verified units of paid kinds (chat and challenge) since the given time. */
+  /** Verified units of chat jobs, the only work that pays, since the given time. */
   verifiedUnitsSince(since: Date): Promise<bigint>;
   hourlyVerifiedUnits(nodeKey: Address, since: Date): Promise<HourlyUnits[]>;
 }

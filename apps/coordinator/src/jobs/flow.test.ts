@@ -133,6 +133,8 @@ describe('job flow', () => {
     await submit(R3, second.id, 'Green.', later(2));
     assert.equal((await viewPlaygroundJob(store, id))?.verification, 'mismatch');
     assert.deepEqual([(await rig(R1)).checksFailed, (await rig(R3)).checksFailed], [1, 1]);
+    await submitPlaygroundJob(store, SINGLE, 'Again?', later(3), seededRandom(9));
+    assert.deepEqual(await heartbeat(R1, later(4)), []);
 
     const [challenge] = await heartbeat(R3, later(CHALLENGE_DUE));
     assert.equal(challenge?.kind, 'challenge');
@@ -140,6 +142,17 @@ describe('job flow', () => {
     await submit(R3, challenge.id, '-1', later(CHALLENGE_DUE + 1));
     assert.equal((await rig(R3)).checksFailed, 2);
     assert.deepEqual(await store.work.verifiedByRig(0, 10_000_000), []);
+  });
+
+  it('qualifies a rig that passes a challenge, without paying for it', async () => {
+    const [challenge] = await heartbeat(R1, later(CHALLENGE_DUE));
+    assert.equal(challenge?.kind, 'challenge');
+    assert.ok(challenge);
+    const passed = await submit(R1, challenge.id, answerTo(challenge), later(CHALLENGE_DUE + 1));
+    assert.deepEqual(passed, { kind: 'accepted' });
+    assert.notEqual((await rig(R1)).qualifiedAt, null);
+    assert.deepEqual(await store.work.verifiedByRig(0, 10_000_000), []);
+    assert.equal(await store.jobs.verifiedUnitsSince(T0), 0n);
   });
 
   it('refuses results from a rig that does not hold the job, and duplicates', async () => {

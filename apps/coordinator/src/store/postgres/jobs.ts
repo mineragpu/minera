@@ -185,7 +185,7 @@ export function postgresJobs(db: Queryable): JobStore {
     async verifiedUnitsSince(since) {
       const [row] = await db<{ units: string }[]>`
         SELECT COALESCE(sum(units), 0) AS units FROM jobs
-        WHERE verification = 'verified' AND kind <> 'benchmark' AND verified_at >= ${since}
+        WHERE verification = 'verified' AND kind = 'chat' AND verified_at >= ${since}
       `;
       return toBigInt(row?.units ?? 0);
     },
@@ -194,7 +194,7 @@ export function postgresJobs(db: Queryable): JobStore {
       const rows = await db<{ hour: Date; units: string }[]>`
         SELECT to_timestamp(floor(extract(epoch FROM verified_at) / 3600) * 3600) AS hour, sum(units) AS units
         FROM jobs
-        WHERE assigned_node = ${nodeKey} AND verification = 'verified' AND kind <> 'benchmark'
+        WHERE assigned_node = ${nodeKey} AND verification = 'verified' AND kind = 'chat'
           AND verified_at >= ${since}
         GROUP BY 1
         ORDER BY 1

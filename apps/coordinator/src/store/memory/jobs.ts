@@ -181,5 +181,5 @@ export function memoryJobs(box: StateBox): JobStore {
 }
 
 function isPaidVerified(job: JobRecord): boolean {
-  return job.verification === 'verified' && job.kind !== 'benchmark';
+  return job.verification === 'verified' && job.kind === 'chat';
 }

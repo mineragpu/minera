@@ -116,7 +116,7 @@ export function postgresRigs(db: Queryable): RigStore {
       if (passed) {
         await db`UPDATE rigs SET checks_passed = checks_passed + 1, qualified_at = ${now} WHERE node_key = ${nodeKey}`;
       } else {
-        await db`UPDATE rigs SET checks_failed = checks_failed + 1 WHERE node_key = ${nodeKey}`;
+        await db`UPDATE rigs SET checks_failed = checks_failed + 1, qualified_at = NULL WHERE node_key = ${nodeKey}`;
       }
     },
 

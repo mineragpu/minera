@@ -6,8 +6,9 @@ import type { BurnRecord, CampaignSummary, RigRecord, SettlementRecord } from '.
 export const WORK_RULES = {
   units: 'Work units are estimated tokens: one per four characters of output, rounded up, measured by the coordinator.',
   verification:
-    'Only verified work earns rewards. An answer is verified when a second rig returns the same output, or when a ' +
-    'known-answer check passes. Answers nobody cross-checked are recorded as unverified and earn nothing on their own.',
+    'Only verified work earns rewards. An answer is verified when a rig run by a different operator returns the ' +
+    'same output for the same prompt. Answers nobody cross-checked are recorded as unverified and earn nothing on ' +
+    'their own. Known-answer checks decide which rigs may take work, and they earn nothing themselves.',
 } as const;
 
 export function iso(date: Date | null): string | null {

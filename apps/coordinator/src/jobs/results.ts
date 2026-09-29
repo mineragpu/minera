@@ -30,9 +30,10 @@ function closedReason(job: JobRecord): string {
 /**
  * Store a rig's result and settle what it proves, in one transaction.
  *
- * Only verified work is credited toward rewards: a check with the right answer, or a job whose
- * twin on another rig returned the same output. A job nobody compared is recorded as unverified
- * and earns nothing on its own. A wrong answer or a disagreement earns nothing and counts as a
+ * Only verified work is credited toward rewards: a job whose twin, run by another operator's rig,
+ * returned the same output. A job nobody compared is recorded as unverified and earns nothing on
+ * its own. Known-answer checks only decide whether a rig may take open jobs; their answers can be
+ * computed without a GPU, so they earn nothing. A wrong answer or a disagreement counts as a
  * failed check on each rig involved.
  */
 export async function acceptResult(store: Store, result: SubmittedResult): Promise<ResultDecision> {
@@ -54,9 +55,6 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
       case 'check':
         await complete(judgement.passed ? 'verified' : 'failed', judgement.passed ? now : null);
         await tx.rigs.recordCheck(nodeKey, judgement.passed, now);
-        if (judgement.passed && job.kind === 'challenge') {
-          await tx.work.credit(nodeKey, epoch, { verified: units, unverified: 0 });
-        }
         break;
       case 'await-twin':
         await complete('pending', null);
