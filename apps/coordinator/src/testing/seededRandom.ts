@@ -1,9 +1,10 @@
 import type { Random } from '../random.ts';
 
-/** A reproducible `Random` for tests (mulberry32), with ids that count up. */
+let ids = 0;
+
+/** A reproducible `Random` for tests (mulberry32). Ids count up across instances, so they never collide. */
 export function seededRandom(seed: number, options: { chance?: boolean } = {}): Random {
   let state = seed >>> 0;
-  let ids = 0;
   const next = (): number => {
     state = (state + 0x6d2b79f5) >>> 0;
     let t = state;
