@@ -67,7 +67,7 @@
   color: var(--bright);
 }
 
-.step p:last-child {
+.step p {
   margin-top: 12px;
   max-width: 24em;
   font-size: var(--step--1);
