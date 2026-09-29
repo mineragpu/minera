@@ -17,7 +17,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Burn Pool', href: sectionPath('burn-pool'), section: 'burn-pool' },
   { label: 'Playground', href: PATHS.playground, route: 'playground', section: 'playground' },
   { label: 'Claim', href: PATHS.claim, route: 'claim', needsWallet: true },
-  { label: 'Docs', href: sectionPath('how-it-works'), section: 'how-it-works' },
+  { label: 'Docs', href: PATHS.docs, route: 'docs' },
 ];
 
 /** The footer lists every page and section, with nothing hidden. */
@@ -28,5 +28,5 @@ export const FOOTER_LINKS: readonly NavLink[] = [
   { label: 'Playground', href: PATHS.playground },
   { label: 'Claim', href: PATHS.claim },
   { label: 'Campaigns', href: sectionPath('campaigns') },
-  { label: 'Docs', href: sectionPath('how-it-works') },
+  { label: 'Docs', href: PATHS.docs },
 ];
