@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Button } from '../components/Button.tsx';
 import { LiveDot } from '../components/LiveDot.tsx';
 import { PreviewTag } from '../components/PreviewTag.tsx';
@@ -7,11 +7,21 @@ import { Ticker } from '../components/Ticker.tsx';
 import { ChevronDownIcon } from '../components/icons.tsx';
 import { PREVIEW_CAMPAIGN, PREVIEW_DEPLOY, type Pair } from '../data/preview.ts';
 import { useReducedMotion } from '../motion/useReducedMotion.ts';
+import { useConnectDialog } from '../wallet/useConnectDialog.ts';
+import { useWallet } from '../wallet/useWallet.ts';
 
 const PAIR_LABELS: Readonly<Record<Pair, string>> = {
   eth: 'ETH',
   stock: 'Tokenized stock',
 };
+
+const NOT_LIVE = 'Deploying opens when the network goes live on testnet.';
+
+function deployNote(ready: boolean, attempted: string | null): string {
+  if (!ready) return 'Preview only. Nothing is sent.';
+  if (attempted === null) return `Preview only. ${NOT_LIVE}`;
+  return `Preview only. ${attempted} was not deployed. ${NOT_LIVE}`;
+}
 
 function HardwareGlyph() {
   return (
@@ -27,25 +37,34 @@ function HardwareGlyph() {
 
 export function DeployForm() {
   const reduced = useReducedMotion();
-  const formRef = useRef<HTMLFormElement>(null);
+  const { status, isCorrectNetwork } = useWallet();
+  const dialog = useConnectDialog();
   const [rigName, setRigName] = useState<string>(PREVIEW_DEPLOY.rigName);
   const [pair, setPair] = useState<Pair>('eth');
   const [bond, setBond] = useState<string>(PREVIEW_DEPLOY.bond);
-  const [note, setNote] = useState('Preview only. Nothing is sent.');
+  const [attempted, setAttempted] = useState<string | null>(null);
+
+  const connected = status === 'connected';
+  const ready = connected && isCorrectNetwork;
+  const submitLabel = !connected ? 'Connect wallet to deploy' : ready ? 'Deploy' : 'Switch network to deploy';
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const name = rigName.trim() || 'This rig';
-    setNote(`Preview only. ${name} was not deployed.`);
-    const form = formRef.current;
-    if (form && !reduced) {
+    const form = event.currentTarget;
+    if (!ready) {
+      dialog.open(form.querySelector<HTMLElement>('button[type="submit"]'));
+      return;
+    }
+    // Nothing is sent from this page until the network is live; the panel only acknowledges.
+    setAttempted(rigName.trim() || 'This rig');
+    if (!reduced) {
       const easing = getComputedStyle(form).getPropertyValue('--ease-out').trim() || 'ease-out';
       form.animate([{ opacity: 0.75 }, { opacity: 1 }], { duration: 900, easing });
     }
   };
 
   return (
-    <form className="panel" ref={formRef} aria-labelledby="panel-title" noValidate onSubmit={onSubmit}>
+    <form className="panel" aria-labelledby="panel-title" noValidate onSubmit={onSubmit}>
       <div className="panel__head">
         <h3 className="panel__title" id="panel-title">
           New rig
@@ -159,10 +178,10 @@ export function DeployForm() {
 
         <div>
           <Button variant="primary" block type="submit">
-            Deploy
+            {submitLabel}
           </Button>
           <p className="panel__note" role="status">
-            {note}
+            {deployNote(ready, attempted)}
           </p>
         </div>
       </div>
