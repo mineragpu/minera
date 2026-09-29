@@ -1,61 +1,38 @@
-import { useState } from 'react';
 import { fetchRigs } from '../api/coordinator.ts';
-import type { RigSummary } from '../api/schemas.ts';
+import type { RigBoard } from '../api/schemas.ts';
 import { usePoll } from '../api/usePoll.ts';
+import { ButtonLink } from '../components/Button.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
 import { NoRigsYet } from '../components/NoRigsYet.tsx';
 import { RigGrid } from '../components/RigGrid.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { ArrowRightIcon } from '../components/icons.tsx';
 import { formatCount } from '../lib/amount.ts';
-import { pairLabel } from '../lib/pairLabel.ts';
+import { PATHS } from '../router/routes.ts';
 import './launchpad.css';
 
 const REFRESH_MS = 30_000;
-const PLACEHOLDER_CARDS = 3;
+const PREVIEW_RIGS = 6;
 
-type Filter = 'all' | 'eth' | 'stock';
-
-function loadBoard(signal: AbortSignal) {
-  return fetchRigs({ sort: 'new', pair: null, limit: 100, offset: 0 }, signal);
+function loadTopRigs(signal: AbortSignal): Promise<RigBoard> {
+  return fetchRigs({ sort: 'epoch', pair: null, limit: PREVIEW_RIGS, offset: 0 }, signal);
 }
 
-const FILTERS: readonly { value: Filter; label: string; empty: string }[] = [
-  { value: 'all', label: 'All', empty: '' },
-  { value: 'eth', label: 'ETH', empty: 'No rig is paired with ETH yet.' },
-  { value: 'stock', label: 'Stock', empty: 'No rig is paired with a stock token yet.' },
-];
-
-function matches(filter: Filter, rig: RigSummary): boolean {
-  if (filter === 'all') return true;
-  return (pairLabel(rig.pair).kind === 'native') === (filter === 'eth');
-}
-
+/** The top of the board on the home page; the launchpad page has the rest. */
 export function Launchpad({ index }: { index: string }) {
-  const [filter, setFilter] = useState<Filter>('all');
-  const [announcement, setAnnouncement] = useState('');
-  const board = usePoll(loadBoard, { key: 'rigs', intervalMs: REFRESH_MS });
-  const rigs = board.data?.rigs ?? [];
-  const shown = rigs.filter((rig) => matches(filter, rig));
-  const total = board.data?.total ?? 0;
-
-  const choose = (next: Filter) => {
-    setFilter(next);
-    const count = rigs.filter((rig) => matches(next, rig)).length;
-    setAnnouncement(`${count} ${count === 1 ? 'rig' : 'rigs'} shown`);
-  };
+  const board = usePoll(loadTopRigs, { key: 'rigs:top', intervalMs: REFRESH_MS });
+  const data = board.data;
 
   let content;
-  if (board.status === 'error' && board.error) {
+  if (!data && board.status === 'error' && board.error) {
     content = <LoadError message={board.error.message} onRetry={board.retry} />;
-  } else if (board.status === 'loading') {
-    content = <RigGrid rigs={null} placeholders={PLACEHOLDER_CARDS} />;
-  } else if (total === 0) {
+  } else if (!data) {
+    content = <RigGrid rigs={null} placeholders={3} />;
+  } else if (data.total === 0) {
     content = <NoRigsYet />;
-  } else if (shown.length === 0) {
-    content = <p className="board-note">{FILTERS.find((option) => option.value === filter)?.empty}</p>;
   } else {
-    content = <RigGrid rigs={shown} placeholders={PLACEHOLDER_CARDS} />;
+    content = <RigGrid rigs={data.rigs} placeholders={PREVIEW_RIGS} />;
   }
 
   return (
@@ -67,31 +44,28 @@ export function Launchpad({ index }: { index: string }) {
             Rigs on the board.
           </h2>
           <p className="lede">
-            Each deployed rig gets a card, the way a new token does. Its work figures come from the network’s own
-            checks, never from the rig.
+            Each deployed rig gets a card, the way a new token does. These are the rigs with the most verified work
+            this epoch, counted by the network, never by the rig.
           </p>
         </div>
         <div className="tools">
-          <div className="seg" role="group" aria-label="Filter rigs by pair">
-            {FILTERS.map(({ value, label }) => (
-              <button key={value} type="button" aria-pressed={filter === value} onClick={() => choose(value)}>
-                {label}
-              </button>
-            ))}
-          </div>
-          <p className="board-count">
-            {board.data ? `${formatCount(total)} deployed` : <Skeleton width="10ch" />}
+          <p className="board-count" aria-busy={data === null}>
+            {data ? `${formatCount(data.total)} deployed` : <Skeleton width="10ch" />}
           </p>
+          <ButtonLink variant="ghost" href={PATHS.launchpad}>
+            Open the launchpad
+            <ArrowRightIcon />
+          </ButtonLink>
         </div>
       </div>
-      <p className="sr-only" role="status">
-        {announcement}
-      </p>
 
       <div className="board">{content}</div>
-      {board.data && total > rigs.length && (
+      {data && data.total > data.rigs.length && (
         <p className="board-note">
-          Showing the newest {formatCount(rigs.length)} of {formatCount(total)} rigs.
+          Showing the top {formatCount(data.rigs.length)} of {formatCount(data.total)} rigs.{' '}
+          <a className="text-link" href={`${PATHS.launchpad}?sort=epoch`}>
+            See the whole board
+          </a>
         </p>
       )}
     </section>
