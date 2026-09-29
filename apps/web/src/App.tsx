@@ -3,6 +3,7 @@ import { SvgDefs } from './components/SvgDefs.tsx';
 import { Hero } from './sections/Hero.tsx';
 import { BurnPool } from './sections/BurnPool.tsx';
 import { DeployPanel } from './sections/DeployPanel.tsx';
+import { HowItWorks } from './sections/HowItWorks.tsx';
 import { Launchpad } from './sections/Launchpad.tsx';
 import { Nav } from './sections/Nav.tsx';
 
@@ -21,6 +22,7 @@ export function App() {
           <DeployPanel />
           <BurnPool />
           <Launchpad />
+          <HowItWorks />
         </main>
       </div>
     </>

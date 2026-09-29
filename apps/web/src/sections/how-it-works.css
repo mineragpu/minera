@@ -1,0 +1,145 @@
+.steps {
+  margin-top: 52px;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.step {
+  position: relative;
+  padding-right: 28px;
+}
+
+/* One iridescent rail runs through all four steps; each step shows its quarter of it. */
+.step::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--iri-line);
+  background-size: 400% 1px;
+  opacity: 0.7;
+}
+
+.step:nth-child(2)::before {
+  background-position: 33.3% 0;
+}
+
+.step:nth-child(3)::before {
+  background-position: 66.6% 0;
+}
+
+.step:nth-child(4)::before {
+  background-position: 100% 0;
+  right: 28px;
+}
+
+.step__node {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 30px;
+  height: 33px;
+  padding-right: 4px;
+  background: var(--graphite);
+  box-sizing: content-box;
+}
+
+.step__node svg {
+  width: 30px;
+  height: 33px;
+}
+
+.step__idx {
+  margin-top: 24px;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.step h3 {
+  margin-top: 10px;
+  font: 700 var(--step-2) / 1.12 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+}
+
+.step p:last-child {
+  margin-top: 12px;
+  max-width: 24em;
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--silver);
+}
+
+.step__arrow {
+  position: absolute;
+  top: 10px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 48px;
+  }
+
+  .step:nth-child(2)::before,
+  .step:nth-child(4)::before {
+    right: 28px;
+  }
+
+  .step:nth-child(2) .step__arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .step {
+    padding: 0 0 34px 50px;
+  }
+
+  .step::before,
+  .step:nth-child(n)::before {
+    top: 0;
+    bottom: 0;
+    left: 15px;
+    right: auto;
+    width: 1px;
+    height: auto;
+    background: var(--iri-rail);
+    background-size: auto;
+    opacity: 0.6;
+  }
+
+  .step:last-child::before {
+    bottom: auto;
+    height: 16px;
+  }
+
+  .step__node {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0 0 4px;
+  }
+
+  .step__idx {
+    margin-top: 6px;
+  }
+
+  .step__arrow {
+    display: none;
+  }
+}

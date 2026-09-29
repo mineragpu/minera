@@ -28,6 +28,21 @@ export function CheckIcon({ className }: { className?: string }) {
   );
 }
 
+export function ChevronRightIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path
+        d="M5 3.5 9.5 8 5 12.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ArrowRightIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
