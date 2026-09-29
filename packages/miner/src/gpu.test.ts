@@ -38,8 +38,8 @@ describe('parseCsvQuery', () => {
   });
 
   it('skips malformed lines and falls through to a good one', () => {
-    const output = ['Card A, [N/A], 551.86', ', 8192, 551.86', '[N/A], 8192, 551.86', 'Card C, 4096, 551.86'].join('\n');
-    assert.equal(parseCsvQuery(output)?.model, 'Card C');
+    const lines = ['Card A, [N/A], 551.86', ', 8192, 551.86', '[N/A], 8192, 551.86', 'Card C, 4096, 551.86'];
+    assert.equal(parseCsvQuery(lines.join('\n'))?.model, 'Card C');
   });
 
   it('returns null for errors, headers and empty output', () => {

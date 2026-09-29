@@ -71,7 +71,8 @@ describe('createJobRunner', () => {
     await withRuntime(
       () => ({ json: reply }),
       async (server) => {
-        const result = await createJobRunner(server.url)({ ...job, deadlineSeconds: 57.3219 }, new AbortController().signal);
+        const run = createJobRunner(server.url);
+        const result = await run({ ...job, deadlineSeconds: 57.3219 }, new AbortController().signal);
         assert.equal(result.output, 'Paris');
       },
     );
@@ -122,7 +123,8 @@ describe('createJobRunner', () => {
       async (server) => {
         const started = Date.now();
         const run = createJobRunner(server.url);
-        await assert.rejects(run({ ...job, deadlineSeconds: 1 }, new AbortController().signal), { failure: 'deadline' });
+        const stop = new AbortController().signal;
+        await assert.rejects(run({ ...job, deadlineSeconds: 1 }, stop), { failure: 'deadline' });
         assert.ok(Date.now() - started < 5_000);
       },
     );

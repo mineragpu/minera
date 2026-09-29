@@ -24,7 +24,7 @@ export const JSON_REPORT = {
   args: ['--showproductname', '--showmeminfo', 'vram', '--json'],
 } as const;
 
-export const runCommand: CommandRunner = (file, args, timeoutMs) =>
+const runCommand: CommandRunner = (file, args, timeoutMs) =>
   new Promise((resolve) => {
     execFile(
       file,

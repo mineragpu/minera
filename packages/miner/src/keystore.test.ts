@@ -59,9 +59,10 @@ describe('keystore', () => {
       () => loadNodeKey(path),
       (error: Error) => /not valid JSON/.test(error.message) && !error.message.includes(secret.slice(2, 20)),
     );
-    writeFileSync(path, JSON.stringify({ privateKey: secret, address: '0x0000000000000000000000000000000000000001' }));
+    const address = '0x0000000000000000000000000000000000000001';
+    writeFileSync(path, JSON.stringify({ privateKey: secret, address }));
     assert.throws(() => loadNodeKey(path), /does not match/);
-    writeFileSync(path, JSON.stringify({ privateKey: '0x1234', address: '0x0000000000000000000000000000000000000001' }));
+    writeFileSync(path, JSON.stringify({ privateKey: '0x1234', address }));
     assert.throws(() => loadNodeKey(path), /valid private key/);
   });
 });

@@ -143,7 +143,7 @@ describe('rig start', () => {
         const nodeKey = await signerOf(request);
         return {
           json: {
-            rig: { nodeKey, operator: OPERATOR, name: 'Night Shift', pair: '0x0000000000000000000000000000000000000000' },
+            rig: { nodeKey, operator: OPERATOR, name: 'Night Shift', pair: `0x${'0'.repeat(40)}` },
             heartbeatSeconds: 30,
             benchmark: null,
           },

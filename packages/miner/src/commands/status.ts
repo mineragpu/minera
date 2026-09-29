@@ -29,10 +29,8 @@ export async function statusCommand(
   }
 
   const target = deployTargetFor(network);
-  logger.result(
-    target === null ? `Network: ${network}, registry not deployed yet` : `Network: ${network}, registry ${target.registry}`,
-    { network, registry: target?.registry ?? null },
-  );
+  const registry = target === null ? 'registry not deployed yet' : `registry ${target.registry}`;
+  logger.result(`Network: ${network}, ${registry}`, { network, registry: target?.registry ?? null });
   logger.result(`Config directory: ${paths.directory}`, { configDirectory: paths.directory });
 
   const [gpu, runtime] = await Promise.all([context.detectGpu(), detectRuntime(command.runtimeUrl)]);
@@ -42,7 +40,10 @@ export async function statusCommand(
     driver: gpu?.driver ?? null,
   });
   if (runtime === null) {
-    logger.result(`Runtime: none answering at ${command.runtimeUrl}`, { runtimeUrl: command.runtimeUrl, runtime: null });
+    logger.result(`Runtime: none answering at ${command.runtimeUrl}`, {
+      runtimeUrl: command.runtimeUrl,
+      runtimeVersion: null,
+    });
   } else {
     const version = runtime.version ? ` version ${runtime.version}` : '';
     logger.result(`Runtime:${version} at ${command.runtimeUrl}`, {

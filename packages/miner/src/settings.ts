@@ -13,8 +13,6 @@ export interface Settings {
   coordinators: Partial<Record<NetworkKey, string>>;
 }
 
-export const DEFAULT_SETTINGS: Settings = { network: DEFAULT_NETWORK, coordinators: {} };
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -24,7 +22,7 @@ export function readSettings(path: string): Settings {
   try {
     text = readFileSync(path, 'utf8');
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { ...DEFAULT_SETTINGS, coordinators: {} };
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { network: DEFAULT_NETWORK, coordinators: {} };
     throw new Error(`Could not read the settings file at ${path}.`);
   }
   let parsed: unknown;

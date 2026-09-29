@@ -51,9 +51,8 @@ describe('detectRuntime', () => {
 
 describe('modelNames', () => {
   it('keeps unique, printable names and ignores junk', () => {
-    const tags = {
-      models: [{ name: 'a' }, { model: 'b' }, { name: 'a' }, { name: '' }, { name: 42 }, 'c', { name: 'x'.repeat(201) }],
-    };
+    const tooLong = { name: 'x'.repeat(201) };
+    const tags = { models: [{ name: 'a' }, { model: 'b' }, { name: 'a' }, { name: '' }, { name: 42 }, 'c', tooLong] };
     assert.deepEqual(modelNames(tags), ['a', 'b']);
     assert.deepEqual(modelNames(null), []);
     assert.deepEqual(modelNames({ models: 'a' }), []);
