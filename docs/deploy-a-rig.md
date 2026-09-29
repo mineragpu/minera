@@ -76,8 +76,8 @@ deploy(address nodeKey, address pair, string name, bytes authorization)
 ```
 
 `authorization` is the deploy code. When the transaction lands, the page shows the rig's name and
-a link to its rig page, and waits for the coordinator to index it. That takes about a minute: the
-coordinator reads registry events 10 blocks behind the chain head.
+a link to its rig page, and waits for the coordinator to index it. That takes about a minute. The
+coordinator indexes registry events once they are 10 blocks deep.
 
 Then start the node on the GPU machine, from the repository root:
 
