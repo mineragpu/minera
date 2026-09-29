@@ -73,6 +73,13 @@ input {
   border: 0;
 }
 
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .skip {
   position: absolute;
   left: 16px;

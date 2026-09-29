@@ -1,0 +1,119 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: 12px;
+  max-width: var(--maxw);
+  margin-inline: auto;
+}
+
+.topbar__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2.4vw, 32px);
+  min-height: 64px;
+  padding: 10px 10px 10px 18px;
+  border: 1px solid rgba(59, 69, 89, 0.8);
+  border-radius: var(--r-input);
+  background: linear-gradient(180deg, rgba(28, 35, 49, 0.84), rgba(14, 18, 26, 0.88));
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+}
+
+.topbar__inner::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: -1px;
+  height: 1px;
+  background: var(--iri-line);
+  opacity: 0.8;
+}
+
+.topnav {
+  margin-left: auto;
+}
+
+.topnav ul {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+}
+
+.topnav a {
+  position: relative;
+  display: block;
+  padding: 10px 12px;
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--silver);
+  text-decoration: none;
+  border-radius: var(--r-tag);
+  transition: color 0.2s;
+}
+
+.topnav a::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 1px;
+  background: var(--iri-line);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.topnav a:hover,
+.topnav a[aria-current] {
+  color: var(--bright);
+}
+
+.topnav a:hover::after,
+.topnav a[aria-current]::after {
+  transform: scaleX(1);
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    padding-top: 8px;
+  }
+
+  .topbar__inner {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 8px 8px 4px 12px;
+  }
+
+  .topnav {
+    order: 3;
+    flex-basis: 100%;
+    margin: 0 -4px;
+  }
+
+  .topnav ul {
+    justify-content: space-between;
+  }
+
+  .topnav a {
+    padding: 9px 6px;
+  }
+
+  .topnav a::after {
+    left: 6px;
+    right: 6px;
+  }
+
+  .topbar .btn {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-deploy {
+    display: none !important;
+  }
+}
