@@ -11,7 +11,7 @@ and mine from a pool that only fills.
 
 *Daya means power.*
 
-[Website](https://web-production-360d4.up.railway.app) · [Docs](docs/overview.md) · [Run a node](docs/quickstart.md) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
+[Website](https://web-production-360d4.up.railway.app) · [Docs](https://web-production-360d4.up.railway.app/docs) · [Run a node](https://web-production-360d4.up.railway.app/docs/quickstart) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
 
 </div>
 
