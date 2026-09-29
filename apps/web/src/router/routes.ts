@@ -7,6 +7,8 @@ export type Route =
   | { name: 'playground' }
   | { name: 'claim' }
   | { name: 'rig'; nodeKey: string }
+  /** A null slug is the docs index. */
+  | { name: 'docs'; slug: string | null }
   | { name: 'not-found' };
 
 export type RouteName = Route['name'];
@@ -17,6 +19,7 @@ export const PATHS = {
   deploy: '/deploy',
   playground: '/playground',
   claim: '/claim',
+  docs: '/docs',
 } as const;
 
 export function rigPath(nodeKey: Address): string {
@@ -41,8 +44,12 @@ export function matchRoute(pathname: string): Route {
       return { name: 'playground' };
     case PATHS.claim:
       return { name: 'claim' };
+    case PATHS.docs:
+      return { name: 'docs', slug: null };
   }
   const rig = /^\/rig\/([^/]+)$/.exec(path);
   if (rig?.[1]) return { name: 'rig', nodeKey: decodeURIComponent(rig[1]) };
+  const doc = /^\/docs\/([^/]+)$/.exec(path);
+  if (doc?.[1]) return { name: 'docs', slug: decodeURIComponent(doc[1]) };
   return { name: 'not-found' };
 }

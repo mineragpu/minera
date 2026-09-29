@@ -8,9 +8,11 @@ import { PlaygroundPage } from './PlaygroundPage.tsx';
 import { RigPage } from './rig/RigPage.tsx';
 import './page.css';
 
-// The contract pages carry the encoding and signature code, so they load only when opened.
+// The contract pages carry the encoding and signature code, and the docs carry every page's text,
+// so they load only when opened.
 const DeployPage = lazy(() => import('./deploy/DeployPage.tsx').then((module) => ({ default: module.DeployPage })));
 const ClaimPage = lazy(() => import('./claim/ClaimPage.tsx').then((module) => ({ default: module.ClaimPage })));
+const DocsPage = lazy(() => import('./docs/DocsPage.tsx').then((module) => ({ default: module.DocsPage })));
 
 function PageLoading() {
   return (
@@ -35,6 +37,8 @@ function Page({ route }: { route: Route }) {
       return <PlaygroundPage />;
     case 'rig':
       return <RigPage key={route.nodeKey} nodeKey={route.nodeKey} />;
+    case 'docs':
+      return <DocsPage slug={route.slug} />;
     default:
       return <NotFoundPage />;
   }
