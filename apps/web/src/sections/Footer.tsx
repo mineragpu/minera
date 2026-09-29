@@ -19,8 +19,9 @@ export function Footer() {
           </ul>
         </nav>
         <p className="foot__note">
-          <PreviewTag />
-          <span>marks a figure that is still illustrative. Every other figure is read from the network.</span>
+          <span className="foot__legend">
+            <PreviewTag /> marks a figure that is still illustrative. Every other figure is read from the network.
+          </span>
           <span className="brand-story">{BRAND.meaning}</span>
           <span className="copy">
             © {new Date().getFullYear()} <span className="brand">{BRAND.name}</span>

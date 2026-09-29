@@ -49,6 +49,11 @@
   color: var(--muted);
 }
 
+.foot__legend .pv {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+
 .foot__note .brand-story {
   color: var(--silver);
 }
