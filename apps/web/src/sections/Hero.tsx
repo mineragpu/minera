@@ -3,6 +3,8 @@ import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { LiveDot } from '../components/LiveDot.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { BlockCluster } from '../components/cluster/BlockCluster.tsx';
+import { PATHS } from '../router/routes.ts';
+import { NetworkFigures } from './NetworkFigures.tsx';
 import './hero.css';
 
 /** Load-sequence delay for one element of the hero stagger. */
@@ -34,7 +36,7 @@ export function Hero() {
           pool that only fills.
         </p>
         <div className="hero__ctas rise" style={rise(0.48)}>
-          <ButtonLink variant="primary" href="#deploy">
+          <ButtonLink variant="primary" href={PATHS.deploy}>
             Deploy your GPU
             <ArrowRightIcon />
           </ButtonLink>
@@ -42,20 +44,7 @@ export function Hero() {
             See the Burn Pool
           </ButtonLink>
         </div>
-        <dl className="spec rise" style={rise(0.58)}>
-          <div>
-            <dt>Work</dt>
-            <dd>Verified AI inference</dd>
-          </div>
-          <div>
-            <dt>Rewards</dt>
-            <dd>Paid in ETH or a stock token</dd>
-          </div>
-          <div>
-            <dt>Burn Pool</dt>
-            <dd>Fills one way</dd>
-          </div>
-        </dl>
+        <NetworkFigures style={rise(0.58)} />
       </div>
 
       <figure className="hero__visual">
