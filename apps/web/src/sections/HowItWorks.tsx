@@ -1,26 +1,19 @@
-import type { ReactNode } from 'react';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
-import { Ticker } from '../components/Ticker.tsx';
 import { ChevronRightIcon } from '../components/icons.tsx';
 import './how-it-works.css';
 
 interface Step {
   title: string;
   color: string;
-  body: ReactNode;
+  body: string;
 }
 
 const STEPS: readonly Step[] = [
   {
     title: 'Deploy',
     color: 'var(--teal)',
-    body: (
-      <>
-        Name the rig, let the node client detect the card, pick ETH or a stock token as the pair, and post the
-        bond in <Ticker />.
-      </>
-    ),
+    body: 'Run the node client, name the rig and pick ETH or a listed stock token as its pair. One transaction puts it on the board.',
   },
   {
     title: 'Mine verified work',
