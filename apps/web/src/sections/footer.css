@@ -2,39 +2,71 @@
   position: relative;
   z-index: 1;
   margin-top: var(--section-y);
-  padding-block: 44px 52px;
+  padding-block: 48px 52px;
   border-top: 1px solid var(--seam);
 }
 
 .foot__inner {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 26px 48px;
-  align-items: center;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: 36px 48px;
+  align-items: start;
 }
 
-.foot nav {
-  justify-self: end;
+.foot__brand {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
 }
 
-.foot nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 22px;
+.foot__tagline {
+  margin-top: 6px;
+  max-width: 22em;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--silver);
+}
+
+.foot__brand .brand-story {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* Sitemap */
+.foot__map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 32px;
+}
+
+.foot__title {
+  margin: 0 0 10px;
+  font: 500 var(--step--2) / 1.2 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.foot__group ul {
   list-style: none;
 }
 
-.foot nav a {
+.foot__group a {
   display: inline-block;
   padding: 6px 0;
   font-size: var(--step--1);
+  line-height: 1.35;
   color: var(--silver);
   text-decoration: none;
   border-radius: var(--r-tag);
+  transition: color 0.2s;
 }
 
-.foot nav a:hover {
+.foot__group a:hover {
   color: var(--bright);
+  text-decoration: underline;
+  text-decoration-color: var(--seam-hover);
+  text-underline-offset: 3px;
 }
 
 .foot__note {
@@ -54,21 +86,19 @@
   vertical-align: 1px;
 }
 
-.foot__note .brand-story {
-  color: var(--silver);
-}
-
 .foot__note .copy {
   margin-left: auto;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 920px) {
   .foot__inner {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .foot nav {
-    justify-self: start;
+@media (max-width: 560px) {
+  .foot__map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .foot__note .copy {

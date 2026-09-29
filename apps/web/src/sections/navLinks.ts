@@ -1,3 +1,4 @@
+import { DOC_GROUPS, docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath, type RouteName } from '../router/routes.ts';
 
 interface NavLink {
@@ -20,13 +21,42 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Docs', href: PATHS.docs, route: 'docs' },
 ];
 
-/** The footer lists every page and section, with nothing hidden. */
-export const FOOTER_LINKS: readonly NavLink[] = [
-  { label: 'Deploy', href: PATHS.deploy },
-  { label: 'Launchpad', href: PATHS.launchpad },
-  { label: 'Burn Pool', href: sectionPath('burn-pool') },
-  { label: 'Playground', href: PATHS.playground },
-  { label: 'Claim', href: PATHS.claim },
-  { label: 'Campaigns', href: sectionPath('campaigns') },
-  { label: 'Docs', href: PATHS.docs },
+interface FooterGroup {
+  readonly title: string;
+  readonly links: readonly { readonly label: string; readonly href: string }[];
+}
+
+/**
+ * The docs pages the footer lists: every page a newcomer starts with, then the first page of each
+ * later group, so each part of the docs is one click away.
+ */
+const FOOTER_DOCS = DOC_GROUPS.flatMap((group, position) => (position === 0 ? group.pages : group.pages.slice(0, 1)));
+
+/** The footer is the sitemap: every page and home section, grouped, with nothing hidden. */
+export const FOOTER_GROUPS: readonly FooterGroup[] = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Launchpad', href: PATHS.launchpad },
+      { label: 'Deploy', href: PATHS.deploy },
+      { label: 'Playground', href: PATHS.playground },
+      { label: 'Claim', href: PATHS.claim },
+    ],
+  },
+  {
+    title: 'Learn',
+    links: [
+      { label: 'Docs', href: PATHS.docs },
+      ...FOOTER_DOCS.map((page) => ({ label: page.title, href: docPath(page.slug) })),
+    ],
+  },
+  {
+    title: 'Network',
+    links: [
+      { label: 'Burn Pool', href: sectionPath('burn-pool') },
+      { label: 'Campaigns', href: sectionPath('campaigns') },
+      { label: 'Live contracts', href: sectionPath('whats-live') },
+      { label: 'Roadmap', href: sectionPath('roadmap') },
+    ],
+  },
 ];
