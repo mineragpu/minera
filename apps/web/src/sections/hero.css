@@ -267,7 +267,8 @@
   }
 }
 
-@media (max-width: 640px) {
+/* Too narrow for both figure labels: in the tight two-column range and on phones. */
+@media (min-width: 921px) and (max-width: 1120px), (max-width: 640px) {
   .lab--tr {
     display: none;
   }
