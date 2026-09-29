@@ -54,8 +54,19 @@ describe('createLogger', () => {
 
   it('neutralizes terminal control sequences and line breaks in text mode', () => {
     const { logger, out } = capture('text', false);
-    logger.info('GPU: \u001b[31mred\u001b[0m\nnext‮line');
+    logger.info('GPU: \u001b[31mred\u001b[0m\nnext\u202eline');
     assert.equal(out[0], '2026-09-29T08:30:15Z GPU:  [31mred [0m next line\n');
+  });
+
+  it('writes C1 controls and bidirectional overrides as escapes in JSON mode', () => {
+    const { logger, err } = capture('json', false);
+    const hostile = `a${String.fromCharCode(0x9b)}b${String.fromCharCode(0x202e)}c`;
+    logger.warn(hostile, { reason: hostile });
+    const line = err[0] ?? '';
+    assert.ok([...line].every((character) => character.charCodeAt(0) < 0x7f), line);
+    const parsed = JSON.parse(line) as { message: string; reason: string };
+    assert.equal(parsed.message, hostile);
+    assert.equal(parsed.reason, hostile);
   });
 
   it('prints preformatted text without a timestamp', () => {

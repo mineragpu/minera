@@ -36,10 +36,17 @@ export interface Logger {
  * Control characters and bidirectional overrides are replaced, so a GPU name, model name or
  * coordinator message cannot move the cursor or restyle the terminal.
  */
-const UNSAFE_CHARACTERS = /[\u0000-\u0008\u000b-\u001f\u007f-\u009f‪-‮⁦-⁩]/g;
+const UNSAFE_CHARACTERS = /[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g;
 
 export function sanitize(text: string): string {
   return text.replace(UNSAFE_CHARACTERS, ' ');
+}
+
+/** JSON.stringify leaves these raw, so they are written as escapes that parse back to the same text. */
+const RAW_IN_JSON = /[\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g;
+
+function escapeJson(json: string): string {
+  return json.replace(RAW_IN_JSON, (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
 }
 
 function timestamp(date: Date): string {
@@ -54,7 +61,7 @@ export function createLogger(options: LoggerOptions): Logger {
     const sink = level === 'warn' || level === 'error' ? options.stderr : options.stdout;
     const time = now();
     if (options.format === 'json') {
-      sink.write(`${JSON.stringify({ time: time.toISOString(), level, message, ...fields })}\n`);
+      sink.write(`${escapeJson(JSON.stringify({ time: time.toISOString(), level, message, ...fields }))}\n`);
       return;
     }
     const prefix = level === 'warn' ? 'warning: ' : level === 'error' ? 'error: ' : '';
