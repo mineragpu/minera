@@ -53,6 +53,8 @@ export type RigSort = 'new' | 'top' | 'epoch';
 export interface RigListQuery {
   sort: RigSort;
   pair: Address | null;
+  /** Only rigs this wallet operates, or every operator when null. */
+  operator: Address | null;
   /** The epoch whose units are reported alongside each rig. */
   epoch: number;
   limit: number;

@@ -6,7 +6,7 @@ import type { Address, Hex } from '@dayagpu/shared';
 import { migrate } from '../db/migrate.ts';
 import { createMemoryStore } from './memory/index.ts';
 import { createPostgresStore } from './postgres/index.ts';
-import type { NewJob, SettlementDraft, TreeDump } from './records.ts';
+import type { NewJob, RigListQuery, SettlementDraft, TreeDump } from './records.ts';
 import type { Store } from './store.ts';
 
 const address = (n: number): Address => `0x${n.toString(16).padStart(40, '0')}` as Address;
@@ -104,25 +104,43 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(await store.rigs.get(address(0xdead)), null);
     });
 
+    const board = (query: Partial<RigListQuery>) =>
+      store.rigs.list({ sort: 'new', pair: null, operator: null, epoch: 7, limit: 10, offset: 0, ...query });
+
     it('lists the board with sorting, a pair filter and pagination', async () => {
       await store.work.credit(RIG_1, 7, { verified: 5, unverified: 0 });
       await store.work.credit(RIG_3, 6, { verified: 50, unverified: 0 });
       await store.work.credit(RIG_3, 7, { verified: 1, unverified: 3 });
-      const newest = await store.rigs.list({ sort: 'new', pair: null, epoch: 7, limit: 10, offset: 0 });
+      const newest = await board({});
       assert.deepEqual(newest.rigs.map((rig) => rig.nodeKey), [RIG_3, RIG_2, RIG_1]);
       assert.equal(newest.total, 3);
-      const top = await store.rigs.list({ sort: 'top', pair: null, epoch: 7, limit: 10, offset: 0 });
+      const top = await board({ sort: 'top' });
       assert.deepEqual(
         top.rigs.map((rig) => [rig.nodeKey, rig.verifiedUnits]),
         [[RIG_3, 51n], [RIG_1, 5n], [RIG_2, 0n]],
       );
-      const epoch = await store.rigs.list({ sort: 'epoch', pair: null, epoch: 7, limit: 1, offset: 0 });
+      const epoch = await board({ sort: 'epoch', limit: 1 });
       assert.deepEqual(epoch.rigs.map((rig) => [rig.nodeKey, rig.epochUnits]), [[RIG_1, 5n]]);
       assert.equal(epoch.total, 3);
-      const stocks = await store.rigs.list({ sort: 'new', pair: STOCK, epoch: 7, limit: 10, offset: 0 });
+      const stocks = await board({ pair: STOCK });
       assert.deepEqual(stocks.rigs.map((rig) => rig.nodeKey), [RIG_2]);
-      const beyond = await store.rigs.list({ sort: 'new', pair: null, epoch: 7, limit: 10, offset: 5 });
+      const beyond = await board({ offset: 5 });
       assert.deepEqual([beyond.total, beyond.rigs.length], [3, 0]);
+    });
+
+    it('filters the board by operator, alone or with a pair, leaving retired rigs out', async () => {
+      const own = await board({ operator: OPERATOR_A });
+      assert.equal(own.total, 2);
+      assert.deepEqual(own.rigs.map((rig) => [rig.nodeKey, rig.pair]), [[RIG_2, STOCK], [RIG_1, ETH]]);
+      const ownStock = await board({ operator: OPERATOR_A, pair: STOCK });
+      assert.deepEqual(ownStock.rigs.map((rig) => rig.nodeKey), [RIG_2]);
+      const other = await board({ operator: OPERATOR_B, pair: STOCK });
+      assert.deepEqual([other.total, other.rigs], [0, []]);
+      await store.rigs.retire(RIG_2, at(20));
+      const afterRetire = await board({ operator: OPERATOR_A });
+      assert.deepEqual([afterRetire.total, afterRetire.rigs.map((rig) => rig.nodeKey)], [1, [RIG_1]]);
+      const nobody = await board({ operator: address(0xdead) });
+      assert.deepEqual([nobody.total, nobody.rigs], [0, []]);
     });
 
     it('tracks liveness, checks and challenges', async () => {

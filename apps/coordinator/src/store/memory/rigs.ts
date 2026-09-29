@@ -88,7 +88,12 @@ export function memoryRigs(box: StateBox): RigStore {
 
     async list(query) {
       const rows: RigListEntry[] = [...box.state.rigs.values()]
-        .filter((rig) => !rig.retired && (query.pair === null || rig.pair === query.pair))
+        .filter(
+          (rig) =>
+            !rig.retired &&
+            (query.pair === null || rig.pair === query.pair) &&
+            (query.operator === null || rig.operator === query.operator),
+        )
         .map((rig) => ({ ...copy(rig), epochUnits: epochUnits(rig.nodeKey, query.epoch) }));
       const newest = (a: RigListEntry, b: RigListEntry): number =>
         b.deployedAt.getTime() - a.deployedAt.getTime() || (a.nodeKey < b.nodeKey ? -1 : 1);

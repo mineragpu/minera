@@ -129,13 +129,17 @@ export function postgresRigs(db: Queryable): RigStore {
         SELECT r.*, COALESCE(w.verified_units, 0) AS epoch_units
         FROM rigs r
         LEFT JOIN work w ON w.node_key = r.node_key AND w.epoch = ${query.epoch}
-        WHERE r.retired_at IS NULL AND (${query.pair}::text IS NULL OR r.pair = ${query.pair})
+        WHERE r.retired_at IS NULL
+          AND (${query.pair}::text IS NULL OR r.pair = ${query.pair})
+          AND (${query.operator}::text IS NULL OR r.operator = ${query.operator})
         ORDER BY ${orderBy(db, query.sort)}
         LIMIT ${query.limit} OFFSET ${query.offset}
       `;
       const [count] = await db<{ total: string }[]>`
         SELECT count(*) AS total FROM rigs
-        WHERE retired_at IS NULL AND (${query.pair}::text IS NULL OR pair = ${query.pair})
+        WHERE retired_at IS NULL
+          AND (${query.pair}::text IS NULL OR pair = ${query.pair})
+          AND (${query.operator}::text IS NULL OR operator = ${query.operator})
       `;
       return {
         total: toSafeNumber(count?.total ?? 0),

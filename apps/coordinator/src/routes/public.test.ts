@@ -94,6 +94,31 @@ describe('public routes', () => {
     assert.deepEqual(paths.sort(), ['query.limit', 'query.sort']);
   });
 
+  it('lists the rigs of one operator with their pairs, and validates the operator', async () => {
+    const third = { nodeKey: address(0x103), operator: OPERATOR_B, pair: address(0), name: 'three' };
+    await harness.store.rigs.deploy({ ...third, deployedAt: new Date('2026-09-28T01:00:00Z'), deployedBlock: 3n });
+
+    const own = (await get(`/v1/rigs?sort=top&operator=${OPERATOR_B.replace('0xb', '0xB')}`)).json();
+    assert.equal(own.total, 2);
+    assert.deepEqual(
+      own.rigs.map((rig: { nodeKey: string; operator: string; pair: string }) => [rig.nodeKey, rig.operator, rig.pair]),
+      [
+        [RIG_2, OPERATOR_B, STOCK],
+        [address(0x103), OPERATOR_B, address(0)],
+      ],
+    );
+    const ownEth = (await get(`/v1/rigs?operator=${OPERATOR_B}&pair=eth`)).json();
+    assert.deepEqual(ownEth.rigs.map((rig: { nodeKey: string }) => rig.nodeKey), [address(0x103)]);
+    const none = (await get(`/v1/rigs?operator=${address(0x77)}`)).json();
+    assert.deepEqual([none.total, none.rigs], [0, []]);
+
+    const bad = await get('/v1/rigs?operator=0x123');
+    assert.equal(bad.statusCode, 400);
+    assert.deepEqual(bad.json().error.details, [
+      { path: 'query.operator', message: 'Expected a 0x-prefixed 20-byte address.' },
+    ]);
+  });
+
   it('shows a rig with 24 hourly buckets, and 400 or 404 for bad keys', async () => {
     const detail = (await get(`/v1/rigs/${RIG_2}`)).json();
     assert.equal(detail.name, 'two');

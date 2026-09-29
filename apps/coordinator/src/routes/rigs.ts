@@ -14,6 +14,8 @@ const listQuery = z.object({
   sort: z.enum(['new', 'top', 'epoch']).default('new'),
   /** `eth` or the token address the rig is paired with. */
   pair: z.union([z.literal('eth').transform(() => ETH_PAIR), addressSchema]).optional(),
+  /** The operator wallet, so a wallet can find its own rigs and their pairs. */
+  operator: addressSchema.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   offset: z.coerce.number().int().min(0).max(100_000).default(0),
 });
@@ -44,6 +46,7 @@ export function registerRigRoutes(app: FastifyInstance, context: RouteContext): 
     const page = await store.rigs.list({
       sort: query.sort,
       pair: query.pair ?? null,
+      operator: query.operator ?? null,
       epoch,
       limit: query.limit,
       offset: query.offset,
