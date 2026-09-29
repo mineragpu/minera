@@ -1,6 +1,7 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
 import { useSectionSpy } from '../motion/useSectionSpy.ts';
+import { WalletButton } from '../wallet/WalletButton.tsx';
 import { NAV_LINKS } from './navLinks.ts';
 import './nav.css';
 
@@ -21,6 +22,7 @@ export function Nav() {
             ))}
           </ul>
         </nav>
+        <WalletButton />
         <ButtonLink variant="primary" size="sm" href="#deploy" className="nav-deploy">
           Deploy GPU
         </ButtonLink>

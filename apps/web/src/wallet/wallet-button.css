@@ -1,0 +1,70 @@
+.wallet-button {
+  gap: 8px;
+}
+
+.wallet-button__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.wallet-button--ready .wallet-button__dot {
+  background: var(--teal);
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(46, 230, 200, 0.25);
+}
+
+.wallet-button--wrong .wallet-button__dot {
+  background: var(--magenta);
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(255, 79, 163, 0.25);
+}
+
+.btn .wallet-button__icon {
+  display: none;
+}
+
+.wallet-button__label {
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-button__badge {
+  display: inline-flex;
+  margin-left: 2px;
+}
+
+/* Hidden visually where the bar is tight, but still part of the button's accessible name. */
+@media (max-width: 1180px) {
+  .wallet-button__badge {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .wallet-button {
+    padding: 0 12px;
+  }
+
+  .wallet-button__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .btn .wallet-button__icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+}
