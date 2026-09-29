@@ -1,0 +1,46 @@
+.doc-toc__title {
+  margin-bottom: 12px;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.doc-toc ul {
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--seam);
+}
+
+.doc-toc a {
+  position: relative;
+  display: block;
+  padding: 5px 4px 5px 14px;
+  border-radius: var(--r-tag);
+  font-size: var(--step--1);
+  line-height: 1.4;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.doc-toc__sub a {
+  padding-left: 26px;
+}
+
+.doc-toc a:hover,
+.doc-toc a[aria-current] {
+  color: var(--bright);
+}
+
+.doc-toc a[aria-current]::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--iri-rail);
+}
