@@ -62,7 +62,7 @@ describe('bodyDigest', () => {
   });
 
   it('hashes the raw UTF-8 bytes', () => {
-    assert.equal(bodyDigest(encode('héllo')), keccak256(Buffer.from('héllo', 'utf8')));
+    assert.equal(bodyDigest(encode('h\u00e9llo')), keccak256(Buffer.from('h\u00e9llo', 'utf8')));
   });
 });
 

@@ -88,7 +88,7 @@ personal message. The registry checks it when the operator deploys the rig.
 - It authorizes one wallet to deploy this node key, on one registry, on one chain. It fails for any
   other wallet, registry or chain.
 - It cannot move funds or sign anything else. It is not a secret.
-- To print it again, for another wallet or network, run `rig code --operator 0x… [--network …]`.
+- To print it again, for another wallet or network, run `rig code --operator 0x... [--network ...]`.
 
 ## The node key
 
