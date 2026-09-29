@@ -195,7 +195,7 @@ describe('runNode', () => {
     try {
       await runNode(run.options);
       assert.deepEqual(uploaded, ['job-1']);
-      assert.ok(run.lines.some((line) => line.includes('Dropped 1 queued jobs')));
+      assert.ok(run.lines.some((line) => line.includes('Left 1 queued job for the coordinator to reassign.')));
       assert.ok(run.lines.some((line) => line.includes('Waiting for 1 running job to finish')));
     } finally {
       await run.coordinator.close();

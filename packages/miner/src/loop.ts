@@ -44,6 +44,10 @@ function inSeconds(ms: number): string {
   return (ms / 1000).toFixed(ms < 10_000 ? 1 : 0);
 }
 
+function count(value: number, noun: string): string {
+  return `${value} ${noun}${value === 1 ? '' : 's'}`;
+}
+
 function heartbeatDelayMs(seconds: number): number {
   return Math.min(MAX_HEARTBEAT_SECONDS, Math.max(MIN_HEARTBEAT_SECONDS, seconds)) * 1000;
 }
@@ -198,9 +202,9 @@ export async function runNode(options: NodeLoopOptions): Promise<void> {
     throw error;
   } finally {
     const dropped = scheduler.close();
-    if (dropped > 0) logger.info(`Dropped ${dropped} queued jobs; the coordinator will reassign them.`);
+    if (dropped > 0) logger.info(`Left ${count(dropped, 'queued job')} for the coordinator to reassign.`);
     if (scheduler.running > 0 && !jobSignal.aborted) {
-      logger.info(`Waiting for ${scheduler.running} running job${scheduler.running === 1 ? '' : 's'} to finish.`);
+      logger.info(`Waiting for ${count(scheduler.running, 'running job')} to finish.`);
     }
     await scheduler.drained();
   }
