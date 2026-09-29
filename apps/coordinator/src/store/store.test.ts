@@ -170,6 +170,7 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       const check = job({ kind: 'challenge', targetNode: RIG_3, expected: '42' });
       const bench = job({ kind: 'benchmark', targetNode: RIG_3, expected: '7' });
       for (const entry of [chat, check, bench]) await store.jobs.insert(entry);
+      await assert.rejects(store.jobs.insert(chat));
 
       await store.jobs.assign(chat.id, RIG_1, at(10), at(12));
       await store.jobs.release(chat.id);

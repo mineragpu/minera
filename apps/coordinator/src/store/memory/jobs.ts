@@ -18,6 +18,7 @@ export function memoryJobs(box: StateBox): JobStore {
 
   return {
     async insert(job) {
+      if (box.state.jobs.has(job.id)) throw new Error(`job ${job.id} already exists`);
       box.state.jobs.set(job.id, {
         ...copy(job),
         status: 'queued',
