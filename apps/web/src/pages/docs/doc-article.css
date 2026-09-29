@@ -113,6 +113,8 @@
   font-size: 0.86em;
   color: var(--bright);
   overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .doc-body a code {
@@ -215,6 +217,17 @@
 .doc-table a code {
   white-space: nowrap;
   overflow-wrap: normal;
+}
+
+/* On narrow screens the table scrolls rather than squeezing text beside a long address. */
+@media (max-width: 760px) {
+  .doc-table td {
+    min-width: 15rem;
+  }
+
+  .doc-table td:first-child {
+    min-width: 7.5rem;
+  }
 }
 
 /* Code blocks scroll inside their own frame */
