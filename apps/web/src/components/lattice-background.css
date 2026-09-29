@@ -1,0 +1,23 @@
+.lattice {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(1200px 900px at 72% 420px, #000 0%, rgba(0, 0, 0, 0.55) 50%, rgba(0, 0, 0, 0.34) 100%);
+  mask-image: radial-gradient(1200px 900px at 72% 420px, #000 0%, rgba(0, 0, 0, 0.55) 50%, rgba(0, 0, 0, 0.34) 100%);
+}
+
+/* The tile masks the iridescent field, so the grid lines carry the sheen. */
+.lattice__grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--lattice-size) * -1);
+  bottom: 0;
+  opacity: 0.22;
+  will-change: transform;
+  background: var(--iri-field);
+  -webkit-mask: var(--lattice-tile) 0 0 / var(--lattice-size) var(--lattice-size) repeat;
+  mask: var(--lattice-tile) 0 0 / var(--lattice-size) var(--lattice-size) repeat;
+}
