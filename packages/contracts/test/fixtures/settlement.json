@@ -1,0 +1,30 @@
+{
+  "root": "0x26ce9d12e0cba4992398c74a54e9bd9846e448a54255dc4df3c91aed159ea2d8",
+  "total": "2000000000000000000",
+  "count": 3,
+  "entries": [
+    {
+      "account": "0x0000000000000000000000000000000000000b0b",
+      "cumulative": "250000000000000000",
+      "proof": [
+        "0x3eeb2621eb2a469f55f48dde0d395712c114662f9ca7b1a5eaf9bf86c3a13c6c"
+      ]
+    },
+    {
+      "account": "0x000000000000000000000000000000000000ca01",
+      "cumulative": "1000000000000000000",
+      "proof": [
+        "0x76e11356e7f15dff9980624781c96e0ddc108cdb6b3b6da385e620d04ad40cb8",
+        "0xf13f60f3e5e94c219a17cc7709ddd966d9fe92875de08409d3e6b06aa49ef205"
+      ]
+    },
+    {
+      "account": "0x00000000000000000000000000000000000a11ce",
+      "cumulative": "750000000000000000",
+      "proof": [
+        "0x4e6bac2ff7549d771163afcf488af64c522ac41ca6618968714855bdb5820372",
+        "0xf13f60f3e5e94c219a17cc7709ddd966d9fe92875de08409d3e6b06aa49ef205"
+      ]
+    }
+  ]
+}
