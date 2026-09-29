@@ -39,12 +39,12 @@ export function registerClaimRoute(app: FastifyInstance, context: RouteContext):
       claimed: claimed.toString(),
       claimable: (cumulative > claimed ? cumulative - claimed : 0n).toString(),
       settlement:
-        settlement?.index != null
+        settlement && settlement.index !== null
           ? { index: settlement.index, root: settlement.root, claimableAt: iso(settlement.claimableAt) }
           : null,
       proof: entitlement?.proof ?? [],
       pending:
-        pending?.index != null && upcoming
+        pending && pending.index !== null && upcoming
           ? { index: pending.index, cumulative: upcoming.cumulative.toString(), claimableAt: iso(pending.claimableAt) }
           : null,
     };
