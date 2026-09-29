@@ -16,7 +16,7 @@ export function Hero() {
       <div className="hero__copy">
         <p className="eyebrow rise" style={rise(0.05)}>
           <LiveDot />
-          Campaign 01 · Genesis is live
+          Contracts live on testnet
         </p>
         <h1 className="hero__title" id="hero-title">
           <span className="ln rise" style={rise(0.12)}>
@@ -71,7 +71,7 @@ export function Hero() {
             Fig. 1 · Network view
           </span>
           <span className="lab lab--tr" aria-hidden="true">
-            Campaign 01 · Genesis
+            Testnet
           </span>
           <BlockCluster />
           <span className="lab lab--bl" aria-hidden="true">

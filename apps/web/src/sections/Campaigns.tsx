@@ -1,6 +1,5 @@
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
-import { LiveDot } from '../components/LiveDot.tsx';
 import { PreviewTag } from '../components/PreviewTag.tsx';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
 import './campaigns.css';
@@ -18,7 +17,7 @@ export function Campaigns() {
           </h2>
         </div>
         <p className="lede">
-          A campaign announces what share of creator fees goes into the Burn Pool. The first one is live.
+          A campaign announces what share of creator fees goes into the Burn Pool. The first one opens with the network on testnet.
         </p>
       </div>
       <ol className="timeline">
@@ -28,10 +27,7 @@ export function Campaigns() {
           </span>
           <p className="camp__idx">Campaign {PREVIEW_CAMPAIGN.number}</p>
           <h3>{PREVIEW_CAMPAIGN.name}</h3>
-          <p className="camp__state">
-            <LiveDot />
-            Live
-          </p>
+          <p className="camp__state">Opens on testnet</p>
           <p className="camp__share">
             <strong>{PREVIEW_CAMPAIGN.poolSharePercent}%</strong>
             <span>of creator fees burned to the pool</span>
