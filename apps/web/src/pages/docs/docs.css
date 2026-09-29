@@ -25,7 +25,8 @@
 .docs-skip:focus {
   position: absolute;
   left: 0;
-  top: 0;
+  /* Clear of the sticky top bar's lower edge */
+  top: 16px;
   z-index: 5;
   padding: 10px 14px;
   border-radius: var(--r-tag);
