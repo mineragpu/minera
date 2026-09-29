@@ -4,6 +4,7 @@ export const WALLET_MESSAGES = {
   noWallet: 'No wallet found. Install a browser wallet to continue.',
   pending: 'Your wallet already has a request open. Finish it there, then try again.',
   noAccount: 'Your wallet shared no account. Unlock it and try again.',
+  notConnected: 'Connect a wallet first.',
   unauthorized: 'Your wallet has not approved this site. Connect again to continue.',
   unsupported: 'This wallet does not support that request.',
   failed: 'The wallet could not complete the request. Try again.',
@@ -14,6 +15,7 @@ export const ERROR_CODES = {
   userRejected: 4001,
   unauthorized: 4100,
   unsupportedMethod: 4200,
+  unrecognizedChain: 4902,
   requestPending: -32002,
   internal: -32603,
 } as const;

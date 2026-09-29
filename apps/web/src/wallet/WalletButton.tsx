@@ -10,7 +10,10 @@ import './wallet-button.css';
 export function WalletButton() {
   const { status, address, isCorrectNetwork } = useWallet();
   const dialog = useConnectDialog();
-  const state = status !== 'connected' ? 'idle' : isCorrectNetwork ? 'ready' : 'wrong';
+  const state = status !== 'connected' || !address ? 'idle' : isCorrectNetwork ? 'ready' : 'wrong';
+
+  let label = status === 'connecting' ? 'Connecting…' : 'Connect wallet';
+  if (state === 'wrong') label = 'Switch network';
 
   return (
     <Button
@@ -23,22 +26,18 @@ export function WalletButton() {
     >
       <i className="wallet-button__dot" aria-hidden="true" />
       <WalletIcon className="wallet-button__icon" />
-      <span className="wallet-button__label">
-        {address ? (
-          <>
+      {state === 'ready' && address ? (
+        <>
+          <span className="wallet-button__label">
             <span className="sr-only">Wallet </span>
             {shortAddress(address)}
-          </>
-        ) : status === 'connecting' ? (
-          'Connecting…'
-        ) : (
-          'Connect wallet'
-        )}
-      </span>
-      {address && (
-        <span className="wallet-button__badge">
-          <NetworkBadge correct={isCorrectNetwork} />
-        </span>
+          </span>
+          <span className="wallet-button__badge">
+            <NetworkBadge correct />
+          </span>
+        </>
+      ) : (
+        <span className="wallet-button__label">{label}</span>
       )}
     </Button>
   );

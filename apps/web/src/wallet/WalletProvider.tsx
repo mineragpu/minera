@@ -6,6 +6,7 @@ import type { ProviderListener } from './eip1193.ts';
 import { WALLET_MESSAGES, describeWalletError } from './errors.ts';
 import { parseAccounts, parseChainId } from './parse.ts';
 import { forgetWallet, readLastWallet, rememberWallet } from './storage.ts';
+import { switchToChain } from './switchChain.ts';
 import { WalletContext, type WalletState } from './useWallet.ts';
 
 interface Session {
@@ -22,11 +23,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const wallets = useSyncExternalStore(subscribeWallets, getWallets, getWallets);
   const [session, setSession] = useState<Session | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [switching, setSwitching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const walletsRef = useRef(wallets);
   const sessionRef = useRef(session);
   const pendingRef = useRef<string | null>(null);
+  const switchingRef = useRef(false);
   const reconnectTried = useRef(false);
   useEffect(() => {
     walletsRef.current = wallets;
@@ -128,6 +131,31 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       .catch(() => undefined);
   }, [endSession]);
 
+  const switchNetwork = useCallback(async () => {
+    const wallet = sessionRef.current?.wallet;
+    if (!wallet) {
+      setError(WALLET_MESSAGES.notConnected);
+      return;
+    }
+    if (switchingRef.current) {
+      setError(WALLET_MESSAGES.pending);
+      return;
+    }
+    switchingRef.current = true;
+    setSwitching(true);
+    setError(null);
+    try {
+      await switchToChain(wallet.provider, ACTIVE_CHAIN);
+      const chainId = await readChainId(wallet);
+      setSession((current) => (current?.wallet === wallet ? { ...current, chainId } : current));
+    } catch (cause) {
+      setError(describeWalletError(cause));
+    } finally {
+      switchingRef.current = false;
+      setSwitching(false);
+    }
+  }, []);
+
   const clearError = useCallback(() => setError(null), []);
 
   const value = useMemo<WalletState>(
@@ -139,12 +167,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       wallet: session?.wallet ?? null,
       wallets,
       pendingId,
+      switching,
       error,
       connect,
       disconnect,
+      switchNetwork,
       clearError,
     }),
-    [session, pendingId, error, wallets, connect, disconnect, clearError],
+    [session, pendingId, switching, error, wallets, connect, disconnect, switchNetwork, clearError],
   );
 
   return <WalletContext value={value}>{children}</WalletContext>;

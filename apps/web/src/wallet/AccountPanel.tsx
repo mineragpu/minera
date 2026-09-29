@@ -1,27 +1,16 @@
 import { Button, ButtonLink } from '../components/Button.tsx';
 import { ACTIVE_CHAIN } from '../config/network.ts';
-import { shortAddress } from './format.ts';
-import { NetworkBadge } from './NetworkBadge.tsx';
+import { AccountSummary } from './AccountSummary.tsx';
 import { useWallet } from './useWallet.ts';
-import { WalletMark } from './WalletMark.tsx';
 
-/** The connected wallet: which one, its address, its network and a way out. */
+/** The connected wallet on the right network, with a way to inspect it and a way out. */
 export function AccountPanel() {
-  const { wallet, address, isCorrectNetwork, disconnect } = useWallet();
-  if (!wallet || !address) return null;
+  const { address, disconnect } = useWallet();
+  if (!address) return null;
 
   return (
     <>
-      <div className="wallet-account">
-        <WalletMark wallet={wallet} />
-        <div className="wallet-account__who">
-          <p className="wallet-account__name">{wallet.name}</p>
-          <p className="wallet-account__address" title={address}>
-            {shortAddress(address)}
-          </p>
-        </div>
-        <NetworkBadge correct={isCorrectNetwork} full />
-      </div>
+      <AccountSummary />
       <div className="wallet-dialog__actions">
         <ButtonLink
           variant="ghost"
