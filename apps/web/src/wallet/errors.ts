@@ -3,7 +3,7 @@ export const WALLET_MESSAGES = {
   rejected: 'You rejected the request in your wallet.',
   noWallet: 'No wallet found. Install a browser wallet to continue.',
   pending: 'Your wallet already has a request open. Finish it there, then try again.',
-  noAccount: 'Your wallet shared no account. Unlock it and try again.',
+  noAccount: 'Your wallet shared no account. Sign in to it and try again.',
   notConnected: 'Connect a wallet first.',
   unauthorized: 'Your wallet has not approved this site. Connect again to continue.',
   unsupported: 'This wallet does not support that request.',
