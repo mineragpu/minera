@@ -15,7 +15,7 @@ internal/
 packages/contracts/out/
 packages/contracts/cache/
 packages/contracts/dependencies/
-packages/contracts/broadcast/*/31337/
+packages/contracts/broadcast/
 
 .DS_Store
 Thumbs.db

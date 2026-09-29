@@ -10,7 +10,11 @@ optimizer = true
 optimizer_runs = 10000
 fuzz = { runs = 2048 }
 invariant = { runs = 256, depth = 64, fail_on_revert = false }
-fs_permissions = [{ access = "read", path = "./test/fixtures" }]
+fs_permissions = [
+  { access = "read", path = "./test/fixtures" },
+  { access = "read", path = "./deploy" },
+  { access = "read-write", path = "./deployments" },
+]
 
 [soldeer]
 remappings_generate = true
