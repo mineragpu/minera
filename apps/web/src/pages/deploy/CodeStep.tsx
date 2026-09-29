@@ -65,6 +65,7 @@ export function CodeStep(props: CodeStepProps) {
           type="text"
           value={nodeInput}
           onChange={(event) => onNodeInput(event.target.value)}
+          onBlur={() => nodeAddress && onNodeInput(nodeAddress)}
           placeholder="0x…"
           autoComplete="off"
           spellCheck={false}
@@ -82,6 +83,7 @@ export function CodeStep(props: CodeStepProps) {
           id="deploy-code"
           value={codeInput}
           onChange={(event) => onCodeInput(event.target.value)}
+          onBlur={() => code && onCodeInput(code)}
           placeholder="0x…"
           autoComplete="off"
           spellCheck={false}
