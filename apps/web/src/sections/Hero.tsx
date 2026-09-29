@@ -1,0 +1,88 @@
+import { ButtonLink } from '../components/Button.tsx';
+import { CubeGlyph } from '../components/CubeGlyph.tsx';
+import { LiveDot } from '../components/LiveDot.tsx';
+import { ArrowRightIcon } from '../components/icons.tsx';
+import { BlockCluster } from '../components/cluster/BlockCluster.tsx';
+import './hero.css';
+
+/** Load-sequence delay for one element of the hero stagger. */
+function rise(seconds: number) {
+  return { '--rd': `${seconds}s` };
+}
+
+export function Hero() {
+  return (
+    <section className="hero shell" aria-labelledby="hero-title">
+      <div className="hero__copy">
+        <p className="eyebrow rise" style={rise(0.05)}>
+          <LiveDot />
+          Campaign 01 · Genesis is live
+        </p>
+        <h1 className="hero__title" id="hero-title">
+          <span className="ln rise" style={rise(0.12)}>
+            Deploy a GPU
+          </span>
+          <span className="ln rise" style={rise(0.2)}>
+            like you’d
+          </span>
+          <span className="ln rise" style={rise(0.28)}>
+            launch <span className="accent">a token.</span>
+          </span>
+        </h1>
+        <p className="hero__sub rise" style={rise(0.38)}>
+          Plug in your card, choose what your rewards pair with — ETH or a tokenized stock — and mine from a
+          pool that only fills.
+        </p>
+        <div className="hero__ctas rise" style={rise(0.48)}>
+          <ButtonLink variant="primary" href="#deploy">
+            Deploy your GPU
+            <ArrowRightIcon />
+          </ButtonLink>
+          <ButtonLink variant="ghost" href="#burn-pool">
+            See the Burn Pool
+          </ButtonLink>
+        </div>
+        <dl className="spec rise" style={rise(0.58)}>
+          <div>
+            <dt>Work</dt>
+            <dd>Verified AI inference</dd>
+          </div>
+          <div>
+            <dt>Rewards</dt>
+            <dd>Paid in ETH or a stock token</dd>
+          </div>
+          <div>
+            <dt>Burn Pool</dt>
+            <dd>Fills one way</dd>
+          </div>
+        </dl>
+      </div>
+
+      <figure className="hero__visual">
+        <div className="specimen">
+          <div className="specimen__glow" aria-hidden="true" />
+          <div className="specimen__frame" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
+          <span className="lab lab--tl" aria-hidden="true">
+            Fig. 1 · Network view
+          </span>
+          <span className="lab lab--tr" aria-hidden="true">
+            Campaign 01 · Genesis
+          </span>
+          <BlockCluster />
+          <span className="lab lab--bl" aria-hidden="true">
+            <CubeGlyph color="var(--teal)" />1 block = 1 unit of verified work
+          </span>
+        </div>
+        <figcaption className="rise" style={rise(0.7)}>
+          <b>Every block is a unit of verified GPU work.</b> As rigs join, the blocks lock into one lattice.
+          That lattice is the network.
+        </figcaption>
+      </figure>
+    </section>
+  );
+}

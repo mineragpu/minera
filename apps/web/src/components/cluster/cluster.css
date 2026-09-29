@@ -1,0 +1,193 @@
+.specimen__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  container-type: inline-size;
+  perspective: 1400px;
+  perspective-origin: 50% 36%;
+}
+
+/* One cluster unit scales with the stage, so the figure keeps its proportions at any width. */
+.cluster {
+  --u: 14.2cqi;
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(-40deg);
+}
+
+.cube {
+  --sz: calc(var(--u) * var(--s));
+  --tx: calc(var(--u) * var(--x));
+  --ty: calc(var(--u) * var(--y) * -1);
+  --tz: calc(var(--u) * var(--z));
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: translate3d(var(--tx), var(--ty), var(--tz));
+}
+
+.face {
+  position: absolute;
+  left: calc(var(--sz) / -2);
+  top: calc(var(--sz) / -2);
+  width: var(--sz);
+  height: var(--sz);
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border: var(--bw, 1px) solid transparent;
+  border-image: conic-gradient(from var(--eo, 0deg), rgba(46, 230, 200, 0.95), rgba(90, 141, 255, 0.9), rgba(140, 107, 255, 0.9), rgba(255, 79, 163, 0.9), rgba(245, 196, 81, 0.95), rgba(46, 230, 200, 0.95)) 1;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 44%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, rgba(255, 255, 255, 0) 1px 6px),
+    linear-gradient(180deg, #939dae 0%, #646d7e 52%, #3f4655 100%);
+}
+
+/* The oil-slick patch: its hue turns with the face's angle to the viewer. */
+.face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from calc(var(--hr, 0) * 1deg + var(--to, 0deg)) at var(--tpx, 30%) var(--tpy, 70%), var(--iri-list));
+  -webkit-mask-image: radial-gradient(circle at var(--tpx, 30%) var(--tpy, 70%), #000 0%, rgba(0, 0, 0, 0.6) 32%, transparent 74%);
+  mask-image: radial-gradient(circle at var(--tpx, 30%) var(--tpy, 70%), #000 0%, rgba(0, 0, 0, 0.6) 32%, transparent 74%);
+  opacity: calc(var(--tar, 0.5) * var(--ir, 0.5));
+}
+
+.face > b {
+  position: absolute;
+  inset: 15%;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.16);
+}
+
+.face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #06080c;
+  opacity: var(--sh, 0.35);
+}
+
+.face > i {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0) 58%);
+  opacity: var(--hl, 0);
+}
+
+.f-front {
+  transform: translateZ(calc(var(--sz) / 2));
+  --sh: var(--sh-f);
+  --hl: var(--hl-f);
+  --ir: var(--ir-f);
+  --hr: var(--hr-f);
+}
+
+.f-back {
+  transform: rotateY(180deg) translateZ(calc(var(--sz) / 2));
+  --sh: var(--sh-b);
+  --hl: var(--hl-b);
+  --ir: var(--ir-b);
+  --hr: var(--hr-b);
+}
+
+.f-right {
+  transform: rotateY(90deg) translateZ(calc(var(--sz) / 2));
+  --sh: var(--sh-r);
+  --hl: var(--hl-r);
+  --ir: var(--ir-r);
+  --hr: var(--hr-r);
+}
+
+.f-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--sz) / 2));
+  --sh: var(--sh-l);
+  --hl: var(--hl-l);
+  --ir: var(--ir-l);
+  --hr: var(--hr-l);
+}
+
+.f-top {
+  transform: rotateX(90deg) translateZ(calc(var(--sz) / 2));
+  --sh: var(--sh-t);
+  --hl: var(--hl-t);
+  --ir: var(--ir-t);
+  --hr: var(--hr-t);
+}
+
+.plate {
+  position: absolute;
+  left: calc(var(--u) * -3);
+  top: calc(var(--u) * -3);
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+  transform: translateY(calc(var(--u) * 1.06)) rotateX(90deg);
+  pointer-events: none;
+}
+
+.plate svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.plate text {
+  font-family: var(--font-mono);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cluster.is-assembling .cube {
+    animation: cube-in 1.7s var(--ease-out) var(--d, 0s) both;
+  }
+
+  .cluster.is-assembling .face {
+    animation: face-in 0.8s ease-out var(--d, 0s) both;
+  }
+
+  .cluster.is-assembling .plate {
+    animation: plate-in 1.5s var(--ease-out) 0.05s both;
+  }
+}
+
+@keyframes cube-in {
+  from {
+    transform: translate3d(calc(var(--tx) + var(--u) * var(--ex)), calc(var(--ty) + var(--u) * var(--ey)), calc(var(--tz) + var(--u) * var(--ez))) rotateX(var(--rx0)) rotateY(var(--ry0)) rotateZ(var(--rz0));
+  }
+
+  to {
+    transform: translate3d(var(--tx), var(--ty), var(--tz)) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+}
+
+@keyframes face-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--u) * 1.06)) rotateX(90deg) scale(0.55);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(calc(var(--u) * 1.06)) rotateX(90deg) scale(1);
+  }
+}
