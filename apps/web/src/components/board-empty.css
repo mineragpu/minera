@@ -1,0 +1,23 @@
+.board-empty {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  padding: clamp(24px, 4vw, 44px);
+  border: 1px dashed var(--seam-2);
+  background: rgba(15, 19, 27, 0.55);
+  color: var(--silver);
+}
+
+.board-empty__title {
+  font: 700 var(--step-2) / 1.15 var(--font-display);
+  color: var(--bright);
+  overflow-wrap: anywhere;
+}
+
+.board-empty p:not(.board-empty__title) {
+  max-width: 34em;
+}
+
+.board-empty .btn {
+  margin-top: 6px;
+}
