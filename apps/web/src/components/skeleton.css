@@ -1,0 +1,25 @@
+.skel {
+  display: inline-block;
+  width: var(--skel-w);
+  max-width: 100%;
+  height: var(--skel-h);
+  vertical-align: middle;
+  border-radius: var(--r-tag);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%) 0 0 / 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skel {
+    animation: skel-sweep 1.6s var(--ease-io) infinite;
+  }
+}
+
+@keyframes skel-sweep {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
