@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from 'viem/accounts';
-import { NODE_ROUTES, type Address, type JobAssignment } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type Address, type JobAssignment } from '@dayagpu/shared';
 import { submitPlaygroundJob } from '../jobs/playground.ts';
 import { viewPlaygroundJob } from '../jobs/playgroundView.ts';
 import { signNodeRequest } from '../testing/nodeSigner.ts';
@@ -19,6 +19,7 @@ let rig: PrivateKeyAccount;
 async function send(account: PrivateKeyAccount, path: string, payload: unknown, extra: Record<string, string> = {}) {
   const body = JSON.stringify(payload);
   const headers = await signNodeRequest(account, {
+    chainId: harness.config.chain.id,
     method: 'POST',
     path,
     body,
@@ -84,6 +85,7 @@ describe('node routes', () => {
 
     const body = JSON.stringify(heartbeat);
     const headers = await signNodeRequest(rig, {
+      chainId: harness.config.chain.id,
       method: 'POST',
       path: NODE_ROUTES.heartbeat,
       body,
@@ -99,6 +101,26 @@ describe('node routes', () => {
     const replay = await harness.app.inject(request);
     assert.equal(replay.statusCode, 401);
     assert.equal(replay.json().error.code, 'replayed_request');
+  });
+
+  it('refuses a request signed for another network', async () => {
+    assert.equal(harness.config.chain.id, CHAINS.testnet.id);
+    const body = JSON.stringify(hello);
+    const headers = await signNodeRequest(rig, {
+      chainId: CHAINS.mainnet.id,
+      method: 'POST',
+      path: NODE_ROUTES.hello,
+      body,
+      timestamp: Math.floor(harness.clock.now.getTime() / 1000),
+    });
+    const response = await harness.app.inject({
+      method: 'POST',
+      url: NODE_ROUTES.hello,
+      headers: { ...headers, 'content-type': 'application/json' },
+      payload: body,
+    });
+    assert.equal(response.statusCode, 401);
+    assert.equal(response.json().error.code, 'bad_signature');
   });
 
   it('validates the body after authenticating', async () => {

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { NODE_ROUTES, type Hex } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type Hex } from '@dayagpu/shared';
 import { getAddress, recoverMessageAddress } from 'viem';
 import { deployDigest, deployTargetFor } from './deploy-code.ts';
 import { main, type MainEnvironment } from './main.ts';
@@ -151,7 +151,7 @@ describe('rig start', () => {
     let stop = (): void => undefined;
     const coordinator = await startMockServer(async (request) => {
       if (request.url === NODE_ROUTES.hello) {
-        const nodeKey = await signerOf(request);
+        const nodeKey = await signerOf(request, CHAINS.testnet.id);
         return {
           json: {
             rig: { nodeKey, operator: OPERATOR, name: 'Night Shift', pair: `0x${'0'.repeat(40)}` },
@@ -179,6 +179,42 @@ describe('rig start', () => {
 
       const again = await run(['status'], environment(home));
       assert.match(again.out, new RegExp(`Coordinator: ${coordinator.url}`));
+    } finally {
+      await coordinator.close();
+      await runtime.close();
+    }
+  });
+
+  it('signs every request for chain 46630 when the node runs on testnet', async () => {
+    const { home, key } = fresh('start-testnet');
+    await run(['init', '--operator', OPERATOR, '--network', 'testnet'], environment(home));
+    const nodeAddress = (JSON.parse(readFileSync(key, 'utf8')) as { address: string }).address;
+    const runtime = await startMockServer((request) =>
+      request.url === '/api/version' ? { json: { version: '0.12.3' } } : { json: { models: [{ name: 'alpha:7b' }] } },
+    );
+    let stop = (): void => undefined;
+    const coordinator = await startMockServer(async (request) => {
+      if ((await signerOf(request, 46630)) !== nodeAddress) {
+        return { status: 401, json: { error: 'The signature does not match x-node-key.' } };
+      }
+      if (request.url === NODE_ROUTES.hello) {
+        const rig = { nodeKey: nodeAddress, operator: OPERATOR, name: 'Night Shift', pair: `0x${'0'.repeat(40)}` };
+        return { json: { rig, heartbeatSeconds: 30, benchmark: null } };
+      }
+      setImmediate(stop);
+      return { json: { heartbeatSeconds: 30, jobs: [] } };
+    });
+    try {
+      const env = environment(home, (fire) => {
+        stop = fire;
+      });
+      const result = await run(['start', '--coordinator', coordinator.url, '--runtime-url', runtime.url], env);
+      assert.equal(result.code, 0, result.err);
+      assert.equal(coordinator.requests.length, 2);
+      for (const request of coordinator.requests) {
+        assert.equal(await signerOf(request, 46630), nodeAddress);
+        assert.notEqual(await signerOf(request, CHAINS.mainnet.id), nodeAddress);
+      }
     } finally {
       await coordinator.close();
       await runtime.close();

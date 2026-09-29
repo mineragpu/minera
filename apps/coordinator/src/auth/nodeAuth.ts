@@ -17,6 +17,8 @@ export interface SignedRequest {
 }
 
 export interface NodeAuthDeps<R extends { retired: boolean }> {
+  /** The chain this coordinator serves; a request signed for any other chain is refused. */
+  chainId: number;
   now: () => Date;
   findRig(nodeKey: Address): Promise<R | null>;
   /** Record the nonce; resolves `false` when it was already used. */
@@ -86,7 +88,7 @@ export async function verifyNodeRequest<R extends { retired: boolean }>(
   }
 
   const bodyDigest = keccak256(request.body ?? EMPTY);
-  const message = signedMessage(request.method, request.path, timestamp, nonce, bodyDigest);
+  const message = signedMessage(deps.chainId, request.method, request.path, timestamp, nonce, bodyDigest);
   let signer: Address;
   try {
     signer = await recoverMessageAddress({ message, signature });

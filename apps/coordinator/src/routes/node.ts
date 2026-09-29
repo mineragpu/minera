@@ -72,7 +72,12 @@ export function registerNodeRoutes(app: FastifyInstance, context: RouteContext):
   const authenticate = (request: FastifyRequest): Promise<RigRecord> =>
     verifyNodeRequest(
       { method: request.method, path: request.url, headers: request.headers, body: request.rawBody },
-      { now: clock, findRig: (nodeKey) => store.rigs.get(nodeKey), useNonce: (...args) => store.nonces.use(...args) },
+      {
+        chainId: config.chain.id,
+        now: clock,
+        findRig: (nodeKey) => store.rigs.get(nodeKey),
+        useNonce: (...args) => store.nonces.use(...args),
+      },
     );
 
   const reload = async (rig: RigRecord): Promise<RigRecord> => (await store.rigs.get(rig.nodeKey)) ?? rig;

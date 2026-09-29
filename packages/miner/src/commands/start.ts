@@ -2,7 +2,7 @@
  * `rig start`: check the machine, connect to the coordinator and run jobs until stopped.
  */
 
-import { BRAND } from '@dayagpu/shared';
+import { BRAND, CHAINS } from '@dayagpu/shared';
 import type { Command } from '../args.ts';
 import { CoordinatorError, createCoordinatorClient } from '../client.ts';
 import { describeGpu } from '../gpu.ts';
@@ -98,6 +98,7 @@ export async function startCommand(
       client: createCoordinatorClient({
         baseUrl: coordinator,
         signer: key.account,
+        chainId: CHAINS[network].id,
         userAgent: `${BRAND.name.toLowerCase()}-rig/${CLIENT_VERSION}`,
         signal: abort.signal,
       }),

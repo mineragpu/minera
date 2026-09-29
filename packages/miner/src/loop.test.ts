@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { NODE_ROUTES, type JobAssignment, type JobResultRequest, type RuntimeInfo } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type JobAssignment, type JobResultRequest, type RuntimeInfo } from '@dayagpu/shared';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { CoordinatorError, createCoordinatorClient } from './client.ts';
 import { createLogger, type Logger } from './logger.ts';
@@ -10,6 +10,7 @@ import { createJobRunner, JobFailedError, type JobRunner } from './runner.ts';
 import { createBackoff } from './wait.ts';
 
 const account = privateKeyToAccount(generatePrivateKey());
+const CHAIN_ID = CHAINS.testnet.id;
 const runtime: RuntimeInfo = { runtime: 'api-chat', version: '0.12.3', models: ['alpha:7b'] };
 const rig = {
   nodeKey: account.address,
@@ -57,6 +58,7 @@ async function harness(handler: MockHandler, runJob: JobRunner): Promise<Harness
     client: createCoordinatorClient({
       baseUrl: coordinator.url,
       signer: account,
+      chainId: CHAIN_ID,
       userAgent: 'rig-test',
       signal: abort.signal,
     }),
@@ -122,7 +124,7 @@ describe('runNode', () => {
       const routes = run.coordinator.requests.map((request) => request.url);
       assert.equal(routes[0], NODE_ROUTES.hello);
       assert.equal(routes[1], '/v1/node/jobs/bench-1/result', 'the benchmark runs before the first heartbeat');
-      for (const request of run.coordinator.requests) assert.equal(await signerOf(request), account.address);
+      for (const request of run.coordinator.requests) assert.equal(await signerOf(request, CHAIN_ID), account.address);
 
       const hello = JSON.parse(run.coordinator.requests[0]?.body.toString('utf8') ?? '');
       const gpu = { model: 'Card A', vramMb: 8192 };

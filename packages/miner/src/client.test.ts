@@ -1,11 +1,12 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { NODE_HEADERS, NODE_ROUTES, type HelloRequest, type JobAssignment } from '@dayagpu/shared';
+import { CHAINS, NODE_HEADERS, NODE_ROUTES, type HelloRequest, type JobAssignment } from '@dayagpu/shared';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { CoordinatorError, createCoordinatorClient } from './client.ts';
 import { signerOf, startMockServer, type MockHandler, type RecordedRequest } from './mock-server.ts';
 
 const account = privateKeyToAccount(generatePrivateKey());
+const CHAIN_ID = CHAINS.testnet.id;
 const hello: HelloRequest = {
   protocol: 1,
   clientVersion: '0.0.0',
@@ -40,7 +41,13 @@ async function withCoordinator(
 }
 
 function client(baseUrl: string) {
-  return createCoordinatorClient({ baseUrl, signer: account, userAgent: 'rig-test/0.0.0', timeoutMs: 2_000 });
+  return createCoordinatorClient({
+    baseUrl,
+    signer: account,
+    chainId: CHAIN_ID,
+    userAgent: 'rig-test/0.0.0',
+    timeoutMs: 2_000,
+  });
 }
 
 describe('createCoordinatorClient', () => {
@@ -66,7 +73,7 @@ describe('createCoordinatorClient', () => {
         for (const request of requests) {
           assert.equal(request.headers[NODE_HEADERS.key], account.address);
           assert.equal(request.headers['content-type'], 'application/json');
-          assert.equal(await signerOf(request), account.address);
+          assert.equal(await signerOf(request, CHAIN_ID), account.address);
         }
         assert.deepEqual(JSON.parse(requests[2]?.body.toString('utf8') ?? ''), { output: 'hello', reported });
       },
@@ -79,7 +86,7 @@ describe('createCoordinatorClient', () => {
       async (url, requests) => {
         await client(`${url}/api/`).hello(hello);
         assert.equal(requests[0]?.url, '/api/v1/node/hello');
-        assert.equal(await signerOf(requests[0] as RecordedRequest), account.address);
+        assert.equal(await signerOf(requests[0] as RecordedRequest, CHAIN_ID), account.address);
       },
     );
   });

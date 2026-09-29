@@ -33,6 +33,8 @@ export interface CoordinatorClient {
 export interface CoordinatorClientOptions {
   baseUrl: string;
   signer: MessageSigner;
+  /** The chain of the network the node runs on. Every request is signed for it alone. */
+  chainId: number;
   userAgent: string;
   timeoutMs?: number;
   /** Cancels every request in flight, for a hard stop. */
@@ -123,7 +125,7 @@ export function createCoordinatorClient(options: CoordinatorClientOptions): Coor
   async function post<T>(route: string, payload: unknown, parse: (value: unknown) => T): Promise<T> {
     const url = endpoint(options.baseUrl, route);
     const body = new TextEncoder().encode(JSON.stringify(payload));
-    const signed = await signRequest(options.signer, { method: 'POST', path: url.pathname, body });
+    const signed = await signRequest(options.signer, options.chainId, { method: 'POST', path: url.pathname, body });
     const timeout = AbortSignal.timeout(timeoutMs);
     const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
 

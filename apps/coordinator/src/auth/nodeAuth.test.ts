@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { NODE_HEADERS, type Address } from '@dayagpu/shared';
+import { CHAINS, NODE_HEADERS, type Address } from '@dayagpu/shared';
 import { signNodeRequest } from '../testing/nodeSigner.ts';
 import { NodeAuthError, verifyNodeRequest, type NodeAuthDeps, type SignedRequest } from './nodeAuth.ts';
 
@@ -12,6 +12,7 @@ interface TestRig {
 
 const rigAccount = privateKeyToAccount(generatePrivateKey());
 const strangerAccount = privateKeyToAccount(generatePrivateKey());
+const CHAIN_ID = CHAINS.testnet.id;
 const NOW = new Date('2026-09-29T12:00:00Z');
 const NOW_SECONDS = NOW.getTime() / 1000;
 const PATH = '/v1/node/heartbeat';
@@ -20,6 +21,7 @@ const BODY = JSON.stringify({ load: { busy: false, queue: 0 } });
 function deps(rigs: TestRig[] = [{ nodeKey: rigAccount.address.toLowerCase() as Address, retired: false }]) {
   const used = new Set<string>();
   const value: NodeAuthDeps<TestRig> = {
+    chainId: CHAIN_ID,
     now: () => NOW,
     findRig: async (nodeKey) => rigs.find((rig) => rig.nodeKey === nodeKey) ?? null,
     useNonce: async (nodeKey, nonce) => {
@@ -32,8 +34,11 @@ function deps(rigs: TestRig[] = [{ nodeKey: rigAccount.address.toLowerCase() as 
   return value;
 }
 
-async function request(overrides: Partial<SignedRequest> & { timestamp?: number } = {}): Promise<SignedRequest> {
+async function request(
+  overrides: Partial<SignedRequest> & { timestamp?: number; chainId?: number } = {},
+): Promise<SignedRequest> {
   const headers = await signNodeRequest(rigAccount, {
+    chainId: overrides.chainId ?? CHAIN_ID,
     method: 'POST',
     path: PATH,
     body: BODY,
@@ -64,7 +69,12 @@ describe('verifyNodeRequest', () => {
   });
 
   it('accepts a bodyless request signed over the empty-body digest', async () => {
-    const headers = await signNodeRequest(rigAccount, { method: 'GET', path: '/v1/node/jobs', timestamp: NOW_SECONDS });
+    const headers = await signNodeRequest(rigAccount, {
+      chainId: CHAIN_ID,
+      method: 'GET',
+      path: '/v1/node/jobs',
+      timestamp: NOW_SECONDS,
+    });
     const rig = await verifyNodeRequest({ method: 'GET', path: '/v1/node/jobs', headers, body: null }, deps());
     assert.equal(rig.retired, false);
   });
@@ -72,6 +82,7 @@ describe('verifyNodeRequest', () => {
   it('rejects a signature from a different key', async () => {
     const signed = await request();
     const forged = await signNodeRequest(strangerAccount, {
+      chainId: CHAIN_ID,
       method: 'POST',
       path: PATH,
       body: BODY,
@@ -100,6 +111,11 @@ describe('verifyNodeRequest', () => {
 
   it('rejects a signed request replayed against another path', async () => {
     await rejects(verifyNodeRequest(await request({ path: '/v1/node/hello' }), deps()), 401, 'bad_signature');
+  });
+
+  it('rejects a request signed for another chain', async () => {
+    const mainnet = await request({ chainId: CHAINS.mainnet.id });
+    await rejects(verifyNodeRequest(mainnet, deps()), 401, 'bad_signature');
   });
 
   it('rejects missing and malformed headers', async () => {

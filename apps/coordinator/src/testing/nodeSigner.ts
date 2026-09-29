@@ -4,6 +4,8 @@ import type { PrivateKeyAccount } from 'viem/accounts';
 import { NODE_HEADERS, signedMessage } from '@dayagpu/shared';
 
 export interface SigningOptions {
+  /** The chain of the coordinator the request is meant for. */
+  chainId: number;
   method: string;
   path: string;
   body?: string;
@@ -21,7 +23,7 @@ export async function signNodeRequest(
   const nonce = options.nonce ?? randomBytes(16).toString('hex');
   const bodyDigest = keccak256(toBytes(options.body ?? ''));
   const signature = await account.signMessage({
-    message: signedMessage(options.method, options.path, timestamp, nonce, bodyDigest),
+    message: signedMessage(options.chainId, options.method, options.path, timestamp, nonce, bodyDigest),
   });
   return {
     [NODE_HEADERS.key]: account.address,

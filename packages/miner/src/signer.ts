@@ -1,6 +1,7 @@
 /**
  * Signs coordinator requests with the node key, as `protocol.ts` specifies: an EIP-191 personal
- * signature over `signedMessage(method, path, timestamp, nonce, keccak256(body))`.
+ * signature over `signedMessage(chainId, method, path, timestamp, nonce, keccak256(body))`, where
+ * `chainId` is the chain of the network the node runs on.
  */
 
 import { randomBytes } from 'node:crypto';
@@ -34,12 +35,14 @@ export function newNonce(): string {
 
 export async function signRequest(
   signer: MessageSigner,
+  chainId: number,
   request: RequestToSign,
   options: SigningOptions = {},
 ): Promise<SignedHeaders> {
   const timestamp = options.timestamp ?? Math.floor(Date.now() / 1000);
   const nonce = options.nonce ?? newNonce();
-  const message = signedMessage(request.method, request.path, timestamp, nonce, bodyDigest(request.body));
+  const digest = bodyDigest(request.body);
+  const message = signedMessage(chainId, request.method, request.path, timestamp, nonce, digest);
   const signature = await signer.signMessage({ message });
   return {
     [NODE_HEADERS.key]: signer.address,

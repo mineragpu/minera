@@ -1,7 +1,7 @@
 /**
  * A local HTTP server on an ephemeral port that stands in for the model runtime or the
  * coordinator in tests. It records every request and answers with whatever the handler returns;
- * `signerOf` checks a recorded request the way the coordinator does.
+ * `signerOf` checks a recorded request the way the coordinator of a given chain does.
  */
 
 import { createServer, type IncomingHttpHeaders } from 'node:http';
@@ -70,11 +70,15 @@ export async function startMockServer(handler: MockHandler): Promise<MockServer>
   };
 }
 
-/** Recovers the node key that signed a request, the way the coordinator checks it. */
-export function signerOf(request: RecordedRequest): Promise<string> {
+/**
+ * Recovers the node key that signed a request, the way the coordinator of chain `chainId` checks
+ * it. A request signed for another chain recovers to an unrelated address.
+ */
+export function signerOf(request: RecordedRequest, chainId: number): Promise<string> {
   const header = (name: string): string => String(request.headers[name] ?? '');
   const path = new URL(request.url, 'http://placeholder').pathname;
   const message = signedMessage(
+    chainId,
     request.method,
     path,
     Number(header(NODE_HEADERS.timestamp)),
