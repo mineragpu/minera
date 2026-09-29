@@ -1,8 +1,11 @@
 import { strict as assert } from 'node:assert';
 import { randomUUID } from 'node:crypto';
-import { beforeEach, describe, it } from 'node:test';
+import { after, before, beforeEach, describe, it } from 'node:test';
+import postgres from 'postgres';
 import type { Address, Hex } from '@dayagpu/shared';
+import { migrate } from '../db/migrate.ts';
 import { createMemoryStore } from './memory/index.ts';
+import { createPostgresStore } from './postgres/index.ts';
 import type { NewJob, SettlementDraft, TreeDump } from './records.ts';
 import type { Store } from './store.ts';
 
@@ -330,3 +333,25 @@ function storeContract(name: string, open: () => Promise<Store>): void {
 
 storeContract('memory', async () => createMemoryStore());
 
+const databaseUrl = process.env.TEST_DATABASE_URL;
+if (databaseUrl) {
+  const schema = `store_test_${randomUUID().replaceAll('-', '')}`;
+  const admin = postgres(databaseUrl, { onnotice: () => undefined, max: 1 });
+  const sql = postgres(databaseUrl, { onnotice: () => undefined, connection: { search_path: schema } });
+  before(async () => {
+    await admin.unsafe(`CREATE SCHEMA ${schema}`);
+    await migrate(sql);
+  });
+  after(async () => {
+    await sql.end();
+    await admin.unsafe(`DROP SCHEMA ${schema} CASCADE`);
+    await admin.end();
+  });
+  storeContract('postgres', async () => {
+    await sql`
+      TRUNCATE rigs, nonces, jobs, work, settlements, entitlements, burns, claims, chain_cursor
+      RESTART IDENTITY CASCADE
+    `;
+    return createPostgresStore(sql);
+  });
+}

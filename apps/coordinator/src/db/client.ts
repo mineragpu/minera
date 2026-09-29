@@ -4,8 +4,10 @@ import type { Secret } from '../secret.ts';
 
 export type Sql = postgres.Sql;
 export type TransactionSql = postgres.TransactionSql;
-/** Either the pool or an open transaction; queries read the same through both. */
-export type Queryable = Sql | TransactionSql;
+/** The pool or an open transaction; queries read the same through both. */
+export type Queryable = postgres.ISql;
+/** A piece of SQL with its parameters, embedded into another query. */
+export type Fragment = postgres.PendingQuery<postgres.Row[]>;
 
 export function createSql(url: Secret<string>, log: Logger): Sql {
   return postgres(url.reveal(), {
