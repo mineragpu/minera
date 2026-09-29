@@ -1,5 +1,5 @@
 import { Button, ButtonLink } from '../components/Button.tsx';
-import { ACTIVE_CHAIN } from '../config/network.ts';
+import { addressUrl } from '../lib/explorer.ts';
 import { AccountSummary } from './AccountSummary.tsx';
 import { useWallet } from './useWallet.ts';
 
@@ -16,7 +16,7 @@ export function AccountPanel() {
           variant="ghost"
           size="sm"
           glint={false}
-          href={`${ACTIVE_CHAIN.explorerUrl}/address/${address}`}
+          href={addressUrl(address)}
           target="_blank"
           rel="noreferrer"
         >
@@ -27,7 +27,7 @@ export function AccountPanel() {
         </Button>
       </div>
       <p className="wallet-dialog__note">
-        Deploying opens when the network goes live on testnet. Nothing is sent on-chain from this page.
+        This site sends a transaction only when you press deploy or claim and confirm it in your wallet.
       </p>
     </>
   );

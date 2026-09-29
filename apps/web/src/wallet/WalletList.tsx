@@ -35,7 +35,7 @@ export function WalletList() {
         })}
       </ul>
       <p className="wallet-dialog__note">
-        Connecting shares your address with this page. Nothing is sent on-chain from here.
+        Connecting shares your address with this page. It sends nothing without your confirmation.
       </p>
     </>
   );
