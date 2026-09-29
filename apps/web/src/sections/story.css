@@ -1,0 +1,161 @@
+.story {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 40px clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+
+.story__head {
+  position: sticky;
+  top: 120px;
+}
+
+.story__title {
+  font-size: var(--step-4);
+  line-height: 1;
+}
+
+.story__close {
+  margin-top: 28px;
+  font: 700 var(--step-2) / 1.2 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--silver);
+}
+
+.story__close span {
+  position: relative;
+  display: inline-block;
+  color: var(--bright);
+}
+
+.story__close span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--iri-line);
+}
+
+/* Beats: a vertical rail, dashed while the power was spent on hashes and lit after. */
+.beats {
+  list-style: none;
+}
+
+.beat {
+  position: relative;
+  padding: 0 0 clamp(36px, 5vw, 56px) 64px;
+}
+
+.beat::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--iri-rail);
+  transform-origin: 50% 0;
+}
+
+.beat--then::before {
+  background: repeating-linear-gradient(180deg, var(--seam-2) 0 6px, transparent 6px 12px);
+}
+
+.beat:last-child {
+  padding-bottom: 0;
+}
+
+.beat:last-child::before {
+  bottom: auto;
+  height: 16px;
+}
+
+.beat__node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 30px;
+  height: 33px;
+  padding-bottom: 6px;
+  background: var(--graphite);
+  box-sizing: content-box;
+}
+
+.beat__node svg {
+  display: block;
+  width: 30px;
+  height: 33px;
+}
+
+.beat--then .beat__node svg {
+  opacity: 0.55;
+}
+
+.beat__label {
+  padding-top: 6px;
+  font: 500 var(--step--2) / 1.2 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.beat__title {
+  margin: 10px 0 0;
+  font: 700 var(--step-2) / 1.12 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.beat--then .beat__title {
+  color: var(--silver);
+}
+
+.beat__body {
+  margin-top: 14px;
+  max-width: 34em;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--silver);
+  text-wrap: pretty;
+}
+
+/* The lit rail draws down as each beat scrolls in; without scroll timelines it is simply drawn. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .beat--now::before {
+      animation: beat-rail linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 55%;
+    }
+  }
+}
+
+@keyframes beat-rail {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (max-width: 920px) {
+  .story {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story__head {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .beat {
+    padding-left: 50px;
+  }
+}

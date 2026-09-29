@@ -7,11 +7,13 @@ import { Hero } from '../sections/Hero.tsx';
 import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
+import { Story } from '../sections/Story.tsx';
 import { WhatsLive } from '../sections/WhatsLive.tsx';
 
 /** The numbered sections under the hero, in reading order; each kicker shows its position. */
 const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   WhatsLive,
+  Story,
   HowItWorks,
   DeployPanel,
   BurnPool,
