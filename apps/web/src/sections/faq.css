@@ -1,0 +1,116 @@
+.faq {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 32px clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+
+.faq__head {
+  position: sticky;
+  top: 120px;
+}
+
+.faq__head .lede {
+  margin-top: 20px;
+}
+
+.faq__list {
+  border-top: 1px solid var(--seam);
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--seam);
+}
+
+.faq__item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 4px;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--r-tag);
+}
+
+.faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq__item summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+  box-shadow: var(--focus-ring);
+}
+
+.faq__question {
+  margin: 0;
+  font: 600 var(--step-1) / 1.3 var(--font-body);
+  color: var(--silver);
+  transition: color 0.2s;
+}
+
+.faq__item summary:hover .faq__question,
+.faq__item[open] .faq__question {
+  color: var(--bright);
+}
+
+.faq__mark {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 0.35s var(--ease-out), color 0.2s;
+}
+
+.faq__item summary:hover .faq__mark {
+  color: var(--teal);
+}
+
+/* The plus turns into a cross while the answer is open. */
+.faq__item[open] .faq__mark {
+  transform: rotate(45deg);
+  color: var(--teal);
+}
+
+.faq__answer {
+  display: grid;
+  gap: 12px;
+  max-width: 44em;
+  padding: 0 40px 24px 4px;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  color: var(--silver);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq__item[open] .faq__answer {
+    animation: faq-open 0.4s var(--ease-out);
+  }
+}
+
+@keyframes faq-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .faq {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .faq__head {
+    position: static;
+  }
+
+  .faq__answer {
+    padding-right: 4px;
+  }
+}

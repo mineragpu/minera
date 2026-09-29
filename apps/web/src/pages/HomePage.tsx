@@ -3,6 +3,7 @@ import { useDocumentTitle } from '../router/useDocumentTitle.ts';
 import { BurnPool } from '../sections/BurnPool.tsx';
 import { Campaigns } from '../sections/Campaigns.tsx';
 import { DeployPanel } from '../sections/DeployPanel.tsx';
+import { Faq } from '../sections/Faq.tsx';
 import { Hero } from '../sections/Hero.tsx';
 import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
@@ -30,6 +31,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   Campaigns,
   Roadmap,
   Security,
+  Faq,
 ];
 
 export function HomePage() {
