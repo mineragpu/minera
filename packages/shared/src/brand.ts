@@ -28,7 +28,7 @@ export const LEXICON = {
   rig: 'rig',
   /** Registering a rig: the launchpad moment. */
   deploy: 'deploy',
-  /** The asset a rig's rewards are paid in. */
+  /** The asset a rig's claims default to. ETH stays available whatever the pair. */
   pair: 'pair',
   /** A one-way deposit into the pool. */
   burn: 'burn',
