@@ -8,6 +8,7 @@ import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
 import { PairWith } from '../sections/PairWith.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
+import { Roadmap } from '../sections/Roadmap.tsx';
 import { Story } from '../sections/Story.tsx';
 import { VerifiedWork } from '../sections/VerifiedWork.tsx';
 import { WhatsLive } from '../sections/WhatsLive.tsx';
@@ -24,6 +25,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   Launchpad,
   PlaygroundSection,
   Campaigns,
+  Roadmap,
 ];
 
 export function HomePage() {
