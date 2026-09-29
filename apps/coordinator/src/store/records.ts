@@ -70,7 +70,10 @@ export interface RigListPage {
 
 export interface JobRecord {
   id: string;
-  /** Jobs sent to two rigs for comparison share a group; the group id is the public job id. */
+  /**
+   * Jobs sent to two rigs for comparison share a group. For a playground prompt the group id is
+   * the public id, and it differs from every job id a rig receives.
+   */
   groupId: string;
   kind: JobKind;
   model: string;

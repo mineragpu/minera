@@ -6,7 +6,7 @@ export type Judgement =
   /** A benchmark or challenge, checked against its known answer. */
   | { type: 'check'; passed: boolean }
   /** A compared job whose twin has not returned yet. */
-  | { type: 'await-twin' }
+  | { type: 'await-twin'; twin: JobRecord }
   /** Both rigs returned; the outputs agree or they do not. */
   | { type: 'twin'; match: boolean; twin: JobRecord }
   /** Nothing to compare against: the job was never sent twice, or its twin was dropped. */
@@ -33,6 +33,6 @@ export function judge(job: JobRecord, output: string, group: readonly JobRecord[
   if (twin.status === 'done' && twin.output !== null) {
     return { type: 'twin', match: outputsMatch(output, twin.output), twin };
   }
-  if (twin.status === 'queued' || twin.status === 'assigned') return { type: 'await-twin' };
+  if (twin.status === 'queued' || twin.status === 'assigned') return { type: 'await-twin', twin };
   return { type: 'unchecked' };
 }

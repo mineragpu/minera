@@ -142,6 +142,10 @@ export function postgresJobs(db: Queryable): JobStore {
       await db`UPDATE jobs SET status = ${status}, finished_at = ${at} WHERE id = ${id}`;
     },
 
+    async expireBy(id, at) {
+      await db`UPDATE jobs SET expires_at = LEAST(expires_at, ${at}) WHERE id = ${id}`;
+    },
+
     async complete(id, result) {
       await db`
         UPDATE jobs SET status = 'done', output = ${result.output}, output_hash = ${result.outputHash},

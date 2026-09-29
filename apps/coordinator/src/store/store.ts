@@ -66,6 +66,8 @@ export interface JobStore {
   /** Put an assigned job back on the queue after its deadline passed. */
   release(id: string): Promise<void>;
   close(id: string, status: 'expired' | 'cancelled', at: Date): Promise<void>;
+  /** Move a queued job's expiry earlier; a later time than the current expiry is ignored. */
+  expireBy(id: string, at: Date): Promise<void>;
   complete(id: string, result: JobResult): Promise<void>;
   setVerification(id: string, verification: Verification, at: Date | null): Promise<void>;
   overdue(now: Date): Promise<JobRecord[]>;

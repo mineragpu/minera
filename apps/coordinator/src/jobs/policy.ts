@@ -10,6 +10,8 @@ export const JOB_POLICY = {
   maxAttempts: 3,
   /** A playground prompt nobody picks up within this time is dropped. */
   playgroundTtlSeconds: 300,
+  /** Once one rig has answered, how long the second copy may wait in the queue for another rig. */
+  twinWaitSeconds: 90,
   /** A check addressed to a rig that does not pick it up within this time is dropped. */
   checkTtlSeconds: 600,
   /** Time between known-answer challenges sent to the same rig. */

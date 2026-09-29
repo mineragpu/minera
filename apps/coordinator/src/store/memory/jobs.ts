@@ -113,6 +113,11 @@ export function memoryJobs(box: StateBox): JobStore {
       job.finishedAt = at;
     },
 
+    async expireBy(id, at) {
+      const job = find(id);
+      if (at < job.expiresAt) job.expiresAt = at;
+    },
+
     async complete(id, result) {
       const job = find(id);
       job.status = 'done';

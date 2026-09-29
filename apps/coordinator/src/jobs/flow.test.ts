@@ -82,10 +82,12 @@ describe('job flow', () => {
     assert.deepEqual(passed, { kind: 'accepted' });
     assert.equal((await rig(R1)).checksPassed, 1);
     const [chat] = await heartbeat(R1, later(7));
-    assert.equal(chat?.id, id);
-    assert.deepEqual(chat?.params, { temperature: 0, seed: chat?.params.seed, maxTokens: 64 });
+    assert.ok(chat);
+    assert.equal(chat.kind, 'chat');
+    assert.notEqual(chat.id, id);
+    assert.deepEqual(chat.params, { temperature: 0, seed: chat.params.seed, maxTokens: 64 });
 
-    assert.deepEqual(await submit(R1, id, 'Hi there.', later(8)), { kind: 'accepted' });
+    assert.deepEqual(await submit(R1, chat.id, 'Hi there.', later(8)), { kind: 'accepted' });
     const view = await viewPlaygroundJob(store, id);
     assert.deepEqual(
       [view?.status, view?.output, view?.verification, view?.crossChecked],
@@ -107,7 +109,9 @@ describe('job flow', () => {
     assert.equal(second.params.seed, first.params.seed);
 
     await submit(R1, first.id, 'The sky is blue.', later(2));
-    assert.equal((await viewPlaygroundJob(store, id))?.verification, 'pending');
+    const checking = await viewPlaygroundJob(store, id);
+    assert.deepEqual([checking?.status, checking?.output, checking?.rig], ['checking', null, null]);
+    assert.equal(checking?.verification, 'pending');
     await submit(R3, second.id, '  The sky is\nblue. ', later(3));
 
     const view = await viewPlaygroundJob(store, id);
@@ -141,12 +145,15 @@ describe('job flow', () => {
   it('refuses results from a rig that does not hold the job, and duplicates', async () => {
     await qualify(R1);
     const id = await submitPlaygroundJob(store, SINGLE, 'Hello', T0, seededRandom(7));
-    assert.deepEqual(await submit(R1, id, 'x', later(1)), { kind: 'not_assignee' });
+    const [queued] = await store.jobs.group(id);
+    assert.ok(queued);
+    assert.deepEqual(await submit(R1, queued.id, 'x', later(1)), { kind: 'not_assignee' });
     await heartbeat(R1, later(1));
-    assert.deepEqual(await submit(R3, id, 'x', later(2)), { kind: 'not_assignee' });
+    assert.deepEqual(await submit(R3, queued.id, 'x', later(2)), { kind: 'not_assignee' });
     assert.deepEqual(await submit(R1, 'missing', 'x', later(2)), { kind: 'not_found' });
-    assert.deepEqual(await submit(R1, id, 'x', later(2)), { kind: 'accepted' });
-    assert.equal((await submit(R1, id, 'x', later(3))).kind, 'closed');
+    assert.deepEqual(await submit(R1, id, 'x', later(2)), { kind: 'not_found' });
+    assert.deepEqual(await submit(R1, queued.id, 'x', later(2)), { kind: 'accepted' });
+    assert.equal((await submit(R1, queued.id, 'x', later(3))).kind, 'closed');
   });
 
   it('requeues overdue jobs and leaves an answer unverified when its twin is dropped', async () => {
@@ -159,7 +166,8 @@ describe('job flow', () => {
     assert.equal(again?.id, first.id);
     await submit(R1, first.id, 'Hello.', later(124));
 
-    assert.deepEqual(await sweepJobs(store, later(301), EPOCH_SECONDS), { requeued: 0, expired: 1 });
+    const twinGivesUp = 124 + JOB_POLICY.twinWaitSeconds + 1;
+    assert.deepEqual(await sweepJobs(store, later(twinGivesUp), EPOCH_SECONDS), { requeued: 0, expired: 1 });
     const view = await viewPlaygroundJob(store, id);
     assert.deepEqual([view?.status, view?.verification, view?.crossChecked], ['done', 'unverified', false]);
   });

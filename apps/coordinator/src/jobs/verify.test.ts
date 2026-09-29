@@ -91,8 +91,10 @@ describe('judge', () => {
 
   it('waits for a twin still in flight and leaves a lone job unchecked', () => {
     const mine = job({ id: 'a' });
-    assert.deepEqual(judge(mine, 'x', [mine, job({ id: 'b', status: 'queued' })]), { type: 'await-twin' });
-    assert.deepEqual(judge(mine, 'x', [mine, job({ id: 'b', status: 'assigned' })]), { type: 'await-twin' });
+    const queued = job({ id: 'b', status: 'queued' });
+    assert.deepEqual(judge(mine, 'x', [mine, queued]), { type: 'await-twin', twin: queued });
+    const running = job({ id: 'b', status: 'assigned' });
+    assert.deepEqual(judge(mine, 'x', [mine, running]), { type: 'await-twin', twin: running });
     assert.deepEqual(judge(mine, 'x', [mine]), { type: 'unchecked' });
     assert.deepEqual(judge(mine, 'x', [mine, job({ id: 'b', status: 'expired' })]), { type: 'unchecked' });
   });

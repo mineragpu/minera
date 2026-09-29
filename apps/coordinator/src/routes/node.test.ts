@@ -123,7 +123,9 @@ describe('node routes', () => {
     const passed = await send(rig, NODE_ROUTES.result(benchmark.id), { output: answer(benchmark), reported });
     assert.deepEqual(passed.json(), { accepted: true });
     const { jobs } = (await send(rig, NODE_ROUTES.heartbeat, heartbeat)).json();
-    assert.deepEqual(jobs.map((job: JobAssignment) => [job.id, job.kind, job.params.temperature]), [[id, 'chat', 0]]);
+    assert.deepEqual(jobs.map((job: JobAssignment) => [job.kind, job.params.temperature]), [['chat', 0]]);
+    const chat: JobAssignment = jobs[0];
+    assert.notEqual(chat.id, id);
 
     const other = privateKeyToAccount(generatePrivateKey());
     await harness.store.rigs.deploy({
@@ -134,13 +136,13 @@ describe('node routes', () => {
       deployedAt: new Date('2026-09-28T00:00:00Z'),
       deployedBlock: 126_000_001n,
     });
-    const stolen = await send(other, NODE_ROUTES.result(id), { output: 'Hello', reported });
+    const stolen = await send(other, NODE_ROUTES.result(chat.id), { output: 'Hello', reported });
     assert.equal(stolen.statusCode, 403);
     assert.equal(stolen.json().error.code, 'not_assignee');
 
-    const accepted = await send(rig, NODE_ROUTES.result(id), { output: 'Hello.', reported });
+    const accepted = await send(rig, NODE_ROUTES.result(chat.id), { output: 'Hello.', reported });
     assert.deepEqual(accepted.json(), { accepted: true });
-    const again = await send(rig, NODE_ROUTES.result(id), { output: 'Hello.', reported });
+    const again = await send(rig, NODE_ROUTES.result(chat.id), { output: 'Hello.', reported });
     assert.deepEqual(again.json(), { accepted: false, reason: 'A result for this job was already received.' });
 
     const view = await viewPlaygroundJob(harness.store, id);

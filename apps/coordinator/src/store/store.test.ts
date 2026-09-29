@@ -224,6 +224,9 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       }
       const dropped = job();
       await store.jobs.insert(dropped);
+      await store.jobs.expireBy(dropped.id, at(20));
+      await store.jobs.expireBy(dropped.id, at(25));
+      assert.deepEqual((await store.jobs.get(dropped.id))?.expiresAt, at(20));
       await store.jobs.close(dropped.id, 'cancelled', at(80));
       const closed = await store.jobs.get(dropped.id);
       assert.deepEqual([closed?.status, closed?.finishedAt], ['cancelled', at(80)]);

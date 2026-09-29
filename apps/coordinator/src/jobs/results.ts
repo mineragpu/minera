@@ -3,6 +3,7 @@ import type { Address } from '@dayagpu/shared';
 import { epochOf } from '../epoch.ts';
 import type { JobRecord } from '../store/records.ts';
 import type { Store } from '../store/store.ts';
+import { JOB_POLICY } from './policy.ts';
 import { measureUnits } from './units.ts';
 import { judge } from './verify.ts';
 
@@ -59,6 +60,9 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
         break;
       case 'await-twin':
         await complete('pending', null);
+        if (judgement.twin.status === 'queued') {
+          await tx.jobs.expireBy(judgement.twin.id, new Date(now.getTime() + JOB_POLICY.twinWaitSeconds * 1000));
+        }
         break;
       case 'unchecked':
         await complete('unverified', null);

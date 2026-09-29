@@ -16,7 +16,10 @@ export class PlaygroundBusyError extends Error {
 
 const SYSTEM = 'You are a helpful assistant. Answer clearly and briefly.';
 
-/** Queue a visitor's prompt, sometimes twice, and return the public job id. */
+/**
+ * Queue a visitor's prompt, sometimes twice, and return its public id. The public id is the group
+ * id, which no rig ever receives, so a rig cannot look up its own prompt on the playground.
+ */
 export async function submitPlaygroundJob(
   store: Store,
   settings: PlaygroundSettings,
@@ -26,10 +29,10 @@ export async function submitPlaygroundJob(
 ): Promise<string> {
   return store.transaction(async (tx) => {
     if ((await tx.jobs.queuedCount('chat')) >= JOB_POLICY.maxQueuedPlayground) throw new PlaygroundBusyError();
-    const id = random.uuid();
+    const groupId = random.uuid();
     const job: NewJob = {
-      id,
-      groupId: id,
+      id: random.uuid(),
+      groupId,
       kind: 'chat',
       model: settings.model,
       messages: [
@@ -44,6 +47,6 @@ export async function submitPlaygroundJob(
     };
     await tx.jobs.insert(job);
     if (random.chance(settings.redundancyRate)) await tx.jobs.insert({ ...job, id: random.uuid() });
-    return id;
+    return groupId;
   });
 }
