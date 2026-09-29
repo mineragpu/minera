@@ -1,4 +1,5 @@
 import { strict as assert } from 'node:assert';
+import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { CHAINS, DEPLOYMENTS, type Address, type Hex } from '@dayagpu/shared';
 import { concat, getAddress, keccak256, recoverAddress, recoverMessageAddress, stringToHex } from 'viem';
@@ -71,5 +72,21 @@ describe('createDeployCode', () => {
 
   it('has no target on a network without a deployment', () => {
     assert.equal(deployTargetFor('mainnet') === null, DEPLOYMENTS[CHAINS.mainnet.id] === undefined);
+  });
+});
+
+describe('the contract fixture', () => {
+  const fixture = JSON.parse(
+    readFileSync(new URL('../../contracts/test/fixtures/deploy-code.json', import.meta.url), 'utf8'),
+  ) as { chainId: number; registry: Address; operator: Address; nodeKey: Address; digest: Hex; deployCode: Hex };
+
+  it('holds a digest computed like the contract', () => {
+    assert.equal(fixture.digest, contractDigest(fixture.chainId, fixture.registry, fixture.operator));
+    assert.equal(fixture.digest, deployDigest(fixture.chainId, fixture.registry, fixture.operator));
+  });
+
+  it('holds a deploy code that recovers to its node key', async () => {
+    const hash = ethSignedMessageHash(fixture.digest);
+    assert.equal(await recoverAddress({ hash, signature: fixture.deployCode }), fixture.nodeKey);
   });
 });
