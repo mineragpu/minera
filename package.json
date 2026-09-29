@@ -1,0 +1,19 @@
+{
+  "name": "dayagpu",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A GPU launchpad for mining. Deploy a GPU, pair its rewards with ETH or a tokenized stock, and mine from a pool that only fills.",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
