@@ -11,6 +11,7 @@ import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 import { Roadmap } from '../sections/Roadmap.tsx';
 import { Story } from '../sections/Story.tsx';
 import { VerifiedWork } from '../sections/VerifiedWork.tsx';
+import { WaysIn } from '../sections/WaysIn.tsx';
 import { WhatsLive } from '../sections/WhatsLive.tsx';
 
 /** The numbered sections under the hero, in reading order; each kicker shows its position. */
@@ -24,6 +25,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   VerifiedWork,
   Launchpad,
   PlaygroundSection,
+  WaysIn,
   Campaigns,
   Roadmap,
 ];
