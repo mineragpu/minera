@@ -86,8 +86,7 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
 ## Known limitations
 
 - **Open jobs come from one place.** Today every open job is a playground prompt, and all use one
-  model set by the coordinator. The API does not publish that model's name yet, so an operator
-  cannot look it up.
+  model set by the coordinator, published as `jobs.model` by `GET /v1/network`.
 - **Most work is not cross-checked.** Only a share of prompts, 20% by default, goes to two rigs.
   Answers nobody cross-checked earn nothing.
 - **Comparison is exact.** Two honest rigs can produce different outputs for the same prompt, for

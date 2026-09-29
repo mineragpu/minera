@@ -18,9 +18,10 @@ the node key, deploy the rig from your wallet, then start the node.
   {{protocol.skewSeconds}} seconds away from its own time.
 
 > [!IMPORTANT]
-> Every open job currently uses one model, set by the coordinator. A rig that does not serve that
-> model passes its checks but receives no open jobs, so it earns nothing. The API does not publish
-> the model's name yet. This is listed under [known limitations](security.md#known-limitations).
+> Every open job currently uses one model, set by the coordinator and published by
+> [`GET /v1/network`](api.md#get-v1-network) as `jobs.model`. Load that model into your runtime
+> before you start. A rig that does not serve it passes its checks but receives no open jobs, so it
+> earns nothing.
 
 ## 1. Install the node client
 

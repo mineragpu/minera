@@ -61,7 +61,7 @@ Answers from memory, without touching the database or the chain.
 ## GET /v1/network
 
 Live network figures: rigs online, verified work over the last 24 hours, the pool, the current
-campaign, the current epoch and the work rules as text.
+campaign, the current epoch, the model and output limit of open jobs, and the work rules as text.
 
 ```json
 {
@@ -92,6 +92,7 @@ campaign, the current epoch and the work rules as text.
     "startedAt": "2026-09-29T12:00:00.000Z",
     "endsAt": "2026-09-29T13:00:00.000Z"
   },
+  "jobs": { "model": "<model tag>", "maxTokens": 256 },
   "rules": {
     "units": "Work units are estimated tokens: …",
     "verification": "Only verified work earns rewards. …"
