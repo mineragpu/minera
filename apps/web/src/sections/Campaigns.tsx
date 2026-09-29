@@ -11,7 +11,7 @@ export function Campaigns() {
     <section className="section shell" id="campaigns" aria-labelledby="camp-title">
       <div className="split-head">
         <div>
-          <Kicker index="05">Campaigns</Kicker>
+          <Kicker index="06">Campaigns</Kicker>
           <h2 className="h2" id="camp-title">
             Each campaign sets the share.
           </h2>

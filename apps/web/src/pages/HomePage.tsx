@@ -5,6 +5,7 @@ import { DeployPanel } from '../sections/DeployPanel.tsx';
 import { Hero } from '../sections/Hero.tsx';
 import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
+import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 
 export function HomePage() {
   useDocumentTitle(null);
@@ -14,6 +15,7 @@ export function HomePage() {
       <DeployPanel />
       <BurnPool />
       <Launchpad />
+      <PlaygroundSection />
       <HowItWorks />
       <Campaigns />
     </>

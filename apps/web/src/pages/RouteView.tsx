@@ -3,6 +3,7 @@ import { Skeleton } from '../components/Skeleton.tsx';
 import type { Route } from '../router/routes.ts';
 import { HomePage } from './HomePage.tsx';
 import { NotFoundPage } from './NotFoundPage.tsx';
+import { PlaygroundPage } from './PlaygroundPage.tsx';
 import { RigPage } from './rig/RigPage.tsx';
 import './page.css';
 
@@ -24,6 +25,8 @@ function Page({ route }: { route: Route }) {
       return <HomePage />;
     case 'deploy':
       return <DeployPage />;
+    case 'playground':
+      return <PlaygroundPage />;
     case 'rig':
       return <RigPage key={route.nodeKey} nodeKey={route.nodeKey} />;
     default:

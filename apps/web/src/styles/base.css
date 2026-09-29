@@ -147,6 +147,10 @@ main {
   justify-self: start;
 }
 
+.section-body {
+  margin-top: clamp(32px, 4vw, 48px);
+}
+
 @media (max-width: 920px) {
   .split-head {
     grid-template-columns: minmax(0, 1fr);

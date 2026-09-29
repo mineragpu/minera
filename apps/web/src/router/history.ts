@@ -50,3 +50,15 @@ export function navigate(to: string, options: { replace?: boolean } = {}): void 
   else window.history.pushState(null, '', url.href);
   update();
 }
+
+/**
+ * Rewrites the query of the current entry, such as a job id, without counting as a navigation:
+ * nothing scrolls and focus stays put.
+ */
+export function replaceSearch(search: string): void {
+  const url = new URL(window.location.href);
+  url.search = search;
+  window.history.replaceState(null, '', url.href);
+  current = read(current.id);
+  for (const listener of listeners) listener();
+}
