@@ -5,14 +5,13 @@ the TypeScript sources directly, so there is no build step: the image installs t
 production dependencies, copies the shared package and the coordinator sources, and starts
 `node apps/coordinator/src/server.ts`.
 
-## Railway
+## Hosting
 
-Railway uses a Dockerfile at a custom path when the service sets the variable
-`RAILWAY_DOCKERFILE_PATH=ops/coordinator/Dockerfile`. Keep the service's root directory at the
-repository root, because the image copies the workspace manifests and the shared package.
+Point the host's Dockerfile setting at `ops/coordinator/Dockerfile` and keep the build context at
+the repository root, because the image copies the workspace manifests and the shared package.
 
 Attach a Postgres database and pass its connection string as `DATABASE_URL`. Migrations run at
-startup. Railway provides `PORT`, and `GET /health` answers without touching the database.
+startup. The service listens on `PORT`, and `GET /health` answers without touching the database.
 
 ## Environment
 
