@@ -44,10 +44,6 @@
   color: var(--bright);
 }
 
-.panel__head .pv {
-  margin-left: auto;
-}
-
 .status {
   padding: 5px 8px 4px;
   border-radius: var(--r-tag);
