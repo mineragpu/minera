@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { selectContents } from '../lib/selectContents.ts';
 import './command-block.css';
 
 interface CommandBlockProps {
@@ -6,14 +7,6 @@ interface CommandBlockProps {
   lines: readonly string[];
   /** Names the block for the copy button, such as "the install commands". */
   label: string;
-}
-
-function selectContents(element: HTMLElement): void {
-  const range = document.createRange();
-  range.selectNodeContents(element);
-  const selection = window.getSelection();
-  selection?.removeAllRanges();
-  selection?.addRange(range);
 }
 
 /**
