@@ -14,7 +14,7 @@ export const BRAND = {
     'A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized ' +
     'stock, and mine from a pool that only fills.',
   links: {
-    site: 'https://dayagpu.com',
+    site: 'https://web-production-360d4.up.railway.app',
     x: 'https://x.com/dayagpu',
     github: 'https://github.com/dayagpu/dayagpu',
   },
