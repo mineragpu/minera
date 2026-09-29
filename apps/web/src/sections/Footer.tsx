@@ -1,7 +1,7 @@
 import { BRAND } from '@dayagpu/shared';
 import { PreviewTag } from '../components/PreviewTag.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
-import { NAV_LINKS } from './navLinks.ts';
+import { FOOTER_LINKS } from './navLinks.ts';
 import './footer.css';
 
 export function Footer() {
@@ -11,9 +11,9 @@ export function Footer() {
         <Wordmark />
         <nav aria-label="Footer">
           <ul>
-            {NAV_LINKS.map((link) => (
-              <li key={link.id}>
-                <a href={`#${link.id}`}>{link.label}</a>
+            {FOOTER_LINKS.map((link) => (
+              <li key={link.label}>
+                <a href={link.href}>{link.label}</a>
               </li>
             ))}
           </ul>

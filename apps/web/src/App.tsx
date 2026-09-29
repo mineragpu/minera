@@ -25,7 +25,7 @@ export function App() {
         <SvgDefs />
         <div className="page">
           <LatticeBackground />
-          <Nav />
+          <Nav route={route} />
           <main id="main">
             <RouteView route={route} />
           </main>

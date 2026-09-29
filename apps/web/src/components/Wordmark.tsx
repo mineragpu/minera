@@ -1,9 +1,10 @@
 import { BRAND } from '@dayagpu/shared';
+import { PATHS } from '../router/routes.ts';
 import './wordmark.css';
 
 export function Wordmark() {
   return (
-    <a className="wordmark" href="#top">
+    <a className="wordmark" href={PATHS.home}>
       <svg viewBox="0 0 26 28" aria-hidden="true" focusable="false">
         <path d="M13 1.5 24.5 8 13 14.5 1.5 8Z" fill="url(#g-top)" />
         <path d="M1.5 8 13 14.5V27L1.5 20.5Z" fill="url(#g-left)" />

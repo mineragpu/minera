@@ -23,7 +23,7 @@ export function useVesselFill(vessel: RefObject<Element | null>): VesselFill {
   useEffect(() => {
     if (started) return;
     const onClick = (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest('a[href="#burn-pool"]')) setStarted(true);
+      if (event.target instanceof Element && event.target.closest('a[href$="#burn-pool"]')) setStarted(true);
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
