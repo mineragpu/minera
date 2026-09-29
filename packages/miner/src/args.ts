@@ -8,6 +8,7 @@ import { isNetworkKey, type Address, type NetworkKey } from '@dayagpu/shared';
 import { getAddress, isAddress } from 'viem';
 import { DEFAULT_RUNTIME_URL } from './runtime.ts';
 import { MAX_CONCURRENCY } from './scheduler.ts';
+import { checkServiceUrl } from './url.ts';
 
 export type Command =
   | { name: 'init'; operator: Address; network: NetworkKey | null; force: boolean }
@@ -76,7 +77,6 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly OptionName[]>> = {
 };
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
 class UsageError extends Error {}
 
@@ -101,23 +101,9 @@ function parseNetwork(value: string | undefined): NetworkKey | null {
 }
 
 function parseUrl(value: string, option: string, requireTls: boolean): string {
-  let url: URL;
-  try {
-    url = new URL(value);
-  } catch {
-    throw new UsageError(`${option} must be a full URL that starts with https://.`);
-  }
-  if (url.username || url.password) throw new UsageError(`${option} must not contain a user name or password.`);
-  const loopback = LOOPBACK_HOSTS.has(url.hostname);
-  const allowed = url.protocol === 'https:' || (url.protocol === 'http:' && (loopback || !requireTls));
-  if (!allowed) {
-    throw new UsageError(
-      requireTls
-        ? `${option} must use https. Plain http is allowed only for this machine.`
-        : `${option} must use http or https.`,
-    );
-  }
-  return `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+  const checked = checkServiceUrl(value, requireTls);
+  if (!checked.ok) throw new UsageError(`${option} ${checked.problem}.`);
+  return checked.url;
 }
 
 function parseConcurrency(value: string | undefined): number {

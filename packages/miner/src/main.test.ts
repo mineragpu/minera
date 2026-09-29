@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { execFile } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
@@ -129,6 +129,17 @@ describe('rig start', () => {
     const result = await run(['start'], environment(home));
     assert.equal(result.code, 64);
     assert.match(result.err, /No coordinator URL is set for testnet/);
+  });
+
+  it('refuses a saved coordinator URL that is not https', async () => {
+    const { home } = fresh('saved-http');
+    await run(['init', '--operator', OPERATOR], environment(home));
+    const paths = nodePaths({ platform: 'linux', env: { XDG_CONFIG_HOME: home }, home });
+    const settings = { network: 'testnet', coordinators: { testnet: 'http://coord.example' } };
+    writeFileSync(paths.settings, JSON.stringify(settings));
+    const result = await run(['start'], environment(home));
+    assert.equal(result.code, 64);
+    assert.match(result.err, /saved coordinator URL for testnet must use https/);
   });
 
   it('connects, heartbeats with a signed request and stops cleanly on a signal', async () => {

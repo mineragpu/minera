@@ -11,6 +11,7 @@ import { runNode } from '../loop.ts';
 import { createJobRunner } from '../runner.ts';
 import { detectRuntime } from '../runtime.ts';
 import { readSettings, writeSettings } from '../settings.ts';
+import { checkServiceUrl } from '../url.ts';
 import { CLIENT_VERSION } from '../version.ts';
 import { EXIT, type CommandContext, type ExitCode } from './context.ts';
 
@@ -38,12 +39,19 @@ export async function startCommand(
 
   const settings = readSettings(paths.settings);
   const network = command.network ?? settings.network;
-  const coordinator = command.coordinator ?? settings.coordinators[network] ?? null;
+  const saved = settings.coordinators[network];
+  const coordinator = command.coordinator ?? saved ?? null;
   if (coordinator === null) {
     logger.error(`No coordinator URL is set for ${network}. Pass --coordinator <url> once; it is remembered.`);
     return EXIT.usage;
   }
-  if (coordinator !== settings.coordinators[network]) {
+  const checked = checkServiceUrl(coordinator, true);
+  if (!checked.ok) {
+    const replace = 'Pass --coordinator <url> to replace it.';
+    logger.error(`The saved coordinator URL for ${network} ${checked.problem}. ${replace}`);
+    return EXIT.usage;
+  }
+  if (coordinator !== saved) {
     writeSettings(paths.settings, { ...settings, coordinators: { ...settings.coordinators, [network]: coordinator } });
   }
 

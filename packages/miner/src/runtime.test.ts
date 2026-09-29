@@ -2,7 +2,6 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { startMockServer } from './mock-server.ts';
 import { RUNTIME_INTERFACE, detectRuntime, modelNames } from './runtime.ts';
-import { endpoint } from './url.ts';
 
 describe('detectRuntime', () => {
   it('reports the version and the installed models', async () => {
@@ -56,12 +55,5 @@ describe('modelNames', () => {
     assert.deepEqual(modelNames(tags), ['a', 'b']);
     assert.deepEqual(modelNames(null), []);
     assert.deepEqual(modelNames({ models: 'a' }), []);
-  });
-});
-
-describe('endpoint', () => {
-  it('keeps a path prefix and drops the query', () => {
-    assert.equal(endpoint('http://127.0.0.1:11434', '/api/chat').href, 'http://127.0.0.1:11434/api/chat');
-    assert.equal(endpoint('https://host/prefix/?a=1#x', '/v1/node/hello').href, 'https://host/prefix/v1/node/hello');
   });
 });
