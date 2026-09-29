@@ -38,18 +38,27 @@ function toIndex(value: bigint): number {
 export async function readPoolSnapshot(client: PoolReader, pool: Address): Promise<PoolSnapshot> {
   const block = await client.getBlock({ blockTag: 'latest' });
   const at = { address: pool, abi: burnPoolAbi, blockNumber: block.number } as const;
-  const [totalBurned, committed, releasable, head, settlementCount, deployedAt, releaseBpsPerDay, challengeDelay, publisher] =
-    await Promise.all([
-      client.readContract({ ...at, functionName: 'totalBurned' }),
-      client.readContract({ ...at, functionName: 'committed' }),
-      client.readContract({ ...at, functionName: 'releasable' }),
-      client.readContract({ ...at, functionName: 'head' }),
-      client.readContract({ ...at, functionName: 'settlementCount' }),
-      client.readContract({ ...at, functionName: 'deployedAt' }),
-      client.readContract({ ...at, functionName: 'releaseBpsPerDay' }),
-      client.readContract({ ...at, functionName: 'challengeDelay' }),
-      client.readContract({ ...at, functionName: 'publisher' }),
-    ]);
+  const [
+    totalBurned,
+    committed,
+    releasable,
+    head,
+    settlementCount,
+    deployedAt,
+    releaseBpsPerDay,
+    challengeDelay,
+    publisher,
+  ] = await Promise.all([
+    client.readContract({ ...at, functionName: 'totalBurned' }),
+    client.readContract({ ...at, functionName: 'committed' }),
+    client.readContract({ ...at, functionName: 'releasable' }),
+    client.readContract({ ...at, functionName: 'head' }),
+    client.readContract({ ...at, functionName: 'settlementCount' }),
+    client.readContract({ ...at, functionName: 'deployedAt' }),
+    client.readContract({ ...at, functionName: 'releaseBpsPerDay' }),
+    client.readContract({ ...at, functionName: 'challengeDelay' }),
+    client.readContract({ ...at, functionName: 'publisher' }),
+  ]);
 
   const slot = async (index: bigint): Promise<SettlementSlot | null> => {
     if (index === 0n) return null;

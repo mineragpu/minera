@@ -83,7 +83,9 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
 
   const rpcUrls = splitList(values.RPC_URL);
   for (const url of rpcUrls) {
-    if (!httpUrl.safeParse(url).success) throw new ConfigError('invalid configuration: RPC_URL must list http or https URLs');
+    if (!httpUrl.safeParse(url).success) {
+      throw new ConfigError('invalid configuration: RPC_URL must list http or https URLs');
+    }
   }
 
   const corsOrigins = splitList(values.CORS_ORIGINS);

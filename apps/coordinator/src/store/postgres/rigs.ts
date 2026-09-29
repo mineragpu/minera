@@ -72,7 +72,9 @@ export function postgresRigs(db: Queryable): RigStore {
     async deploy(rig) {
       await db`
         INSERT INTO rigs (node_key, operator, pair, name, deployed_at, deployed_block)
-        VALUES (${rig.nodeKey}, ${rig.operator}, ${rig.pair}, ${rig.name}, ${rig.deployedAt}, ${rig.deployedBlock.toString()})
+        VALUES (
+          ${rig.nodeKey}, ${rig.operator}, ${rig.pair}, ${rig.name}, ${rig.deployedAt}, ${rig.deployedBlock.toString()}
+        )
         ON CONFLICT (node_key) DO NOTHING
       `;
     },

@@ -42,8 +42,11 @@ function snapshot(overrides: Partial<PoolSnapshot> = {}): PoolSnapshot {
 beforeEach(async () => {
   harness = await createTestApp({ CORS_ORIGINS: 'https://site.example' });
   const { store, clock } = harness;
-  await store.rigs.deploy({ nodeKey: RIG_1, operator: OPERATOR_A, pair: address(0), name: 'one', deployedAt: new Date('2026-09-28T00:00:00Z'), deployedBlock: 1n });
-  await store.rigs.deploy({ nodeKey: RIG_2, operator: OPERATOR_B, pair: STOCK, name: 'two', deployedAt: new Date('2026-09-28T01:00:00Z'), deployedBlock: 2n });
+  const deployedAt = new Date('2026-09-28T00:00:00Z');
+  const one = { nodeKey: RIG_1, operator: OPERATOR_A, pair: address(0), name: 'one', deployedAt, deployedBlock: 1n };
+  const two = { nodeKey: RIG_2, operator: OPERATOR_B, pair: STOCK, name: 'two', deployedAt, deployedBlock: 2n };
+  await store.rigs.deploy(one);
+  await store.rigs.deploy(two);
   await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['llama3.2:1b'] }, clock.now);
   await store.work.credit(RIG_2, epochOf(clock.now, harness.config.epochSeconds), { verified: 12, unverified: 0 });
 });
@@ -84,7 +87,8 @@ describe('public routes', () => {
 
     const bad = await get('/v1/rigs?sort=loudest&limit=0');
     assert.equal(bad.statusCode, 400);
-    assert.deepEqual(bad.json().error.details.map((detail: { path: string }) => detail.path).sort(), ['query.limit', 'query.sort']);
+    const paths = bad.json().error.details.map((detail: { path: string }) => detail.path);
+    assert.deepEqual(paths.sort(), ['query.limit', 'query.sort']);
   });
 
   it('shows a rig with 24 hourly buckets, and 400 or 404 for bad keys', async () => {
@@ -99,7 +103,8 @@ describe('public routes', () => {
   });
 
   it('serves pool state, burns and settlements', async () => {
-    const latest = { index: 1, publishedAt: 1n, claimableAt: BigInt(harness.clock.now.getTime() / 1000) + 60n, vetoed: false };
+    const claimableAt = BigInt(harness.clock.now.getTime() / 1000) + 60n;
+    const latest = { index: 1, publishedAt: 1n, claimableAt, vetoed: false };
     harness.pool.snapshot = snapshot({ latest, head: latest, settlementCount: 1 });
     await harness.store.chain.addBurn({
       blockNumber: 5n,
@@ -112,7 +117,8 @@ describe('public routes', () => {
       memo: `0x${Buffer.from('Campaign 01').toString('hex').padEnd(64, '0')}` as Hex,
     });
     const body = (await get('/v1/pool')).json();
-    assert.deepEqual(body.state.pending, { index: 1, claimableAt: new Date(Number(latest.claimableAt) * 1000).toISOString() });
+    const pendingAt = new Date(Number(claimableAt) * 1000).toISOString();
+    assert.deepEqual(body.state.pending, { index: 1, claimableAt: pendingAt });
     assert.equal(body.burns[0].memo, 'Campaign 01');
     assert.deepEqual([body.campaign.id, body.campaign.burned], ['1', ETH.toString()]);
   });
@@ -167,7 +173,10 @@ describe('public routes', () => {
     });
     const claim = (await get(`/v1/claims/${OPERATOR_B}`)).json();
     const expected = (3n * ETH) / 4n;
-    assert.deepEqual([claim.cumulative, claim.claimed, claim.claimable], [expected.toString(), (10n ** 17n).toString(), (expected - 10n ** 17n).toString()]);
+    assert.deepEqual(
+      [claim.cumulative, claim.claimed, claim.claimable],
+      [expected.toString(), (10n ** 17n).toString(), (expected - 10n ** 17n).toString()],
+    );
     assert.equal(claim.settlement.index, 1);
     assert.ok(claim.proof.length > 0);
     const nobody = (await get(`/v1/claims/${address(0x77)}`)).json();
@@ -205,7 +214,10 @@ describe('public routes', () => {
     assert.equal(accepted.statusCode, 202);
     const { id } = accepted.json();
     const view = (await get(`/v1/playground/jobs/${id}`)).json();
-    assert.deepEqual([view.status, view.output, view.crossChecked, view.prompt], ['queued', null, false, 'What is a GPU?']);
+    assert.deepEqual(
+      [view.status, view.output, view.crossChecked, view.prompt],
+      ['queued', null, false, 'What is a GPU?'],
+    );
     assert.match(view.rule, /Only verified work earns rewards/);
     assert.equal((await get('/v1/playground/jobs/00000000-0000-4000-8000-0000000fffff')).statusCode, 404);
     assert.equal((await get('/v1/playground/jobs/nope')).statusCode, 400);

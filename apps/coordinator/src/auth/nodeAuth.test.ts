@@ -71,7 +71,12 @@ describe('verifyNodeRequest', () => {
 
   it('rejects a signature from a different key', async () => {
     const signed = await request();
-    const forged = await signNodeRequest(strangerAccount, { method: 'POST', path: PATH, body: BODY, timestamp: NOW_SECONDS });
+    const forged = await signNodeRequest(strangerAccount, {
+      method: 'POST',
+      path: PATH,
+      body: BODY,
+      timestamp: NOW_SECONDS,
+    });
     const headers = { ...signed.headers, [NODE_HEADERS.signature]: forged[NODE_HEADERS.signature] };
     await rejects(verifyNodeRequest({ ...signed, headers }, deps()), 401, 'bad_signature');
   });

@@ -79,17 +79,26 @@ describe('planSettlement', () => {
       { account: OPERATOR_A, amount: (4n * ETH).toString() },
       { account: OPERATOR_B, amount: (6n * ETH).toString() },
     ]);
-    assert.deepEqual([inputs.previousIndex, inputs.fromEpoch, inputs.toEpoch, inputs.budget], [0, 0, 10, (10n * ETH).toString()]);
+    assert.deepEqual(
+      [inputs.previousIndex, inputs.fromEpoch, inputs.toEpoch, inputs.budget],
+      [0, 0, 10, (10n * ETH).toString()],
+    );
     assert.equal(inputs.work.length, 3);
   });
 
   it('adds new rewards on top of the head settlement', () => {
-    const base: BaseSettlement = { index: 1, toEpoch: 10, entitlements: new Map([[OPERATOR_A, 4n * ETH], [OPERATOR_B, 6n * ETH]]) };
+    const entitlements = new Map([[OPERATOR_A, 4n * ETH], [OPERATOR_B, 6n * ETH]]);
+    const base: BaseSettlement = { index: 1, toEpoch: 10, entitlements };
     const head = { index: 1, publishedAt: DEPLOYED + DAY, claimableAt: DEPLOYED + DAY + 1_800n, vetoed: false };
-    const pool = snapshot({ committed: 10n * ETH, head, latest: head, settlementCount: 1, timestamp: DEPLOYED + 2n * DAY });
-    const plan = publish(
-      planSettlement(input({ pool, base, fromEpoch: 11, toEpoch: 20, work: [{ nodeKey: address(0x3), operator: OPERATOR_B, units: 1n }] })),
-    );
+    const pool = snapshot({
+      committed: 10n * ETH,
+      head,
+      latest: head,
+      settlementCount: 1,
+      timestamp: DEPLOYED + 2n * DAY,
+    });
+    const work = [{ nodeKey: address(0x3), operator: OPERATOR_B, units: 1n }];
+    const plan = publish(planSettlement(input({ pool, base, fromEpoch: 11, toEpoch: 20, work })));
     assert.equal(plan.budget, 9n * ETH);
     const cumulative = new Map(plan.draft.entitlements.map((entry) => [entry.account, entry.cumulative]));
     assert.equal(cumulative.get(OPERATOR_A), 4n * ETH);
@@ -103,24 +112,31 @@ describe('planSettlement', () => {
     const latest = { index: 2, publishedAt: DEPLOYED + DAY - 10n, claimableAt: DEPLOYED + DAY + 100n, vetoed: false };
     const pending = planSettlement(input({ pool: snapshot({ latest, settlementCount: 2 }) }));
     assert.deepEqual(pending, { kind: 'skip', reason: 'settlement 2 is still inside its challenge delay' });
-    const vetoed = planSettlement(input({ pool: snapshot({ latest: { ...latest, vetoed: true }, settlementCount: 2 }) }));
+    const vetoedPool = snapshot({ latest: { ...latest, vetoed: true }, settlementCount: 2 });
+    const vetoed = planSettlement(input({ pool: vetoedPool }));
     assert.equal(vetoed.kind, 'publish');
   });
 
   it('skips with a reason when there is no budget or no verified work', () => {
-    assert.deepEqual(planSettlement(input({ pool: snapshot({ totalBurned: 0n }) })), { kind: 'skip', reason: 'the release budget is zero' });
-    assert.deepEqual(planSettlement(input({ work: [] })), { kind: 'skip', reason: 'there is no verified work to settle' });
+    const empty = planSettlement(input({ pool: snapshot({ totalBurned: 0n }) }));
+    assert.deepEqual(empty, { kind: 'skip', reason: 'the release budget is zero' });
+    const idleNetwork = planSettlement(input({ work: [] }));
+    assert.deepEqual(idleNetwork, { kind: 'skip', reason: 'there is no verified work to settle' });
     const idle: RigWork[] = [{ nodeKey: address(1), operator: OPERATOR_A, units: 0n }];
     assert.equal(planSettlement(input({ work: idle })).kind, 'skip');
   });
 
   it('refuses to build on a history that does not match the chain', () => {
     const head = { index: 1, publishedAt: DEPLOYED, claimableAt: DEPLOYED, vetoed: false };
-    const missing = planSettlement(input({ pool: snapshot({ head, latest: head, settlementCount: 1, committed: 5n }) }));
+    const settled = snapshot({ head, latest: head, settlementCount: 1, committed: 5n });
+    const missing = planSettlement(input({ pool: settled }));
     assert.equal(missing.kind, 'skip');
     const base: BaseSettlement = { index: 1, toEpoch: 3, entitlements: new Map([[OPERATOR_A, 4n]]) };
-    const drifted = planSettlement(input({ base, pool: snapshot({ head, latest: head, settlementCount: 1, committed: 5n }) }));
-    assert.deepEqual(drifted, { kind: 'skip', reason: 'the recorded entitlements do not add up to the total committed on-chain' });
+    const drifted = planSettlement(input({ base, pool: settled }));
+    assert.deepEqual(drifted, {
+      kind: 'skip',
+      reason: 'the recorded entitlements do not add up to the total committed on-chain',
+    });
   });
 
   it('never returns a total above what the contract says is releasable', () => {

@@ -94,7 +94,8 @@ export function memoryRigs(box: StateBox): RigStore {
       const order: Record<typeof query.sort, (a: RigListEntry, b: RigListEntry) => number> = {
         new: newest,
         top: (a, b) => descending(a.verifiedUnits, b.verifiedUnits) || newest(a, b),
-        epoch: (a, b) => descending(a.epochUnits, b.epochUnits) || descending(a.verifiedUnits, b.verifiedUnits) || newest(a, b),
+        epoch: (a, b) =>
+          descending(a.epochUnits, b.epochUnits) || descending(a.verifiedUnits, b.verifiedUnits) || newest(a, b),
       };
       rows.sort(order[query.sort]);
       return { total: rows.length, rigs: rows.slice(query.offset, query.offset + query.limit) };

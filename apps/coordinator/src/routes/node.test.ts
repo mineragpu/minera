@@ -11,6 +11,7 @@ import { createTestApp, type TestApp } from '../testing/testApp.ts';
 const MODEL = 'llama3.2:1b';
 const RUNTIME = { runtime: 'local', version: '1.2.3', models: [MODEL] };
 const OPERATOR = '0x00000000000000000000000000000000000000a1' as Address;
+const ETH = '0x0000000000000000000000000000000000000000' as Address;
 
 let harness: TestApp;
 let rig: PrivateKeyAccount;
@@ -65,7 +66,7 @@ describe('node routes', () => {
     const response = await send(rig, NODE_ROUTES.hello, hello);
     assert.equal(response.statusCode, 200);
     const body = response.json();
-    assert.deepEqual(body.rig, { nodeKey: rig.address.toLowerCase(), operator: OPERATOR, name: 'basement', pair: '0x0000000000000000000000000000000000000000' });
+    assert.deepEqual(body.rig, { nodeKey: rig.address.toLowerCase(), operator: OPERATOR, name: 'basement', pair: ETH });
     assert.equal(body.heartbeatSeconds, 30);
     assert.equal(body.benchmark.kind, 'benchmark');
     assert.equal(body.benchmark.model, MODEL);
@@ -88,7 +89,12 @@ describe('node routes', () => {
       body,
       timestamp: Math.floor(harness.clock.now.getTime() / 1000),
     });
-    const request = { method: 'POST' as const, url: NODE_ROUTES.heartbeat, headers: { ...headers, 'content-type': 'application/json' }, payload: body };
+    const request = {
+      method: 'POST' as const,
+      url: NODE_ROUTES.heartbeat,
+      headers: { ...headers, 'content-type': 'application/json' },
+      payload: body,
+    };
     assert.equal((await harness.app.inject(request)).statusCode, 200);
     const replay = await harness.app.inject(request);
     assert.equal(replay.statusCode, 401);
@@ -132,19 +138,24 @@ describe('node routes', () => {
     assert.equal(stolen.statusCode, 403);
     assert.equal(stolen.json().error.code, 'not_assignee');
 
-    assert.deepEqual((await send(rig, NODE_ROUTES.result(id), { output: 'Hello.', reported })).json(), { accepted: true });
+    const accepted = await send(rig, NODE_ROUTES.result(id), { output: 'Hello.', reported });
+    assert.deepEqual(accepted.json(), { accepted: true });
     const again = await send(rig, NODE_ROUTES.result(id), { output: 'Hello.', reported });
     assert.deepEqual(again.json(), { accepted: false, reason: 'A result for this job was already received.' });
 
     const view = await viewPlaygroundJob(harness.store, id);
-    assert.deepEqual([view?.status, view?.output, view?.rig?.name, view?.crossChecked, view?.verification], ['done', 'Hello.', 'basement', false, 'unverified']);
+    assert.deepEqual(
+      [view?.status, view?.output, view?.rig?.name, view?.crossChecked, view?.verification],
+      ['done', 'Hello.', 'basement', false, 'unverified'],
+    );
   });
 
   it('rejects malformed job ids, unknown jobs and oversized output', async () => {
     assert.equal((await send(rig, NODE_ROUTES.result('not-a-job'), { output: 'x', reported })).statusCode, 400);
-    const missing = await send(rig, NODE_ROUTES.result('00000000-0000-4000-8000-00000000ffff'), { output: 'x', reported });
+    const unknown = NODE_ROUTES.result('00000000-0000-4000-8000-00000000ffff');
+    const missing = await send(rig, unknown, { output: 'x', reported });
     assert.equal(missing.statusCode, 404);
-    const huge = await send(rig, NODE_ROUTES.result('00000000-0000-4000-8000-00000000ffff'), { output: 'x'.repeat(32_001), reported });
+    const huge = await send(rig, unknown, { output: 'x'.repeat(32_001), reported });
     assert.equal(huge.statusCode, 400);
   });
 });

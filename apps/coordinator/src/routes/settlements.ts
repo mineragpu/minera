@@ -29,7 +29,9 @@ export function registerSettlementRoute(app: FastifyInstance, context: RouteCont
       'params',
     );
     const settlement = await context.store.settlements.byIndex(index);
-    if (!settlement) throw new ApiError(404, 'settlement_not_found', 'There is no published settlement with this index.');
+    if (!settlement) {
+      throw new ApiError(404, 'settlement_not_found', 'There is no published settlement with this index.');
+    }
     return {
       ...settlementSummary(settlement),
       inputsDigest: settlement.inputsDigest,

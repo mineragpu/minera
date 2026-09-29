@@ -45,8 +45,9 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
     const units = measureUnits(output, job.params.maxTokens);
     const epoch = epochOf(now, result.epochSeconds);
     const judgement = judge(job, output, await tx.jobs.group(job.groupId));
+    const outputHash = keccak256(toBytes(output));
     const complete = (verification: JobRecord['verification'], verifiedAt: Date | null) =>
-      tx.jobs.complete(job.id, { output, outputHash: keccak256(toBytes(output)), units, verification, finishedAt: now, verifiedAt });
+      tx.jobs.complete(job.id, { output, outputHash, units, verification, finishedAt: now, verifiedAt });
 
     switch (judgement.type) {
       case 'check':
@@ -71,7 +72,9 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
         if (twin.assignedNode) await tx.rigs.recordCheck(twin.assignedNode, match, now);
         if (match) {
           await tx.work.credit(nodeKey, epoch, { verified: units, unverified: 0 });
-          if (twin.assignedNode) await tx.work.credit(twin.assignedNode, epoch, { verified: twin.units ?? 0, unverified: 0 });
+          if (twin.assignedNode) {
+            await tx.work.credit(twin.assignedNode, epoch, { verified: twin.units ?? 0, unverified: 0 });
+          }
         }
         break;
       }

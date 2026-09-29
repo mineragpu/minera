@@ -163,7 +163,8 @@ export function memoryJobs(box: StateBox): JobStore {
     async hourlyVerifiedUnits(nodeKey, since) {
       const buckets = new Map<number, bigint>();
       for (const job of all()) {
-        if (job.assignedNode !== nodeKey || !isPaidVerified(job) || job.verifiedAt === null || job.verifiedAt < since) continue;
+        if (job.assignedNode !== nodeKey || !isPaidVerified(job)) continue;
+        if (job.verifiedAt === null || job.verifiedAt < since) continue;
         const hour = Math.floor(job.verifiedAt.getTime() / HOUR_MS) * HOUR_MS;
         buckets.set(hour, (buckets.get(hour) ?? 0n) + BigInt(job.units ?? 0));
       }

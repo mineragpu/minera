@@ -96,7 +96,8 @@ function deps(overrides: Partial<SettlementWorkerDeps> = {}): SettlementWorkerDe
 beforeEach(async () => {
   store = createMemoryStore();
   sent = [];
-  await store.rigs.deploy({ nodeKey: RIG, operator: OPERATOR, pair: POOL, name: 'rig', deployedAt: NOW, deployedBlock: 1n });
+  const deployedAt = NOW;
+  await store.rigs.deploy({ nodeKey: RIG, operator: OPERATOR, pair: RIG, name: 'rig', deployedAt, deployedBlock: 1n });
   await store.work.credit(RIG, epochOf(NOW, EPOCH_SECONDS) - 1, { verified: 40, unverified: 7 });
 });
 
@@ -104,7 +105,8 @@ describe('settleOnce', () => {
   it('plans but never sends in dry mode', async () => {
     const outcome = await settleOnce(deps({ publisher: null }));
     assert.equal(outcome.kind, 'skipped');
-    assert.match(outcome.kind === 'skipped' ? outcome.reason : '', /^dry mode without a publisher key; would publish root 0x/);
+    const reason = outcome.kind === 'skipped' ? outcome.reason : '';
+    assert.match(reason, /^dry mode without a publisher key; would publish root 0x/);
     assert.deepEqual([sent.length, (await store.settlements.recent(5)).length], [0, 0]);
   });
 
@@ -124,7 +126,8 @@ describe('settleOnce', () => {
     await settleOnce(deps());
     const head = { index: 1, publishedAt: CHAIN_NOW, claimableAt: CHAIN_NOW + 1_800n, vetoed: false };
     const pending = snapshot({ committed: ETH, head, latest: head, settlementCount: 1 });
-    const outcome = await settleOnce(deps({ readPool: async () => pending, now: () => new Date(NOW.getTime() + 3_600_000) }));
+    const anHourLater = new Date(NOW.getTime() + 3_600_000);
+    const outcome = await settleOnce(deps({ readPool: async () => pending, now: () => anHourLater }));
     assert.deepEqual(outcome, { kind: 'skipped', reason: 'settlement 1 is still inside its challenge delay' });
   });
 
@@ -149,7 +152,10 @@ describe('settleOnce', () => {
     assert.deepEqual(confirmed, { kind: 'waiting', reason: 'settlement 1 was confirmed' });
     assert.equal((await store.settlements.byIndex(1))?.status, 'published');
     const stale = await settleOnce(deps());
-    assert.deepEqual(stale, { kind: 'skipped', reason: 'the chain read is behind settlement 1; waiting for it to catch up' });
+    assert.deepEqual(stale, {
+      kind: 'skipped',
+      reason: 'the chain read is behind settlement 1; waiting for it to catch up',
+    });
     assert.equal(sent.length, 1);
   });
 });

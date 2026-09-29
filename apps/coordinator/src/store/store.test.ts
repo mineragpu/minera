@@ -23,11 +23,15 @@ const RIG_3 = address(0x1003);
 const RUNTIME = { runtime: 'local', version: '1.0.0', models: ['small-model'] };
 
 async function deployRigs(store: Store): Promise<void> {
-  await store.rigs.deploy({ nodeKey: RIG_1, operator: OPERATOR_A, pair: ETH, name: 'one', deployedAt: at(0), deployedBlock: 10n });
-  await store.rigs.deploy({ nodeKey: RIG_2, operator: OPERATOR_A, pair: STOCK, name: 'two', deployedAt: at(1), deployedBlock: 11n });
-  await store.rigs.deploy({ nodeKey: RIG_3, operator: OPERATOR_B, pair: ETH, name: 'three', deployedAt: at(2), deployedBlock: 12n });
+  const rigs = [
+    { nodeKey: RIG_1, operator: OPERATOR_A, pair: ETH, name: 'one', deployedAt: at(0), deployedBlock: 10n },
+    { nodeKey: RIG_2, operator: OPERATOR_A, pair: STOCK, name: 'two', deployedAt: at(1), deployedBlock: 11n },
+    { nodeKey: RIG_3, operator: OPERATOR_B, pair: ETH, name: 'three', deployedAt: at(2), deployedBlock: 12n },
+  ];
+  for (const rig of rigs) await store.rigs.deploy(rig);
   for (const nodeKey of [RIG_1, RIG_2, RIG_3]) {
-    await store.rigs.recordHello(nodeKey, { clientVersion: '0.1.0', gpu: { model: 'card', vramMb: 8_192 }, runtime: RUNTIME }, at(3));
+    const report = { clientVersion: '0.1.0', gpu: { model: 'card', vramMb: 8_192 }, runtime: RUNTIME };
+    await store.rigs.recordHello(nodeKey, report, at(3));
   }
 }
 
@@ -48,7 +52,12 @@ function job(overrides: Partial<NewJob> = {}): NewJob {
   };
 }
 
-const DUMP = { format: 'standard-v1', leafEncoding: ['address', 'uint256'], tree: [hash(1)], values: [] } as unknown as TreeDump;
+const DUMP = {
+  format: 'standard-v1',
+  leafEncoding: ['address', 'uint256'],
+  tree: [hash(1)],
+  values: [],
+} as unknown as TreeDump;
 
 function draft(overrides: Partial<SettlementDraft> = {}): SettlementDraft {
   return {
@@ -78,7 +87,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
     });
 
     it('records deployments once and applies registry changes', async () => {
-      await store.rigs.deploy({ nodeKey: RIG_1, operator: OPERATOR_B, pair: STOCK, name: 'again', deployedAt: at(9), deployedBlock: 99n });
+      const replay = { nodeKey: RIG_1, operator: OPERATOR_B, pair: STOCK, name: 'again', deployedAt: at(9) };
+      await store.rigs.deploy({ ...replay, deployedBlock: 99n });
       await store.rigs.setPair(RIG_1, STOCK);
       await store.rigs.retire(RIG_2, at(20));
       const one = await store.rigs.get(RIG_1);
@@ -102,7 +112,10 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.deepEqual(newest.rigs.map((rig) => rig.nodeKey), [RIG_3, RIG_2, RIG_1]);
       assert.equal(newest.total, 3);
       const top = await store.rigs.list({ sort: 'top', pair: null, epoch: 7, limit: 10, offset: 0 });
-      assert.deepEqual(top.rigs.map((rig) => [rig.nodeKey, rig.verifiedUnits]), [[RIG_3, 51n], [RIG_1, 5n], [RIG_2, 0n]]);
+      assert.deepEqual(
+        top.rigs.map((rig) => [rig.nodeKey, rig.verifiedUnits]),
+        [[RIG_3, 51n], [RIG_1, 5n], [RIG_2, 0n]],
+      );
       const epoch = await store.rigs.list({ sort: 'epoch', pair: null, epoch: 7, limit: 1, offset: 0 });
       assert.deepEqual(epoch.rigs.map((rig) => [rig.nodeKey, rig.epochUnits]), [[RIG_1, 5n]]);
       assert.equal(epoch.total, 3);
@@ -147,7 +160,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       for (const entry of [first, twin, otherModel, expired, check]) await store.jobs.insert(entry);
 
       const now = at(10);
-      assert.deepEqual((await store.jobs.assignable({ rig: rig2, qualified: false, now, limit: 10 })).map((j) => j.id), [check.id]);
+      const unqualified = await store.jobs.assignable({ rig: rig2, qualified: false, now, limit: 10 });
+      assert.deepEqual(unqualified.map((j) => j.id), [check.id]);
       const offered = await store.jobs.assignable({ rig: rig2, qualified: true, now, limit: 10 });
       assert.deepEqual(offered.map((j) => j.id), [check.id, ...[first.id, twin.id].sort()]);
 
@@ -240,7 +254,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
     it('carries a settlement from draft to publication and veto', async () => {
       const id = await store.settlements.createDraft(draft());
       assert.deepEqual((await store.settlements.open()).map((row) => [row.id, row.status]), [[id, 'sending']]);
-      assert.deepEqual(await store.settlements.entitlement(id, OPERATOR_B), { account: OPERATOR_B, cumulative: 400n, proof: [hash(3)] });
+      const entitlement = await store.settlements.entitlement(id, OPERATOR_B);
+      assert.deepEqual(entitlement, { account: OPERATOR_B, cumulative: 400n, proof: [hash(3)] });
       assert.equal((await store.settlements.entitlements(id)).length, 2);
 
       await store.settlements.markSent(id, hash(0x77));
@@ -259,7 +274,10 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal((await store.settlements.recent(10)).length, 1);
       const published = await store.settlements.byIndex(1);
       assert.equal(published?.id, id);
-      assert.deepEqual([published?.status, published?.total, published?.blockNumber, published?.inputs], ['published', 1_000n, 500n, '{"version":1}']);
+      assert.deepEqual(
+        [published?.status, published?.total, published?.blockNumber, published?.inputs],
+        ['published', 1_000n, 500n, '{"version":1}'],
+      );
       assert.deepEqual(published?.dump, DUMP);
       assert.deepEqual(await store.settlements.open(), []);
       assert.equal((await store.settlements.latestPending(at(20)))?.index, 1);
@@ -280,7 +298,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.deepEqual([foreign?.inputs, foreign?.dump, foreign?.status], [null, null, 'published']);
       await store.settlements.markVetoed(2);
       assert.equal((await store.settlements.latestClaimable(at(90)))?.index, 1);
-      assert.deepEqual((await store.settlements.recent(10)).map((row) => [row.index, row.vetoed]), [[2, true], [1, false]]);
+      const recent = await store.settlements.recent(10);
+      assert.deepEqual(recent.map((row) => [row.index, row.vetoed]), [[2, true], [1, false]]);
 
       const failed = await store.settlements.createDraft(draft({ root: hash(0xfff) }));
       await store.settlements.markFailed(failed, 'reverted');
@@ -294,10 +313,13 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(await store.chain.cursor(), 200n);
 
       const burn = { blockTime: at(1), from: OPERATOR_A, memo: hash(0) };
-      await store.chain.addBurn({ ...burn, blockNumber: 10n, txHash: hash(1), logIndex: 0, amount: 5n, campaignId: 1n });
-      await store.chain.addBurn({ ...burn, blockNumber: 10n, txHash: hash(1), logIndex: 0, amount: 5n, campaignId: 1n });
-      await store.chain.addBurn({ ...burn, blockNumber: 11n, txHash: hash(2), logIndex: 3, amount: 7n, campaignId: 1n, blockTime: at(2) });
-      await store.chain.addBurn({ ...burn, blockNumber: 12n, txHash: hash(3), logIndex: 1, amount: 1n, campaignId: 0n, blockTime: at(3) });
+      const first = { ...burn, blockNumber: 10n, txHash: hash(1), logIndex: 0, amount: 5n, campaignId: 1n };
+      await store.chain.addBurn(first);
+      await store.chain.addBurn(first);
+      const later = { blockNumber: 11n, txHash: hash(2), logIndex: 3, amount: 7n, campaignId: 1n, blockTime: at(2) };
+      await store.chain.addBurn({ ...burn, ...later });
+      const unnamed = { blockNumber: 12n, txHash: hash(3), logIndex: 1, amount: 1n, campaignId: 0n, blockTime: at(3) };
+      await store.chain.addBurn({ ...burn, ...unnamed });
       assert.deepEqual((await store.chain.recentBurns(2)).map((b) => b.amount), [1n, 7n]);
       assert.deepEqual(await store.chain.currentCampaign(), {
         campaignId: 1n,

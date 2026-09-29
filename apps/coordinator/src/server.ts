@@ -24,7 +24,10 @@ const SHUTDOWN_TIMEOUT_MS = 20_000;
 function logSettlement(log: Logger, outcome: SettleOutcome): void {
   switch (outcome.kind) {
     case 'published':
-      log.info({ index: outcome.index, txHash: outcome.txHash, total: outcome.total.toString() }, 'settlement published');
+      log.info(
+        { index: outcome.index, txHash: outcome.txHash, total: outcome.total.toString() },
+        'settlement published',
+      );
       break;
     case 'sent':
       log.info({ txHash: outcome.txHash }, 'settlement sent, waiting for its receipt');
@@ -54,7 +57,13 @@ async function start(config: Config): Promise<void> {
   log.info({ applied }, 'database migrated');
 
   const publisher = config.publisherKey
-    ? createPublisher({ key: config.publisherKey, chain: config.chain, rpcUrls: config.rpcUrls, client, pool: deployment.burnPool })
+    ? createPublisher({
+        key: config.publisherKey,
+        chain: config.chain,
+        rpcUrls: config.rpcUrls,
+        client,
+        pool: deployment.burnPool,
+      })
     : null;
   if (!publisher) log.warn('no publisher key is configured; settlements run in dry mode and are never published');
 

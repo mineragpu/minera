@@ -44,6 +44,11 @@ export function registerPlaygroundRoutes(app: FastifyInstance, context: RouteCon
     const { id } = parse(z.object({ id: jobIdSchema }), request.params, 'params');
     const view = await viewPlaygroundJob(store, id);
     if (!view) throw new ApiError(404, 'job_not_found', 'There is no playground job with this id.');
-    return { ...view, createdAt: view.createdAt.toISOString(), finishedAt: iso(view.finishedAt), rule: WORK_RULES.verification };
+    return {
+      ...view,
+      createdAt: view.createdAt.toISOString(),
+      finishedAt: iso(view.finishedAt),
+      rule: WORK_RULES.verification,
+    };
   });
 }

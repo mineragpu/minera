@@ -99,13 +99,21 @@ export async function verifyNodeRequest<R extends { retired: boolean }>(
 
   const rig = await deps.findRig(nodeKey);
   if (!rig) {
-    throw new NodeAuthError(403, 'unknown_rig', 'This node key is not a deployed rig. Deploy the rig on the registry first.');
+    throw new NodeAuthError(
+      403,
+      'unknown_rig',
+      'This node key is not a deployed rig. Deploy the rig on the registry first.',
+    );
   }
   if (rig.retired) throw new NodeAuthError(403, 'retired_rig', 'This rig is retired and can no longer take work.');
 
   const expiresAt = new Date((timestamp + MAX_CLOCK_SKEW_SECONDS + 1) * 1000);
   if (!(await deps.useNonce(nodeKey, nonce, expiresAt))) {
-    throw new NodeAuthError(401, 'replayed_request', 'This nonce was already used. Send a fresh nonce with every request.');
+    throw new NodeAuthError(
+      401,
+      'replayed_request',
+      'This nonce was already used. Send a fresh nonce with every request.',
+    );
   }
   return rig;
 }
