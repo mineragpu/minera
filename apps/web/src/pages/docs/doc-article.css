@@ -214,9 +214,13 @@
   background: rgba(34, 42, 57, 0.35);
 }
 
+/* In a table, code breaks only at spaces and the column widens to fit; addresses never break. */
+.doc-body .doc-table code {
+  overflow-wrap: normal;
+}
+
 .doc-table a code {
   white-space: nowrap;
-  overflow-wrap: normal;
 }
 
 /* On narrow screens the table scrolls rather than squeezing text beside a long address. */
