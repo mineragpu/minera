@@ -18,7 +18,7 @@ const STEPS: readonly Step[] = [
   {
     title: 'Mine verified work',
     color: 'var(--blue)',
-    body: 'The rig runs real AI inference jobs. The network checks each result before the work counts.',
+    body: 'The rig answers real prompts with a local model. Its work counts once a rig from another operator returns the same answer.',
   },
   {
     title: 'The pool pays each block',
@@ -28,7 +28,7 @@ const STEPS: readonly Step[] = [
   {
     title: 'Claim in your pair',
     color: 'var(--gold)',
-    body: 'Rewards arrive in the asset you picked, ETH or the stock token. Claim them to your wallet at any time.',
+    body: 'Claim in ETH, or as the stock token you picked, once a settlement has passed its challenge delay.',
   },
 ];
 
