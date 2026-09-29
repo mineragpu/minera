@@ -28,6 +28,9 @@ interface JobRow {
   verified_at: Date | null;
 }
 
+// Job ids are uuid columns; any other string can only be unknown, and Postgres would reject it.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function toJob(row: JobRow): JobRecord {
   return {
     id: row.id,
@@ -68,11 +71,13 @@ export function postgresJobs(db: Queryable): JobStore {
     },
 
     async get(id) {
+      if (!UUID.test(id)) return null;
       const [row] = await db<JobRow[]>`SELECT * FROM jobs WHERE id = ${id}`;
       return row ? toJob(row) : null;
     },
 
     async group(groupId) {
+      if (!UUID.test(groupId)) return [];
       const rows = await db<JobRow[]>`SELECT * FROM jobs WHERE group_id = ${groupId} ORDER BY created_at, id`;
       return rows.map(toJob);
     },

@@ -177,6 +177,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.deepEqual((await store.jobs.stale(now)).map((j) => j.id), [expired.id]);
       assert.deepEqual((await store.jobs.overdue(at(13))).map((j) => j.id), [first.id]);
       assert.deepEqual((await store.jobs.group(first.id)).map((j) => j.id).sort(), [first.id, twin.id].sort());
+      assert.equal(await store.jobs.get('missing'), null);
+      assert.deepEqual(await store.jobs.group('missing'), []);
     });
 
     it('moves jobs through their states and reports verified work', async () => {
