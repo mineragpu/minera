@@ -13,7 +13,7 @@ interface NavLink {
 
 /** The top bar's links, in the order they are listed. */
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: 'Launchpad', href: sectionPath('launchpad'), section: 'launchpad' },
+  { label: 'Launchpad', href: PATHS.launchpad, route: 'launchpad' },
   { label: 'Burn Pool', href: sectionPath('burn-pool'), section: 'burn-pool' },
   { label: 'Playground', href: PATHS.playground, route: 'playground', section: 'playground' },
   { label: 'Claim', href: PATHS.claim, route: 'claim', needsWallet: true },
@@ -23,7 +23,7 @@ export const NAV_LINKS: readonly NavLink[] = [
 /** The footer lists every page and section, with nothing hidden. */
 export const FOOTER_LINKS: readonly NavLink[] = [
   { label: 'Deploy', href: PATHS.deploy },
-  { label: 'Launchpad', href: sectionPath('launchpad') },
+  { label: 'Launchpad', href: PATHS.launchpad },
   { label: 'Burn Pool', href: sectionPath('burn-pool') },
   { label: 'Playground', href: PATHS.playground },
   { label: 'Claim', href: PATHS.claim },
