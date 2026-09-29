@@ -17,7 +17,10 @@ const TITLES: Readonly<Record<View, string>> = {
 
 interface ConnectDialogProps {
   open: boolean;
-  onClose: () => void;
+  /** Asks for the dialog to close; it closes on the next render. */
+  onRequestClose: () => void;
+  /** Called once the dialog has closed, from the app or natively (Escape); may run twice. */
+  onClosed: () => void;
 }
 
 function focusFirstAction(dialog: HTMLDialogElement): void {
@@ -28,7 +31,7 @@ function focusFirstAction(dialog: HTMLDialogElement): void {
  * A native modal dialog: the page behind it is inert, Escape closes it and the browser draws the
  * backdrop. Tab is kept inside it as well.
  */
-export function ConnectDialog({ open, onClose }: ConnectDialogProps) {
+export function ConnectDialog({ open, onRequestClose, onClosed }: ConnectDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const { status, isCorrectNetwork, error } = useWallet();
   const view: View = status !== 'connected' ? 'connect' : isCorrectNetwork ? 'account' : 'network';
@@ -41,8 +44,9 @@ export function ConnectDialog({ open, onClose }: ConnectDialogProps) {
       focusFirstAction(dialog);
     } else if (!open && dialog.open) {
       dialog.close();
+      onClosed();
     }
-  }, [open]);
+  }, [open, onClosed]);
 
   // The focused control may leave with the old view, so focus moves to the new view's first action.
   useEffect(() => {
@@ -56,7 +60,7 @@ export function ConnectDialog({ open, onClose }: ConnectDialogProps) {
 
   // A click that lands on the dialog element itself, not its panel, is a click on the backdrop.
   const onClick = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) onClose();
+    if (event.target === event.currentTarget) onRequestClose();
   };
 
   return (
@@ -64,7 +68,7 @@ export function ConnectDialog({ open, onClose }: ConnectDialogProps) {
       ref={ref}
       className="wallet-dialog"
       aria-labelledby="wallet-dialog-title"
-      onClose={onClose}
+      onClose={onClosed}
       onKeyDown={onKeyDown}
       onClick={onClick}
     >
@@ -73,7 +77,7 @@ export function ConnectDialog({ open, onClose }: ConnectDialogProps) {
           <h2 className="wallet-dialog__title" id="wallet-dialog-title">
             {TITLES[view]}
           </h2>
-          <button type="button" className="wallet-dialog__close" onClick={onClose}>
+          <button type="button" className="wallet-dialog__close" onClick={onRequestClose}>
             <CloseIcon />
             <span className="sr-only">Close</span>
           </button>

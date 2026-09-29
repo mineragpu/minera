@@ -19,7 +19,10 @@ export function ConnectDialogProvider({ children }: { children: ReactNode }) {
     [clearError],
   );
 
-  const close = useCallback(() => {
+  const requestClose = useCallback(() => setOpen(false), []);
+
+  // Runs after the dialog has closed, when the page is no longer inert and can take focus again.
+  const onClosed = useCallback(() => {
     setOpen(false);
     trigger.current?.focus();
   }, []);
@@ -28,16 +31,16 @@ export function ConnectDialogProvider({ children }: { children: ReactNode }) {
   const ready = status === 'connected' && isCorrectNetwork;
   const wasReady = useRef(ready);
   useEffect(() => {
-    if (open && ready && !wasReady.current) close();
+    if (open && ready && !wasReady.current) requestClose();
     wasReady.current = ready;
-  }, [open, ready, close]);
+  }, [open, ready, requestClose]);
 
   const controls = useMemo<ConnectDialogControls>(() => ({ open: show }), [show]);
 
   return (
     <ConnectDialogContext value={controls}>
       {children}
-      <ConnectDialog open={open} onClose={close} />
+      <ConnectDialog open={open} onRequestClose={requestClose} onClosed={onClosed} />
     </ConnectDialogContext>
   );
 }
