@@ -17,6 +17,10 @@ const PLACEHOLDER_CARDS = 3;
 
 type Filter = 'all' | 'eth' | 'stock';
 
+function loadBoard(signal: AbortSignal) {
+  return fetchRigs({ sort: 'new', pair: null, limit: 100, offset: 0 }, signal);
+}
+
 const FILTERS: readonly { value: Filter; label: string; empty: string }[] = [
   { value: 'all', label: 'All', empty: '' },
   { value: 'eth', label: 'ETH', empty: 'No rig is paired with ETH yet.' },
@@ -54,7 +58,7 @@ function EmptyBoard() {
 export function Launchpad({ index }: { index: string }) {
   const [filter, setFilter] = useState<Filter>('all');
   const [announcement, setAnnouncement] = useState('');
-  const board = usePoll(fetchRigs, { key: 'rigs', intervalMs: REFRESH_MS });
+  const board = usePoll(loadBoard, { key: 'rigs', intervalMs: REFRESH_MS });
   const rigs = board.data?.rigs ?? [];
   const shown = rigs.filter((rig) => matches(filter, rig));
   const total = board.data?.total ?? 0;

@@ -19,15 +19,26 @@ import {
   type RigDetail,
 } from './schemas.ts';
 
-/** The most rigs one board request returns; the coordinator's own cap. */
-const BOARD_LIMIT = 100;
+/** The coordinator's board orders: newest first, lifetime verified units, or this epoch's. */
+export type RigSort = 'new' | 'top' | 'epoch';
+
+export interface RigQuery {
+  sort: RigSort;
+  /** `eth`, a listed token's address, or null for every pair. */
+  pair: 'eth' | Address | null;
+  /** At most 100, the coordinator's cap. */
+  limit: number;
+  offset: number;
+}
 
 export function fetchNetwork(signal: AbortSignal): Promise<NetworkView> {
   return requestJson('/v1/network', networkView, { signal });
 }
 
-export function fetchRigs(signal: AbortSignal): Promise<RigBoard> {
-  return requestJson(`/v1/rigs?sort=new&limit=${BOARD_LIMIT}`, rigBoard, { signal });
+export function fetchRigs(query: RigQuery, signal: AbortSignal): Promise<RigBoard> {
+  const params = new URLSearchParams({ sort: query.sort, limit: String(query.limit), offset: String(query.offset) });
+  if (query.pair !== null) params.set('pair', query.pair);
+  return requestJson(`/v1/rigs?${params.toString()}`, rigBoard, { signal });
 }
 
 export function fetchRig(nodeKey: Address, signal: AbortSignal): Promise<RigDetail> {
