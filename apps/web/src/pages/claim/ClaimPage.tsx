@@ -166,7 +166,8 @@ export function ClaimPage() {
             Choose how to receive them
           </h2>
           <ClaimOptions
-            claimable={ready ? claimable : 0n}
+            claimable={ready && data ? data.claimable : null}
+            walletReady={ready}
             quotes={quotes}
             disabled={!ready || !data?.settlement || busy}
             active={busy ? active : null}
