@@ -26,6 +26,8 @@ export interface RigQuery {
   sort: RigSort;
   /** `eth`, a listed token's address, or null for every pair. */
   pair: 'eth' | Address | null;
+  /** Only the rigs this wallet operates; every operator when left out. */
+  operator?: Address;
   /** At most 100, the coordinator's cap. */
   limit: number;
   offset: number;
@@ -38,6 +40,7 @@ export function fetchNetwork(signal: AbortSignal): Promise<NetworkView> {
 export function fetchRigs(query: RigQuery, signal: AbortSignal): Promise<RigBoard> {
   const params = new URLSearchParams({ sort: query.sort, limit: String(query.limit), offset: String(query.offset) });
   if (query.pair !== null) params.set('pair', query.pair);
+  if (query.operator !== undefined) params.set('operator', query.operator);
   return requestJson(`/v1/rigs?${params.toString()}`, rigBoard, { signal });
 }
 
