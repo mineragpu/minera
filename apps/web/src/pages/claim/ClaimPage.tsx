@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { Address, PairAsset } from '@dayagpu/shared';
+import { ETH_PAIR, type Address, type PairAsset } from '@dayagpu/shared';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
-import { fetchClaims } from '../../api/coordinator.ts';
+import { fetchClaims, fetchRigs } from '../../api/coordinator.ts';
 import type { ClaimView } from '../../api/schemas.ts';
 import { usePoll } from '../../api/usePoll.ts';
 import { burnPoolAbi, zapTermsAbi } from '../../chain/abi.ts';
@@ -19,12 +19,16 @@ import { useWallet } from '../../wallet/useWallet.ts';
 import { WalletPrompt } from '../../wallet/WalletPrompt.tsx';
 import { PageHead } from '../PageHead.tsx';
 import { ClaimOptions } from './ClaimOptions.tsx';
+import { ClaimPairNote } from './ClaimPairNote.tsx';
+import { claimPlan, sameAddress } from './claimPlan.ts';
 import { useClaimQuotes } from './useClaimQuotes.ts';
 import '../../components/form.css';
 import '../../components/panel.css';
 import './claim-page.css';
 
 const REFRESH_MS = 30_000;
+/** The coordinator's cap; a wallet with more rigs is judged by its busiest hundred. */
+const RIG_LIMIT = 100;
 /** How long a stock claim's swap terms stay valid once sent. */
 const DEADLINE_SECONDS = 20 * 60;
 const NO_QUOTE = 'A fresh quote could not be read, so nothing was sent. Try again, or claim in ETH.';
@@ -72,7 +76,8 @@ export function ClaimPage() {
   useDocumentTitle('Claim');
   const { status, address, isCorrectNetwork, wallet } = useWallet();
   const transaction = useTransaction();
-  const [active, setActive] = useState<Address | 'eth' | null>(null);
+  const [choice, setChoice] = useState<{ account: Address; asset: Address } | null>(null);
+  const [requoting, setRequoting] = useState(false);
   const [requoteFailed, setRequoteFailed] = useState(false);
   const connected = status === 'connected' && address !== null;
   const ready = connected && isCorrectNetwork;
@@ -86,8 +91,28 @@ export function ClaimPage() {
   });
   const data = claims.data;
   const claimable = data?.claimable ?? 0n;
-  const quotes = useClaimQuotes(ready && wallet ? wallet.provider : null, claimable);
-  const busy = ['checking', 'confirming', 'pending'].includes(transaction.state.phase);
+
+  const loadRigs = (signal: AbortSignal) =>
+    address
+      ? fetchRigs({ sort: 'top', pair: null, operator: address, limit: RIG_LIMIT, offset: 0 }, signal)
+      : Promise.reject(new Error('No wallet is connected.'));
+  const rigs = usePoll(loadRigs, {
+    key: `claim-rigs:${address ?? ''}`,
+    intervalMs: REFRESH_MS,
+    enabled: connected,
+    isFinal: () => true,
+  });
+  const plan = rigs.data ? claimPlan(rigs.data.rigs, PAIR_LISTING) : null;
+  const stocks = plan?.stocks ?? [];
+  const offered = (asset: Address) =>
+    sameAddress(asset, ETH_PAIR) || stocks.some((stock) => sameAddress(stock.address, asset));
+  const chosen =
+    choice && address && sameAddress(choice.account, address) && offered(choice.asset) ? choice.asset : null;
+  const preselected = rigs.status === 'error' ? ETH_PAIR : (plan?.preselected ?? null);
+  const selected = chosen ?? preselected;
+
+  const quotes = useClaimQuotes(ready && wallet ? wallet.provider : null, claimable, stocks);
+  const busy = requoting || ['checking', 'confirming', 'pending'].includes(transaction.state.phase);
 
   if (!DEPLOYMENT) {
     return (
@@ -102,7 +127,6 @@ export function ClaimPage() {
 
   const claimEth = () => {
     if (!data?.settlement || !address) return;
-    setActive('eth');
     setRequoteFailed(false);
     const call = encodeFunctionData({
       abi: burnPoolAbi,
@@ -114,16 +138,17 @@ export function ClaimPage() {
 
   const claimStock = async (asset: PairAsset) => {
     if (!data?.settlement || !wallet || !PAIR_LISTING.quoter) return;
-    setActive(asset.address);
     setRequoteFailed(false);
+    setRequoting(true);
     let minOut: bigint;
     try {
       // The quote shown may be minutes old; the swap's floor comes from a fresh one.
       ({ minOut } = await quoteClaim(wallet.provider, { pairZap, quoter: PAIR_LISTING.quoter }, asset.address, claimable));
     } catch {
       setRequoteFailed(true);
-      setActive(null);
       return;
+    } finally {
+      setRequoting(false);
     }
     const deadline = BigInt(Math.floor(Date.now() / 1000) + DEADLINE_SECONDS);
     const terms = encodeAbiParameters(zapTermsAbi, [asset.address, minOut, deadline]);
@@ -136,11 +161,22 @@ export function ClaimPage() {
     claims.retry();
   };
 
+  const claim = () => {
+    if (selected === null) return;
+    if (sameAddress(selected, ETH_PAIR)) {
+      claimEth();
+      return;
+    }
+    const asset = stocks.find((stock) => sameAddress(stock.address, selected));
+    if (asset) void claimStock(asset);
+  };
+
   return (
     <div className="shell">
       <PageHead kicker="Claim" title="Claim your rewards.">
-        Rewards become claimable once a settlement that includes your wallet has passed its challenge delay. Take
-        them in ETH, or have the ETH swapped into a listed stock token on the way out.
+        Rewards become claimable once a settlement that includes your wallet has passed its challenge delay. A claim
+        defaults to the asset your rigs pair with: for a stock token, the pair zap buys it with the ETH as you claim.
+        You can claim in ETH instead at any time.
       </PageHead>
       <div className="page-body claim-grid">
         <section className="panel claim-panel" aria-labelledby="claim-balance-title">
@@ -165,15 +201,33 @@ export function ClaimPage() {
           <h2 className="claim-choose__title" id="claim-options-title">
             Choose how to receive them
           </h2>
-          <ClaimOptions
-            claimable={ready && data ? data.claimable : null}
-            walletReady={ready}
-            quotes={quotes}
-            disabled={!ready || !data?.settlement || busy}
-            active={busy ? active : null}
-            onClaimEth={claimEth}
-            onClaimStock={(asset) => void claimStock(asset)}
-          />
+          {ready && address ? (
+            <>
+              <ClaimPairNote
+                board={rigs.data}
+                plan={plan}
+                error={rigs.error}
+                onRetry={rigs.retry}
+                selected={selected}
+              />
+              <ClaimOptions
+                stocks={stocks}
+                first={preselected ?? ETH_PAIR}
+                selected={selected}
+                onSelect={(asset) => setChoice({ account: address, asset })}
+                claimable={data ? data.claimable : null}
+                quotes={quotes}
+                disabled={!data?.settlement}
+                busy={busy}
+                onClaim={claim}
+              />
+            </>
+          ) : (
+            <p className="claim-pair">
+              A claim defaults to the asset your rigs pair with, and ETH is always available. Connect your wallet to
+              see yours.
+            </p>
+          )}
           {requoteFailed && (
             <p className="field-status field-status--error" role="alert">
               {NO_QUOTE}

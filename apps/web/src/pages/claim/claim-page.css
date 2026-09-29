@@ -69,33 +69,42 @@
   color: var(--bright);
 }
 
-.claim-options {
+.claim-pair {
+  display: grid;
+  gap: 12px;
+  line-height: 1.55;
+  color: var(--silver);
+}
+
+.claim-rigs {
+  display: grid;
+  gap: 6px;
+  font-size: var(--step--1);
+}
+
+.claim-rigs ul {
   list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.claim-rigs li {
+  overflow-wrap: anywhere;
+}
+
+.claim-options {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  padding-top: 20px;
   border-top: 1px solid var(--seam);
 }
 
-.claim-options li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 20px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--seam);
-}
-
-.claim-options li > div {
-  flex: 1 1 16em;
-  min-width: 0;
-}
-
-.claim-options__title {
-  font-weight: 600;
-  color: var(--bright);
+.claim-options .fieldset {
+  justify-self: stretch;
 }
 
 .claim-options__line {
-  margin-top: 4px;
   font-size: var(--step--1);
   line-height: 1.5;
   color: var(--silver);

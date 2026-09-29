@@ -1,20 +1,32 @@
-import type { Address, PairAsset } from '@dayagpu/shared';
+import { ETH_PAIR, type Address, type PairAsset } from '@dayagpu/shared';
 import { Button } from '../../components/Button.tsx';
+import { RadioChip } from '../../components/RadioChip.tsx';
 import { formatAmount } from '../../lib/amount.ts';
-import { STOCK_PAIRS, type QuoteState } from './useClaimQuotes.ts';
+import { sameAddress } from './claimPlan.ts';
+import type { QuoteState } from './useClaimQuotes.ts';
+import '../../components/chip.css';
 
 interface ClaimOptionsProps {
+  /** The stock tokens on offer; ETH is always offered too. */
+  stocks: readonly PairAsset[];
+  /** The option listed first: the default. */
+  first: Address;
+  selected: Address | null;
+  onSelect: (asset: Address) => void;
   /** Null until the connected wallet's rewards are known. */
   claimable: bigint | null;
-  /** A wallet is connected on the right network. */
-  walletReady: boolean;
   quotes: ReadonlyMap<Address, QuoteState>;
-  /** A claim is in flight, or the page is not ready to send one. */
+  /** The page is not ready to send a claim. */
   disabled: boolean;
-  /** The option being claimed, while its transaction runs. */
-  active: Address | 'eth' | null;
-  onClaimEth: () => void;
-  onClaimStock: (asset: PairAsset) => void;
+  /** A claim is being priced or sent. */
+  busy: boolean;
+  onClaim: () => void;
+}
+
+function ethLine(claimable: bigint | null): string {
+  if (claimable === null) return 'Reading your rewards…';
+  if (claimable === 0n) return 'Nothing to claim yet.';
+  return `${formatAmount(claimable)} ETH, paid straight to your wallet.`;
 }
 
 function stockLine(asset: PairAsset, state: QuoteState | undefined, claimable: bigint | null): string {
@@ -27,45 +39,55 @@ function stockLine(asset: PairAsset, state: QuoteState | undefined, claimable: b
   return `About ${formatAmount(amountOut, asset.decimals)} ${asset.symbol} at the current quote, and at least ${formatAmount(minOut, asset.decimals)} with 1% slippage.`;
 }
 
-export function ClaimOptions({ claimable, walletReady, quotes, disabled, active, onClaimEth, onClaimStock }: ClaimOptionsProps) {
+export function ClaimOptions(props: ClaimOptionsProps) {
+  const { stocks, first, selected, onSelect, claimable, quotes, disabled, busy, onClaim } = props;
+  const offered: Address[] = [ETH_PAIR, ...stocks.map((asset) => asset.address)];
+  const order = [...offered].sort((a, b) => Number(sameAddress(b, first)) - Number(sameAddress(a, first)));
+  const stock = selected === null ? undefined : stocks.find((asset) => sameAddress(asset.address, selected));
+  const quote = stock ? quotes.get(stock.address) : undefined;
   const nothing = claimable === null || claimable === 0n;
-  let ethLine = 'Connect your wallet to see what it can claim.';
-  if (walletReady && claimable === null) ethLine = 'Reading your rewards…';
-  else if (claimable === 0n) ethLine = 'Nothing to claim yet.';
-  else if (claimable !== null) ethLine = `${formatAmount(claimable)} ETH, paid straight to your wallet.`;
+
+  let line = 'Choose how to receive this claim.';
+  let label = 'Claim';
+  if (stock) {
+    line = stockLine(stock, quote, claimable);
+    label = `Claim in ${stock.symbol}`;
+  } else if (selected !== null) {
+    line = ethLine(claimable);
+    label = 'Claim in ETH';
+  }
+
   return (
-    <ul className="claim-options">
-      <li>
-        <div>
-          <p className="claim-options__title">Claim in ETH</p>
-          <p className="claim-options__line">{ethLine}</p>
-        </div>
-        <Button variant="primary" size="sm" disabled={disabled || nothing} aria-busy={active === 'eth'} onClick={onClaimEth}>
-          Claim in ETH
-        </Button>
-      </li>
-      {STOCK_PAIRS.map((asset) => {
-        const state = quotes.get(asset.address);
-        const ready = state?.status === 'ready';
-        return (
-          <li key={asset.address}>
-            <div>
-              <p className="claim-options__title">Claim as {asset.symbol}</p>
-              <p className="claim-options__line">{stockLine(asset, state, claimable)}</p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              glint={false}
-              disabled={disabled || nothing || !ready}
-              aria-busy={active === asset.address}
-              onClick={() => onClaimStock(asset)}
+    <div className="claim-options">
+      <fieldset className="fieldset" disabled={busy}>
+        <legend className="flabel">Pay this claim in</legend>
+        <div className="chips">
+          {order.map((address) => (
+            <RadioChip
+              key={address}
+              id={`claim-in-${address}`}
+              name="claim-in"
+              value={address}
+              checked={selected !== null && sameAddress(selected, address)}
+              onSelect={onSelect}
+              describedBy="claim-line"
             >
-              Claim as {asset.symbol}
-            </Button>
-          </li>
-        );
-      })}
-    </ul>
+              {stocks.find((asset) => asset.address === address)?.symbol ?? 'ETH'}
+            </RadioChip>
+          ))}
+        </div>
+      </fieldset>
+      <p className="claim-options__line" id="claim-line">
+        {line}
+      </p>
+      <Button
+        variant="primary"
+        disabled={disabled || busy || nothing || selected === null || (stock !== undefined && quote?.status !== 'ready')}
+        aria-busy={busy}
+        onClick={onClaim}
+      >
+        {label}
+      </Button>
+    </div>
   );
 }

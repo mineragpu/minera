@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Address, PairAsset } from '@dayagpu/shared';
 import { quoteClaim, type Quote } from '../../chain/quote.ts';
 import { DEPLOYMENT, PAIR_LISTING } from '../../config/contracts.ts';
@@ -11,23 +11,30 @@ interface QuoteSet {
   quotes: ReadonlyMap<Address, QuoteState>;
 }
 
-export const STOCK_PAIRS: readonly PairAsset[] = PAIR_LISTING.assets.filter((asset) => asset.kind === 'stock');
-
 /**
- * A quote for swapping `amount` wei into each listed stock token, read through the wallet. Nothing
- * is quoted without a provider or with nothing to claim.
+ * A quote for swapping `amount` wei into each of `assets`, read through the wallet. Nothing is
+ * quoted without a provider or with nothing to claim.
  */
-export function useClaimQuotes(provider: Eip1193Provider | null, amount: bigint): ReadonlyMap<Address, QuoteState> {
+export function useClaimQuotes(
+  provider: Eip1193Provider | null,
+  amount: bigint,
+  assets: readonly PairAsset[],
+): ReadonlyMap<Address, QuoteState> {
   const [set, setSet] = useState<QuoteSet | null>(null);
+  const assetsRef = useRef(assets);
+  useEffect(() => {
+    assetsRef.current = assets;
+  });
   const quoter = PAIR_LISTING.quoter;
   const pairZap = DEPLOYMENT?.pairZap ?? null;
-  const key = provider && quoter && pairZap && amount > 0n ? `${amount}` : null;
+  const addresses = assets.map((asset) => asset.address).join(',');
+  const key = provider && quoter && pairZap && amount > 0n && addresses ? `${amount}:${addresses}` : null;
 
   useEffect(() => {
     if (!key || !provider || !quoter || !pairZap) return;
     let live = true;
     void Promise.all(
-      STOCK_PAIRS.map(async (asset): Promise<[Address, QuoteState]> => {
+      assetsRef.current.map(async (asset): Promise<[Address, QuoteState]> => {
         try {
           return [asset.address, { status: 'ready', quote: await quoteClaim(provider, { pairZap, quoter }, asset.address, amount) }];
         } catch {
@@ -42,7 +49,7 @@ export function useClaimQuotes(provider: Eip1193Provider | null, amount: bigint)
     };
   }, [key, provider, quoter, pairZap, amount]);
 
-  if (!key) return new Map(STOCK_PAIRS.map((asset) => [asset.address, { status: 'failed' }]));
-  if (set?.key !== key) return new Map(STOCK_PAIRS.map((asset) => [asset.address, { status: 'loading' }]));
+  if (!key) return new Map(assets.map((asset) => [asset.address, { status: 'failed' }]));
+  if (set?.key !== key) return new Map(assets.map((asset) => [asset.address, { status: 'loading' }]));
   return set.quotes;
 }
