@@ -1,7 +1,7 @@
-import { BaseError } from 'viem';
 import type { Address, Hex } from '@dayagpu/shared';
 import type { PoolSnapshot } from '../chain/pool.ts';
 import { epochOf, epochStart } from '../epoch.ts';
+import { errorSummary } from '../log.ts';
 import type { Store } from '../store/store.ts';
 import { confirmPublish, type ReceiptReader } from './confirm.ts';
 import { epochRange, planSettlement, type BaseSettlement } from './plan.ts';
@@ -32,11 +32,6 @@ const RECEIPT_WAIT_MS = 90_000;
 /** Settle a little after each epoch ends, so results verified at the boundary are included. */
 const EPOCH_GRACE_MS = 60_000;
 const RETRY_MS = 60_000;
-
-function describe(error: unknown): string {
-  if (error instanceof BaseError) return error.shortMessage;
-  return error instanceof Error ? error.message : String(error);
-}
 
 /** Settle drafts left open by an earlier run before planning a new one. */
 async function reconcile(deps: SettlementWorkerDeps): Promise<SettleOutcome | null> {
@@ -118,8 +113,9 @@ export async function settleOnce(deps: SettlementWorkerDeps): Promise<SettleOutc
   try {
     txHash = await deps.publisher.send(plan.draft);
   } catch (error) {
-    await store.settlements.markFailed(id, describe(error));
-    return { kind: 'failed', reason: describe(error) };
+    const reason = errorSummary(error).message;
+    await store.settlements.markFailed(id, reason);
+    return { kind: 'failed', reason };
   }
   await store.settlements.markSent(id, txHash);
 
