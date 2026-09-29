@@ -7,7 +7,7 @@ import type { Address, Hex } from '@dayagpu/shared';
 import type { Eip1193Provider } from '../wallet/eip1193.ts';
 import { parseChainId } from '../wallet/parse.ts';
 
-export interface CallRequest {
+interface CallRequest {
   from?: Address;
   to: Address;
   data: Hex;

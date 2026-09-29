@@ -14,7 +14,7 @@ interface PollOptions<T> {
   isFinal?: (data: T) => boolean;
 }
 
-export interface Polled<T> {
+interface Polled<T> {
   /** `ready` once data has arrived; later failed refreshes keep the last data. */
   status: 'loading' | 'ready' | 'error';
   data: T | null;

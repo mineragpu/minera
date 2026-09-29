@@ -10,7 +10,7 @@ import { encodeAbiParameters, keccak256, recoverMessageAddress } from 'viem';
 
 const DEPLOY_DOMAIN = 'rig-deploy-v1';
 
-export function deployDigest(chainId: number, registry: Address, operator: Address): Hex {
+function deployDigest(chainId: number, registry: Address, operator: Address): Hex {
   return keccak256(
     encodeAbiParameters(
       [{ type: 'string' }, { type: 'uint256' }, { type: 'address' }, { type: 'address' }],
