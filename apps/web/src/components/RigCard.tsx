@@ -4,6 +4,7 @@ import { Sparkline } from './Sparkline.tsx';
 import { CheckIcon } from './icons.tsx';
 import type { RigPreview } from '../data/preview.ts';
 import { formatNumber } from '../lib/format.ts';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import './rig-card.css';
 
 interface RigCardProps {
@@ -13,11 +14,12 @@ interface RigCardProps {
 }
 
 export function RigCard({ rig, backed, onToggleBack }: RigCardProps) {
+  const sheen = useSheenFollow<HTMLElement>();
   const titleId = `rig-${rig.id}`;
   const unit = rig.pair === 'eth' ? 'ETH' : 'STOCK';
 
   return (
-    <article className="rig__card" aria-labelledby={titleId}>
+    <article ref={sheen} className="rig__card" aria-labelledby={titleId}>
       <div className="rig__top">
         <CubeGlyph className="glyph" color={rig.glyph} />
         <div>

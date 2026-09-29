@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import './button.css';
 
 interface ButtonLook {
@@ -32,8 +33,9 @@ export function Button({
   children,
   ...rest
 }: ButtonProps) {
+  const sheen = useSheenFollow<HTMLButtonElement>();
   return (
-    <button type={type} className={lookClasses(variant, size, block, className)} {...rest}>
+    <button ref={sheen} type={type} className={lookClasses(variant, size, block, className)} {...rest}>
       {children}
       {glint && <i className="gl" aria-hidden="true" />}
     </button>
@@ -43,8 +45,9 @@ export function Button({
 export type ButtonLinkProps = ButtonLook & AnchorHTMLAttributes<HTMLAnchorElement>;
 
 export function ButtonLink({ variant, size, block, glint = true, className, children, ...rest }: ButtonLinkProps) {
+  const sheen = useSheenFollow<HTMLAnchorElement>();
   return (
-    <a className={lookClasses(variant, size, block, className)} {...rest}>
+    <a ref={sheen} className={lookClasses(variant, size, block, className)} {...rest}>
       {children}
       {glint && <i className="gl" aria-hidden="true" />}
     </a>

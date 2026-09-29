@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import './chip.css';
 
 interface RadioChipProps<T extends string> {
@@ -13,6 +14,7 @@ interface RadioChipProps<T extends string> {
 
 /** A radio input drawn as a pill; the ring and glint live on the label. */
 export function RadioChip<T extends string>({ id, name, value, checked, onSelect, describedBy, children }: RadioChipProps<T>) {
+  const sheen = useSheenFollow<HTMLLabelElement>();
   return (
     <>
       <input
@@ -24,7 +26,7 @@ export function RadioChip<T extends string>({ id, name, value, checked, onSelect
         onChange={() => onSelect(value)}
         aria-describedby={describedBy}
       />
-      <label className="chip" htmlFor={id}>
+      <label ref={sheen} className="chip" htmlFor={id}>
         <span className="chip__dot" aria-hidden="true" />
         {children}
         <i className="gl" aria-hidden="true" />
