@@ -86,3 +86,7 @@ ops/              deployment configuration
 - Known limitations and trust assumptions are published in the docs as each part ships.
 
 Report a vulnerability privately to **security@dayagpu.com**.
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
