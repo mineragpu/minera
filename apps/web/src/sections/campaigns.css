@@ -1,0 +1,161 @@
+/* The first column is 1.5 of 3.5 shares wide; the rail is solid up to it and dashed after. */
+.timeline {
+  --live-span: calc((100% - 32px) * 1.5 / 3.5 + 16px);
+  position: relative;
+  margin-top: 44px;
+  padding-top: 56px;
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: var(--live-span);
+  height: 1px;
+  background: var(--iri-line);
+}
+
+.timeline::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 15px;
+  left: var(--live-span);
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--seam-2) 0 6px, transparent 6px 12px);
+}
+
+.camp {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 26px 26px;
+  border: 1px solid var(--seam);
+}
+
+.camp__node {
+  position: absolute;
+  left: -1px;
+  top: -57px;
+  display: block;
+  width: 30px;
+  height: 33px;
+  padding-right: 8px;
+  background: var(--graphite);
+  box-sizing: content-box;
+}
+
+.camp__node svg {
+  display: block;
+  width: 30px;
+  height: 33px;
+}
+
+.camp--later .camp__node svg {
+  opacity: 0.55;
+}
+
+.camp__idx {
+  font: 500 var(--step--1) / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.camp h3 {
+  font: 700 var(--step-2) / 1.1 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+}
+
+.camp__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.camp--live {
+  background: var(--brushed), var(--metal);
+  border-color: transparent;
+  border-image: conic-gradient(from 210deg, var(--iri-list)) 1;
+}
+
+.camp--live .camp__state {
+  color: var(--state-open);
+}
+
+.camp__share {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+}
+
+.camp__share strong {
+  font: 600 var(--step-4) / 1 var(--font-body);
+  letter-spacing: -0.03em;
+  color: var(--bright);
+}
+
+.camp__share span {
+  max-width: 14em;
+  color: var(--silver);
+  line-height: 1.4;
+}
+
+.camp__foot {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--seam);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.camp--later {
+  border-style: dashed;
+  border-color: var(--seam-2);
+  background: rgba(15, 19, 27, 0.55);
+}
+
+.camp--later h3 {
+  color: var(--silver);
+}
+
+.camp--later p {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+@media (max-width: 920px) {
+  .timeline {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 0;
+    margin-top: 40px;
+  }
+
+  .timeline::before,
+  .timeline::after {
+    display: none;
+  }
+
+  .camp__node {
+    position: static;
+    padding: 0;
+    background: none;
+  }
+}

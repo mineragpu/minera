@@ -2,6 +2,7 @@ import { LatticeBackground } from './components/LatticeBackground.tsx';
 import { SvgDefs } from './components/SvgDefs.tsx';
 import { Hero } from './sections/Hero.tsx';
 import { BurnPool } from './sections/BurnPool.tsx';
+import { Campaigns } from './sections/Campaigns.tsx';
 import { DeployPanel } from './sections/DeployPanel.tsx';
 import { HowItWorks } from './sections/HowItWorks.tsx';
 import { Launchpad } from './sections/Launchpad.tsx';
@@ -23,6 +24,7 @@ export function App() {
           <BurnPool />
           <Launchpad />
           <HowItWorks />
+          <Campaigns />
         </main>
       </div>
     </>
