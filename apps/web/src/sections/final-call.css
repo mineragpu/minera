@@ -1,0 +1,128 @@
+.final {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 32px clamp(32px, 6vw, 96px);
+  padding: clamp(32px, 6vw, 88px) clamp(24px, 5vw, 72px);
+  background: var(--brushed), var(--metal);
+  border: 1px solid transparent;
+  border-image: conic-gradient(from 210deg, var(--iri-list)) 1;
+}
+
+/* A faint iridescent field behind the lattice, brightest behind the cubes. */
+.final::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(circle at 82% 50%, rgba(140, 107, 255, 0.2), rgba(46, 230, 200, 0.08) 38%, rgba(11, 14, 20, 0) 70%);
+}
+
+.final::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--lattice-tile) 0 0 / var(--lattice-size);
+  opacity: 0.06;
+}
+
+.final__title {
+  margin-top: 18px;
+  font: 800 var(--step-4) / 1 var(--font-display);
+  letter-spacing: -0.03em;
+  color: var(--bright);
+  text-wrap: balance;
+}
+
+.final__copy .lede {
+  margin-top: 22px;
+}
+
+.final__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+/* Five blocks stepping up, one per palette hue. */
+.final__stack {
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  align-items: end;
+  gap: 6px;
+  height: 230px;
+}
+
+.final__cube {
+  width: 60px;
+  height: 66px;
+}
+
+.final__cube:nth-child(2) {
+  margin-bottom: 36px;
+}
+
+.final__cube:nth-child(3) {
+  margin-bottom: 72px;
+}
+
+.final__cube:nth-child(4) {
+  margin-bottom: 108px;
+}
+
+.final__cube:nth-child(5) {
+  margin-bottom: 144px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .final__cube {
+    animation: final-float 5s var(--ease-io) infinite alternate;
+  }
+
+  .final__cube:nth-child(2) {
+    animation-delay: -1s;
+  }
+
+  .final__cube:nth-child(3) {
+    animation-delay: -2s;
+  }
+
+  .final__cube:nth-child(4) {
+    animation-delay: -3s;
+  }
+
+  .final__cube:nth-child(5) {
+    animation-delay: -4s;
+  }
+}
+
+@keyframes final-float {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+@media (max-width: 760px) {
+  .final {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .final__stack {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .final__actions .btn {
+    flex: 1 1 auto;
+  }
+}

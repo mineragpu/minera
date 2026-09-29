@@ -4,6 +4,7 @@ import { BurnPool } from '../sections/BurnPool.tsx';
 import { Campaigns } from '../sections/Campaigns.tsx';
 import { DeployPanel } from '../sections/DeployPanel.tsx';
 import { Faq } from '../sections/Faq.tsx';
+import { FinalCall } from '../sections/FinalCall.tsx';
 import { Hero } from '../sections/Hero.tsx';
 import { HowItWorks } from '../sections/HowItWorks.tsx';
 import { Launchpad } from '../sections/Launchpad.tsx';
@@ -42,6 +43,7 @@ export function HomePage() {
       {SECTIONS.map((Section, position) => (
         <Section key={position} index={String(position + 1).padStart(2, '0')} />
       ))}
+      <FinalCall />
     </>
   );
 }
