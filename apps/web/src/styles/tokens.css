@@ -1,0 +1,118 @@
+:root {
+  color-scheme: dark;
+
+  /* Graphite field and metal surfaces */
+  --graphite: #0b0e14;
+  --graphite-2: #0f131b;
+  --surface: #151a24;
+  --surface-2: #1a202c;
+  --surface-3: #222a39;
+  --well: #0e1219;
+  --cell: #10141c;
+  --cell-2: #11151e;
+  --seam: #2a3242;
+  --seam-2: #3b4559;
+  --seam-hover: #4d586d;
+  --seam-dashed: #4a5569;
+
+  /* Text */
+  --silver: #c9d1dc;
+  --bright: #eef2f7;
+  --muted: #8c98aa;
+  --ink: #0b0e14;
+
+  /* Iridescent sheen: the only colour */
+  --teal: #2ee6c8;
+  --blue: #5a8dff;
+  --violet: #8c6bff;
+  --magenta: #ff4fa3;
+  --gold: #f5c451;
+  --ice: #9be7ff;
+  --iri-list: #2ee6c8, #5a8dff, #8c6bff, #ff4fa3, #f5c451, #2ee6c8;
+  --iri-line: linear-gradient(90deg, #2ee6c8 0%, #5a8dff 24%, #8c6bff 46%, #ff4fa3 68%, #f5c451 88%, #2ee6c8 100%);
+  --iri-rail: linear-gradient(180deg, #2ee6c8, #8c6bff 50%, #ff4fa3);
+  --iri-soft: linear-gradient(90deg, rgba(46, 230, 200, 0.14), rgba(90, 141, 255, 0.1) 30%, rgba(140, 107, 255, 0.1) 55%, rgba(255, 79, 163, 0.08) 78%, rgba(245, 196, 81, 0.08));
+  --iri-field: linear-gradient(172deg, #2ee6c8 0%, #5a8dff 16%, #8c6bff 32%, #ff4fa3 50%, #f5c451 66%, #2ee6c8 82%, #8c6bff 100%);
+
+  /* Status tints: always paired with a word */
+  --state-open: #7ff0dc;
+  --state-open-bg: rgba(46, 230, 200, 0.1);
+  --state-open-edge: rgba(46, 230, 200, 0.42);
+  --state-none: #ff9cca;
+  --state-none-bg: rgba(255, 79, 163, 0.1);
+  --state-none-edge: rgba(255, 79, 163, 0.42);
+  --state-draft: #f7d27a;
+  --state-draft-bg: rgba(245, 196, 81, 0.12);
+  --state-draft-edge: rgba(245, 196, 81, 0.42);
+
+  /* Surfaces */
+  --metal: linear-gradient(180deg, #1c2331 0%, #161b26 44%, #121721 100%);
+  --metal-lit: linear-gradient(180deg, #f4f7fa 0%, #ccd4de 46%, #a7b1bf 100%);
+  --metal-lit-hover: linear-gradient(180deg, #ffffff 0%, #dce2ea 46%, #b6bfcc 100%);
+  --metal-ghost: linear-gradient(180deg, rgba(26, 32, 44, 0.94), rgba(15, 19, 27, 0.94));
+  --metal-raised: linear-gradient(180deg, #232b3b, #161c27);
+  --metal-pressed: linear-gradient(180deg, #2a3346, #1b2130);
+  --field: linear-gradient(180deg, #0c1017, #111621);
+  --readout-well: linear-gradient(180deg, #0e1219, #0b0f15);
+  --brushed: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, rgba(255, 255, 255, 0) 1px 3px);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .42 -.23'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lattice-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cpath d='M24.5 0V96M72.5 0V96M0 24.5H96M0 72.5H96' stroke='%23fff' stroke-opacity='.55'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='24.5' cy='24.5' r='2.3'/%3E%3Ccircle cx='72.5' cy='72.5' r='2.3'/%3E%3Ccircle cx='72.5' cy='24.5' r='1.25'/%3E%3Ccircle cx='24.5' cy='72.5' r='1.25'/%3E%3C/g%3E%3C/svg%3E");
+  --lattice-size: 96px;
+
+  /* Focus ring: violet inside, teal outline, magenta outside */
+  --focus-outline: 2px solid var(--teal);
+  --focus-offset: 3px;
+  --focus-ring: 0 0 0 3px rgba(140, 107, 255, 0.9), 0 0 0 7px rgba(255, 79, 163, 0.5);
+
+  /* Type */
+  --font-display: "Syne", "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
+  --font-body: "Hanken Grotesk", "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", "Menlo", "Consolas", monospace;
+
+  --step--2: clamp(0.72rem, 0.7rem + 0.1vw, 0.78rem);
+  --step--1: clamp(0.84rem, 0.81rem + 0.15vw, 0.92rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.09rem);
+  --step-1: clamp(1.13rem, 1.05rem + 0.38vw, 1.34rem);
+  --step-2: clamp(1.32rem, 1.16rem + 0.75vw, 1.78rem);
+  --step-3: clamp(1.8rem, 1.38rem + 1.9vw, 3rem);
+  --step-4: clamp(2.6rem, 1.9rem + 3.2vw, 4.6rem);
+  /* Sized to the hero column with container units, so the headline always holds three lines. */
+  --step-5: clamp(1.85rem, 8.2cqi, 5.4rem);
+  --step-wordmark: 1.2rem;
+  --step-readout: clamp(1.02rem, 0.92rem + 0.6vw, 1.38rem);
+
+  /* Layout and spacing */
+  --gutter: clamp(16px, 4vw, 64px);
+  --maxw: 1320px;
+  --section-y: clamp(72px, 10vw, 168px);
+  --topbar-offset: 108px;
+
+  /* Radii and facets, varied by role */
+  --chamfer: 18px;
+  --chamfer-panel: 28px;
+  --r-input: 4px;
+  --r-btn: 3px;
+  --r-tag: 2px;
+  --r-pill: 999px;
+
+  /* Easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-drop: cubic-bezier(0.45, 0, 0.7, 0.45);
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --maxw: 1480px;
+  }
+
+  html {
+    font-size: 106.25%;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --topbar-offset: 128px;
+  }
+}
