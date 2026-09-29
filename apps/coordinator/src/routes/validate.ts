@@ -17,4 +17,4 @@ export const addressSchema = z
   .regex(/^0x[0-9a-fA-F]{40}$/, 'Expected a 0x-prefixed 20-byte address.')
   .transform((value) => value.toLowerCase() as `0x${string}`);
 
-export const jobIdSchema = z.uuid('Expected a job id.');
+export const jobIdSchema = z.uuid('Expected a job id.').transform((value) => value.toLowerCase());

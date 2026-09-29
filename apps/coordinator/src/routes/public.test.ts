@@ -219,6 +219,7 @@ describe('public routes', () => {
       ['queued', null, false, 'What is a GPU?'],
     );
     assert.match(view.rule, /Only verified work earns rewards/);
+    assert.equal((await get(`/v1/playground/jobs/${id.toUpperCase()}`)).json().id, id);
     assert.equal((await get('/v1/playground/jobs/00000000-0000-4000-8000-0000000fffff')).statusCode, 404);
     assert.equal((await get('/v1/playground/jobs/nope')).statusCode, 400);
 
