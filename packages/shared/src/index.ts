@@ -14,3 +14,25 @@ export { accumulate, allocate, totalOf } from './rewards.ts';
 export type { Address, WorkRecord } from './rewards.ts';
 export { buildSettlement } from './merkle.ts';
 export type { Settlement } from './merkle.ts';
+export { DEPLOYMENTS, deploymentFor } from './deployments.ts';
+export type { Deployment } from './deployments.ts';
+export {
+  MAX_CLOCK_SKEW_SECONDS,
+  NODE_HEADERS,
+  NODE_ROUTES,
+  PROTOCOL_VERSION,
+  signedMessage,
+} from './protocol.ts';
+export type {
+  GpuInfo,
+  HeartbeatRequest,
+  HeartbeatResponse,
+  HelloRequest,
+  HelloResponse,
+  Hex,
+  JobAssignment,
+  JobKind,
+  JobResultRequest,
+  JobResultResponse,
+  RuntimeInfo,
+} from './protocol.ts';
