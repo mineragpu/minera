@@ -28,7 +28,7 @@ const STEPS: readonly Step[] = [
   {
     title: 'Claim in your pair',
     color: 'var(--gold)',
-    body: 'Claim in ETH, or as the stock token you picked, once a settlement has passed its challenge delay.',
+    body: 'Once a settlement has passed its challenge delay, claim in the pair you picked, or in ETH at any time.',
   },
 ];
 
@@ -42,7 +42,7 @@ export function HowItWorks({ index }: { index: string }) {
             Four steps, in order.
           </h2>
         </div>
-        <p className="lede">From a card on your desk to rewards in the asset you picked.</p>
+        <p className="lede">From a card on your desk to a claim in the asset you picked.</p>
       </div>
       <ol className="steps">
         {STEPS.map((step, index) => (

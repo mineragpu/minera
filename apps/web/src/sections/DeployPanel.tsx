@@ -40,8 +40,8 @@ export function DeployPanel({ index }: { index: string }) {
             <li>
               <CubeGlyph color="var(--violet)" />
               <div>
-                <b>Paid in your pair</b>
-                <span className="pt">Rewards arrive in ETH or in the stock token you choose.</span>
+                <b>Claimed in your pair</b>
+                <span className="pt">Claims default to the pair you choose. ETH is always available instead.</span>
               </div>
             </li>
             <li>

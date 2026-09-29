@@ -29,7 +29,8 @@ export function PairStep({ value, onChange, locked }: PairStepProps) {
         ))}
       </div>
       <p className="hint" id="pair-hint">
-        Rewards are paid in this asset. ETH is paid directly; a stock token is bought with the ETH when you claim.
+        Claims default to this asset: a stock token is bought with the ETH when you claim. You can claim in ETH
+        instead at any time.
       </p>
       {hasStocks && <p className="eligibility">Tokenized stocks are not available to US persons.</p>}
     </fieldset>

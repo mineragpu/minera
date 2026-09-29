@@ -38,8 +38,8 @@ const QUESTIONS: readonly Question[] = [
           it is split between operators by the verified work units their rigs earned.
         </p>
         <p>
-          Rewards are committed in ETH, and you can claim them as ETH or as a listed stock token. On testnet they are
-          test ETH, which has no value. No rate is promised.
+          Rewards are committed in ETH. A claim defaults to the pair of your rigs, and you can claim in ETH instead at
+          any time. On testnet they are test ETH, which has no value. No rate is promised.
         </p>
       </>
     ),
@@ -84,9 +84,10 @@ const QUESTIONS: readonly Question[] = [
     answer: (
       <>
         <p>
-          A rig’s pair records, on the rig registry, the asset you want its rewards in. Rewards are always committed in
-          ETH. When you claim, you take ETH, or have the pair zap swap it into a listed stock token and deliver that to
-          your wallet, at no less than the minimum your claim sets.
+          A rig’s pair is recorded on the rig registry, and the claim page defaults to it. Rewards are always committed
+          in ETH. When the pair is a stock token, the pair zap swaps that ETH into it as you claim and delivers it to
+          your wallet, at no less than the minimum your claim sets. You can claim in ETH instead at any time. The
+          contracts do not lock a claim to the pair.
         </p>
         <p>Tokenized stocks are not available to US persons.</p>
       </>

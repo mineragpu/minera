@@ -69,12 +69,12 @@ export function PairWith({ index }: { index: string }) {
         <div>
           <Kicker index={index}>Pair with</Kicker>
           <h2 className="h2" id="pair-title">
-            Paid in ETH, or in a stock token.
+            Claim in your pair, or in ETH.
           </h2>
         </div>
         <p className="lede">
-          A rig’s pair is the asset you want its rewards in. Rewards are committed in ETH, and at each claim you choose:
-          ETH straight from the pool, or a listed stock token bought with it on the way out.
+          A rig’s pair sets the asset your claims default to. Rewards are committed in ETH. When the pair is a listed
+          stock token, the pair zap buys it with that ETH as you claim. You can claim in ETH instead at any time.
         </p>
       </div>
 

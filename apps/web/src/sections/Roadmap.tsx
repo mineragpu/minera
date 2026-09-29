@@ -20,7 +20,7 @@ const PHASES: readonly Phase[] = [
       'Burn Pool, rig registry and pair zap, with verified source',
       'The network service: jobs, cross-checks and a settlement after each epoch',
       'The playground and the deploy flow',
-      'Claims in ETH or a listed stock token',
+      'Claims in the pair of your rigs, or in ETH',
     ],
   },
   {
@@ -40,7 +40,7 @@ const PHASES: readonly Phase[] = [
     items: [
       'New contracts on mainnet, and the first burn into their Burn Pool',
       'Rigs deploy and mine on mainnet',
-      'Claims in mainnet ETH or a listed stock token',
+      'Claims in the pair of your rigs, or in mainnet ETH',
     ],
     note: 'The network moves to mainnet. Test ETH has no value, and testnet balances stay on testnet.',
   },
