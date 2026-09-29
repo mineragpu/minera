@@ -3,11 +3,16 @@ import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import { NODE_HEADERS } from '@dayagpu/shared';
 import type { LogLevel } from './config.ts';
+import { registerClaimRoute } from './routes/claims.ts';
 import type { RouteContext } from './routes/context.ts';
 import { ApiError, registerErrorHandling } from './routes/errors.ts';
 import { registerHealthRoute } from './routes/health.ts';
+import { registerNetworkRoute } from './routes/network.ts';
 import { registerNodeRoutes } from './routes/node.ts';
+import { registerPoolRoute } from './routes/pool.ts';
 import { keepRawJsonBodies } from './routes/rawBody.ts';
+import { registerRigRoutes } from './routes/rigs.ts';
+import { registerSettlementRoute } from './routes/settlements.ts';
 
 export interface AppOptions extends RouteContext {
   /** Tests turn logging off; the service logs at the configured level. */
@@ -60,6 +65,11 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   });
 
   registerHealthRoute(app, context);
+  registerNetworkRoute(app, context);
+  registerRigRoutes(app, context);
+  registerPoolRoute(app, context);
+  registerSettlementRoute(app, context);
+  registerClaimRoute(app, context);
   registerNodeRoutes(app, context);
   return app;
 }

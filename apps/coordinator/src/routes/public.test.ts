@@ -1,0 +1,196 @@
+import { strict as assert } from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+import { keccak256, toBytes } from 'viem';
+import type { Address, Hex } from '@dayagpu/shared';
+import type { PoolSnapshot } from '../chain/pool.ts';
+import { epochOf } from '../epoch.ts';
+import { planSettlement } from '../settlement/plan.ts';
+import { createTestApp, type TestApp } from '../testing/testApp.ts';
+
+const address = (n: number): Address => `0x${n.toString(16).padStart(40, '0')}` as Address;
+const OPERATOR_A = address(0xa);
+const OPERATOR_B = address(0xb);
+const STOCK = address(0x5e);
+const RIG_1 = address(0x101);
+const RIG_2 = address(0x102);
+const ETH = 10n ** 18n;
+
+let harness: TestApp;
+
+const get = (url: string, headers: Record<string, string> = {}) => harness.app.inject({ method: 'GET', url, headers });
+
+function snapshot(overrides: Partial<PoolSnapshot> = {}): PoolSnapshot {
+  const timestamp = BigInt(harness.clock.now.getTime() / 1000);
+  return {
+    blockNumber: 126_100_000n,
+    timestamp,
+    totalBurned: 10n * ETH,
+    committed: 0n,
+    releasable: ETH,
+    head: null,
+    latest: null,
+    settlementCount: 0,
+    deployedAt: timestamp - 86_400n,
+    releaseBpsPerDay: 1_000n,
+    challengeDelay: 1_800n,
+    publisher: address(0xe1),
+    ...overrides,
+  };
+}
+
+beforeEach(async () => {
+  harness = await createTestApp({ CORS_ORIGINS: 'https://site.example' });
+  const { store, clock } = harness;
+  await store.rigs.deploy({ nodeKey: RIG_1, operator: OPERATOR_A, pair: address(0), name: 'one', deployedAt: new Date('2026-09-28T00:00:00Z'), deployedBlock: 1n });
+  await store.rigs.deploy({ nodeKey: RIG_2, operator: OPERATOR_B, pair: STOCK, name: 'two', deployedAt: new Date('2026-09-28T01:00:00Z'), deployedBlock: 2n });
+  await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['llama3.2:1b'] }, clock.now);
+  await store.work.credit(RIG_2, epochOf(clock.now, harness.config.epochSeconds), { verified: 12, unverified: 0 });
+});
+
+afterEach(async () => {
+  await harness.app.close();
+});
+
+describe('public routes', () => {
+  it('reports health without touching the database', async () => {
+    const response = await get('/health');
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.json(), { status: 'ok', version: '0.0.0', network: 'testnet', chainId: 46630 });
+  });
+
+  it('summarizes the network, with the pool once it has been read', async () => {
+    let body = (await get('/v1/network')).json();
+    assert.deepEqual(body.rigs, { online: 1, total: 2 });
+    assert.equal(body.pool, null);
+    assert.equal(body.epoch.seconds, 3_600);
+    assert.match(body.rules.verification, /earn nothing on their own/);
+
+    harness.pool.snapshot = snapshot();
+    body = (await get('/v1/network')).json();
+    assert.deepEqual([body.pool.totalBurned, body.pool.releasable], [(10n * ETH).toString(), ETH.toString()]);
+  });
+
+  it('lists the board with sorting and a pair filter, and validates the query', async () => {
+    const top = (await get('/v1/rigs?sort=epoch')).json();
+    assert.deepEqual(top.rigs.map((rig: { nodeKey: string }) => rig.nodeKey), [RIG_2, RIG_1]);
+    assert.deepEqual(top.rigs[0].verifiedUnits, { epoch: '12', lifetime: '12' });
+    assert.equal(top.rigs[1].online, true);
+
+    const eth = (await get('/v1/rigs?pair=eth')).json();
+    assert.deepEqual(eth.rigs.map((rig: { nodeKey: string }) => rig.nodeKey), [RIG_1]);
+    const stock = (await get(`/v1/rigs?pair=${STOCK.toUpperCase().replace('0X', '0x')}`)).json();
+    assert.deepEqual(stock.rigs.map((rig: { nodeKey: string }) => rig.nodeKey), [RIG_2]);
+
+    const bad = await get('/v1/rigs?sort=loudest&limit=0');
+    assert.equal(bad.statusCode, 400);
+    assert.deepEqual(bad.json().error.details.map((detail: { path: string }) => detail.path).sort(), ['query.limit', 'query.sort']);
+  });
+
+  it('shows a rig with 24 hourly buckets, and 400 or 404 for bad keys', async () => {
+    const detail = (await get(`/v1/rigs/${RIG_2}`)).json();
+    assert.equal(detail.name, 'two');
+    assert.equal(detail.hourly.length, 24);
+    assert.equal(detail.hourly.at(-1).hour, '2026-09-29T12:00:00.000Z');
+    assert.equal((await get('/v1/rigs/0x123')).statusCode, 400);
+    const missing = await get(`/v1/rigs/${address(0xdead)}`);
+    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.json().error.code, 'rig_not_found');
+  });
+
+  it('serves pool state, burns and settlements', async () => {
+    const latest = { index: 1, publishedAt: 1n, claimableAt: BigInt(harness.clock.now.getTime() / 1000) + 60n, vetoed: false };
+    harness.pool.snapshot = snapshot({ latest, head: latest, settlementCount: 1 });
+    await harness.store.chain.addBurn({
+      blockNumber: 5n,
+      blockTime: new Date('2026-09-29T10:00:00Z'),
+      txHash: `0x${'aa'.repeat(32)}` as Hex,
+      logIndex: 0,
+      from: OPERATOR_A,
+      amount: ETH,
+      campaignId: 1n,
+      memo: `0x${Buffer.from('Campaign 01').toString('hex').padEnd(64, '0')}` as Hex,
+    });
+    const body = (await get('/v1/pool')).json();
+    assert.deepEqual(body.state.pending, { index: 1, claimableAt: new Date(Number(latest.claimableAt) * 1000).toISOString() });
+    assert.equal(body.burns[0].memo, 'Campaign 01');
+    assert.deepEqual([body.campaign.id, body.campaign.burned], ['1', ETH.toString()]);
+  });
+
+  it('serves a settlement tree anyone can check, and the claim for an account', async () => {
+    const pool = snapshot({ releasable: ETH });
+    const plan = planSettlement({
+      pool,
+      base: null,
+      fromEpoch: 0,
+      toEpoch: 5,
+      work: [
+        { nodeKey: RIG_1, operator: OPERATOR_A, units: 1n },
+        { nodeKey: RIG_2, operator: OPERATOR_B, units: 3n },
+      ],
+      chainId: 46630,
+      burnPool: address(0xf0),
+      epochSeconds: 3_600,
+      createdAt: harness.clock.now,
+    });
+    assert.equal(plan.kind, 'publish');
+    if (plan.kind !== 'publish') return;
+    await harness.store.settlements.createDraft(plan.draft);
+    await harness.store.settlements.recordPublished({
+      index: 1,
+      root: plan.draft.root,
+      total: plan.draft.total,
+      inputsDigest: plan.draft.inputsDigest,
+      txHash: `0x${'bb'.repeat(32)}` as Hex,
+      blockNumber: 7n,
+      publishedAt: new Date('2026-09-29T10:00:00Z'),
+      claimableAt: new Date('2026-09-29T10:30:00Z'),
+    });
+
+    const settlement = (await get('/v1/settlements/1')).json();
+    assert.equal(settlement.root, plan.draft.root);
+    assert.equal(keccak256(toBytes(settlement.inputsJson)), settlement.inputsDigest);
+    assert.equal(settlement.inputs.budget, ETH.toString());
+    assert.equal(settlement.tree.format, 'standard-v1');
+    assert.equal((await get('/v1/settlements/abc')).statusCode, 400);
+    assert.equal((await get('/v1/settlements/9')).statusCode, 404);
+
+    await harness.store.chain.addClaim({
+      blockNumber: 8n,
+      blockTime: new Date('2026-09-29T11:00:00Z'),
+      txHash: `0x${'cc'.repeat(32)}` as Hex,
+      logIndex: 0,
+      account: OPERATOR_B,
+      index: 1,
+      amount: 10n ** 17n,
+      via: address(0),
+    });
+    const claim = (await get(`/v1/claims/${OPERATOR_B}`)).json();
+    const expected = (3n * ETH) / 4n;
+    assert.deepEqual([claim.cumulative, claim.claimed, claim.claimable], [expected.toString(), (10n ** 17n).toString(), (expected - 10n ** 17n).toString()]);
+    assert.equal(claim.settlement.index, 1);
+    assert.ok(claim.proof.length > 0);
+    const nobody = (await get(`/v1/claims/${address(0x77)}`)).json();
+    assert.deepEqual([nobody.cumulative, nobody.claimable, nobody.proof], ['0', '0', []]);
+    assert.equal((await get('/v1/claims/someone')).statusCode, 400);
+  });
+
+  it('answers unknown routes and broken JSON with the same error shape', async () => {
+    const missing = await get('/v2/everything');
+    assert.deepEqual(missing.json(), { error: { code: 'not_found', message: 'There is no such route.' } });
+    const broken = await harness.app.inject({
+      method: 'POST',
+      url: '/v1/node/hello',
+      headers: { 'content-type': 'application/json' },
+      payload: '{"prompt":',
+    });
+    assert.equal(broken.statusCode, 400);
+    assert.equal(broken.json().error.code, 'invalid_request');
+  });
+
+  it('allows only the configured origins', async () => {
+    const allowed = await get('/health', { origin: 'https://site.example' });
+    assert.equal(allowed.headers['access-control-allow-origin'], 'https://site.example');
+    const other = await get('/health', { origin: 'https://elsewhere.example' });
+    assert.equal(other.headers['access-control-allow-origin'], undefined);
+  });
+});
