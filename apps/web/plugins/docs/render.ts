@@ -12,7 +12,7 @@ export interface DocHeading {
   readonly depth: 2 | 3;
 }
 
-export interface RenderedDoc {
+interface RenderedDoc {
   readonly title: string;
   readonly html: string;
   readonly headings: readonly DocHeading[];
