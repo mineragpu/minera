@@ -1,9 +1,11 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
+import { useSectionSpy } from '../motion/useSectionSpy.ts';
 import { NAV_LINKS } from './navLinks.ts';
 import './nav.css';
 
 export function Nav() {
+  const current = useSectionSpy();
   return (
     <header className="topbar" id="top">
       <div className="topbar__inner">
@@ -12,7 +14,9 @@ export function Nav() {
           <ul>
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
-                <a href={`#${link.id}`}>{link.label}</a>
+                <a href={`#${link.id}`} aria-current={link.id === current ? 'location' : undefined}>
+                  {link.label}
+                </a>
               </li>
             ))}
           </ul>
