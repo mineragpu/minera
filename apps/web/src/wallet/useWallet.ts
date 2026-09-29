@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import type { Address } from '@dayagpu/shared';
 import type { WalletOption } from './discovery.ts';
 
-export type WalletStatus = 'disconnected' | 'connecting' | 'connected';
+type WalletStatus = 'disconnected' | 'connecting' | 'connected';
 
 export interface WalletState {
   status: WalletStatus;

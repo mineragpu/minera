@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
 
-export type FrameCallback = (now: number, deltaSeconds: number) => void;
+type FrameCallback = (now: number, deltaSeconds: number) => void;
 
 /** Caps one step, so a loop that resumes after a pause does not jump. */
 const MAX_STEP_SECONDS = 0.05;

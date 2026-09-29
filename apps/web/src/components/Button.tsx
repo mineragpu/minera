@@ -21,7 +21,7 @@ function lookClasses(
     .join(' ');
 }
 
-export type ButtonProps = ButtonLook & ButtonHTMLAttributes<HTMLButtonElement>;
+type ButtonProps = ButtonLook & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
   variant,
@@ -42,7 +42,7 @@ export function Button({
   );
 }
 
-export type ButtonLinkProps = ButtonLook & AnchorHTMLAttributes<HTMLAnchorElement>;
+type ButtonLinkProps = ButtonLook & AnchorHTMLAttributes<HTMLAnchorElement>;
 
 export function ButtonLink({ variant, size, block, glint = true, className, children, ...rest }: ButtonLinkProps) {
   const sheen = useSheenFollow<HTMLAnchorElement>();

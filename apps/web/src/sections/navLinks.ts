@@ -1,4 +1,4 @@
-export interface NavLink {
+interface NavLink {
   readonly id: string;
   readonly label: string;
 }

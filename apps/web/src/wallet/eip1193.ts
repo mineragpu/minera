@@ -3,7 +3,7 @@
  * discovery (EIP-6963). Everything a wallet hands us is untrusted, so each shape has a guard.
  */
 
-export interface RequestArguments {
+interface RequestArguments {
   readonly method: string;
   readonly params?: readonly unknown[];
 }
@@ -16,14 +16,14 @@ export interface Eip1193Provider {
   removeListener?(event: string, listener: ProviderListener): unknown;
 }
 
-export interface Eip6963ProviderInfo {
+interface Eip6963ProviderInfo {
   readonly uuid: string;
   readonly name: string;
   readonly icon: string;
   readonly rdns: string;
 }
 
-export interface Eip6963ProviderDetail {
+interface Eip6963ProviderDetail {
   readonly info: Eip6963ProviderInfo;
   readonly provider: Eip1193Provider;
 }

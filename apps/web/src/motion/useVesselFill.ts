@@ -2,7 +2,7 @@ import { useEffect, useState, type RefObject } from 'react';
 import { useOnScreen } from './useOnScreen.ts';
 import { useReducedMotion } from './useReducedMotion.ts';
 
-export interface VesselFill {
+interface VesselFill {
   /** The slabs restack and the figures count up; latches once started. */
   playing: boolean;
   /** Ambient motion runs only while this is true. */

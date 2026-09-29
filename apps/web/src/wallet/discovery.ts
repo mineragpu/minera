@@ -13,7 +13,7 @@ export interface WalletOption {
 }
 
 /** The single injected provider, offered when no wallet announces itself. */
-export const BROWSER_WALLET_ID = 'browser-wallet';
+const BROWSER_WALLET_ID = 'browser-wallet';
 
 const ANNOUNCE = 'eip6963:announceProvider';
 const REQUEST = 'eip6963:requestProvider';

@@ -1,16 +1,16 @@
 import type { CSSProperties } from 'react';
 
-export const FACE_SIDES = ['front', 'back', 'right', 'left', 'top'] as const;
-export type FaceSide = (typeof FACE_SIDES)[number];
+const FACE_SIDES = ['front', 'back', 'right', 'left', 'top'] as const;
+type FaceSide = (typeof FACE_SIDES)[number];
 
-export interface FaceSpec {
+interface FaceSpec {
   readonly side: FaceSide;
   readonly style: CSSProperties;
   /** Larger blocks carry an inset panel line. */
   readonly inset: boolean;
 }
 
-export interface CubeSpec {
+interface CubeSpec {
   readonly key: number;
   readonly style: CSSProperties;
   readonly faces: readonly FaceSpec[];

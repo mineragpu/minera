@@ -1,6 +1,6 @@
 import { useEffect, useRef, type RefObject } from 'react';
 
-export interface PointerTarget {
+interface PointerTarget {
   /** -1 at the left edge of the viewport, 1 at the right, measured from the stage centre. */
   x: number;
   /** -1 at the top, 1 at the bottom, measured from the stage centre. */
