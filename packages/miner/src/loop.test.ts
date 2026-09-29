@@ -54,7 +54,12 @@ async function harness(handler: MockHandler, runJob: JobRunner): Promise<Harness
   const abort = new AbortController();
   const { logger, lines } = capturingLogger();
   const options: NodeLoopOptions = {
-    client: createCoordinatorClient({ baseUrl: coordinator.url, signer: account, userAgent: 'rig-test' }),
+    client: createCoordinatorClient({
+      baseUrl: coordinator.url,
+      signer: account,
+      userAgent: 'rig-test',
+      signal: abort.signal,
+    }),
     runJob,
     readRuntime: async () => runtime,
     runtime,
@@ -219,6 +224,28 @@ describe('runNode', () => {
       await runNode(run.options);
       assert.deepEqual(uploaded, []);
       assert.ok(run.lines.some((line) => line.includes('Abandoned job job-1')));
+    } finally {
+      await run.coordinator.close();
+    }
+  });
+
+  it('cancels an upload in flight on a hard stop instead of waiting for it', async () => {
+    const runJob: JobRunner = async () => ({
+      output: 'done',
+      reported: { promptTokens: 1, completionTokens: 1, durationMs: 1 },
+    });
+    const run = await harness((request) => {
+      if (request.url === NODE_ROUTES.hello) return { json: { rig, heartbeatSeconds: 5, benchmark: null } };
+      if (request.url === NODE_ROUTES.heartbeat) return { json: { heartbeatSeconds: 5, jobs: [job('job-1')] } };
+      run.stop.abort();
+      run.abort.abort();
+      return new Promise(() => undefined);
+    }, runJob);
+    try {
+      const started = Date.now();
+      await runNode(run.options);
+      assert.ok(Date.now() - started < 5_000);
+      assert.ok(!run.lines.some((line) => line.includes('Could not submit')), run.lines.join(''));
     } finally {
       await run.coordinator.close();
     }

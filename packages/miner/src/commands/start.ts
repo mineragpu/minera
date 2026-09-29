@@ -91,6 +91,7 @@ export async function startCommand(
         baseUrl: coordinator,
         signer: key.account,
         userAgent: `${BRAND.name.toLowerCase()}-rig/${CLIENT_VERSION}`,
+        signal: abort.signal,
       }),
       runJob: createJobRunner(command.runtimeUrl),
       readRuntime: () => detectRuntime(command.runtimeUrl),

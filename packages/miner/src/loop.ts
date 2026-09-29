@@ -73,6 +73,7 @@ export async function runNode(options: NodeLoopOptions): Promise<void> {
         }
         return;
       } catch (error) {
+        if (jobSignal.aborted) return;
         const message = error instanceof Error ? error.message : String(error);
         if (!retryable(error)) {
           logger.warn(`Could not submit job ${job.id}. ${message}`, { job: job.id });
@@ -130,6 +131,7 @@ export async function runNode(options: NodeLoopOptions): Promise<void> {
       try {
         return await client.hello(request);
       } catch (error) {
+        if (stop.aborted) return null;
         if (!retryable(error)) throw error;
         const delay = backoff.next();
         logger.warn(`${error.message} Retrying in ${inSeconds(delay)} s.`);
@@ -163,6 +165,7 @@ export async function runNode(options: NodeLoopOptions): Promise<void> {
         for (const reason of reply.rejected) logger.warn(`Skipped a job the coordinator sent. ${reason}`);
         scheduler.add(reply.jobs);
       } catch (error) {
+        if (stop.aborted) return;
         if (!retryable(error)) throw error;
         const delay = backoff.next();
         logger.warn(`${error.message} Retrying in ${inSeconds(delay)} s.`);

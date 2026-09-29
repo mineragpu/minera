@@ -35,6 +35,8 @@ export interface CoordinatorClientOptions {
   signer: MessageSigner;
   userAgent: string;
   timeoutMs?: number;
+  /** Cancels every request in flight, for a hard stop. */
+  signal?: AbortSignal;
 }
 
 export class CoordinatorError extends Error {
@@ -56,6 +58,7 @@ const MAX_REASON_LENGTH = 200;
 
 function networkProblem(error: unknown): string {
   if (error instanceof Error && error.name === 'TimeoutError') return 'no reply in time';
+  if (error instanceof Error && error.name === 'AbortError') return 'cancelled';
   const cause = error instanceof Error ? (error.cause as NodeJS.ErrnoException | undefined) : undefined;
   switch (cause?.code) {
     case 'ECONNREFUSED':
@@ -121,6 +124,8 @@ export function createCoordinatorClient(options: CoordinatorClientOptions): Coor
     const url = endpoint(options.baseUrl, route);
     const body = new TextEncoder().encode(JSON.stringify(payload));
     const signed = await signRequest(options.signer, { method: 'POST', path: url.pathname, body });
+    const timeout = AbortSignal.timeout(timeoutMs);
+    const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
 
     let response: Response;
     try {
@@ -130,7 +135,7 @@ export function createCoordinatorClient(options: CoordinatorClientOptions): Coor
         body,
         // A redirect would carry a signed request to a URL the operator never chose.
         redirect: 'error',
-        signal: AbortSignal.timeout(timeoutMs),
+        signal,
       });
     } catch (error) {
       if (isRedirect(error)) {
