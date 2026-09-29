@@ -33,6 +33,13 @@ export interface EncodedInputs {
   digest: Hex;
 }
 
+/** The epoch length a stored inputs document was computed with, if it records one. */
+export function epochSecondsOf(json: string): number | null {
+  const parsed: unknown = JSON.parse(json);
+  if (typeof parsed !== 'object' || parsed === null || !('epochSeconds' in parsed)) return null;
+  return typeof parsed.epochSeconds === 'number' ? parsed.epochSeconds : null;
+}
+
 export function encodeInputs(inputs: SettlementInputs): EncodedInputs {
   const json = JSON.stringify(inputs);
   return { json, digest: keccak256(toBytes(json)) };

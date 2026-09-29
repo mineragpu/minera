@@ -4,6 +4,7 @@ import { epochOf, epochStart } from '../epoch.ts';
 import { errorSummary } from '../log.ts';
 import type { Store } from '../store/store.ts';
 import { confirmPublish, isTransactionKnown, type ReceiptReader } from './confirm.ts';
+import { epochSecondsOf } from './inputs.ts';
 import { epochRange, planSettlement, type BaseSettlement } from './plan.ts';
 import type { Publisher } from './publisher.ts';
 
@@ -72,11 +73,15 @@ async function baseSettlement(store: Store, pool: PoolSnapshot): Promise<BaseSet
   }
   if (!pool.head) return null;
   const row = await store.settlements.byIndex(pool.head.index);
-  if (!row || row.toEpoch === null) return `settlement ${pool.head.index} has no local record to build on`;
+  const epochSeconds = row?.inputs ? epochSecondsOf(row.inputs) : null;
+  if (!row || row.toEpoch === null || epochSeconds === null) {
+    return `settlement ${pool.head.index} has no local record to build on`;
+  }
   const entitlements = await store.settlements.entitlements(row.id);
   return {
     index: pool.head.index,
     toEpoch: row.toEpoch,
+    epochSeconds,
     entitlements: new Map(entitlements.map((entry) => [entry.account, entry.cumulative])),
   };
 }
@@ -93,6 +98,14 @@ export async function settleOnce(deps: SettlementWorkerDeps): Promise<SettleOutc
   const pool = await deps.readPool();
   const base = await baseSettlement(store, pool);
   if (typeof base === 'string') return { kind: 'skipped', reason: base };
+  if (base && base.epochSeconds !== deps.epochSeconds) {
+    return {
+      kind: 'skipped',
+      reason:
+        `EPOCH_SECONDS changed from ${base.epochSeconds} to ${deps.epochSeconds} after settlement ${base.index}; ` +
+        'epoch numbers no longer line up, so settlement waits until it is set back',
+    };
+  }
   const now = deps.now();
   const range = epochRange(base, epochOf(now, deps.epochSeconds));
   if (!range) return { kind: 'skipped', reason: 'no epoch has completed since the last settlement' };

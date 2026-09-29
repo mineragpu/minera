@@ -15,6 +15,8 @@ import { encodeInputs, type SettlementInputs } from './inputs.ts';
 export interface BaseSettlement {
   index: number;
   toEpoch: number;
+  /** The epoch length its epochs were counted in; epoch numbers only line up at the same length. */
+  epochSeconds: number;
   entitlements: ReadonlyMap<Address, bigint>;
 }
 

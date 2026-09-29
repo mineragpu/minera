@@ -88,7 +88,7 @@ describe('planSettlement', () => {
 
   it('adds new rewards on top of the head settlement', () => {
     const entitlements = new Map([[OPERATOR_A, 4n * ETH], [OPERATOR_B, 6n * ETH]]);
-    const base: BaseSettlement = { index: 1, toEpoch: 10, entitlements };
+    const base: BaseSettlement = { index: 1, toEpoch: 10, epochSeconds: 3_600, entitlements };
     const head = { index: 1, publishedAt: DEPLOYED + DAY, claimableAt: DEPLOYED + DAY + 1_800n, vetoed: false };
     const pool = snapshot({
       committed: 10n * ETH,
@@ -131,7 +131,8 @@ describe('planSettlement', () => {
     const settled = snapshot({ head, latest: head, settlementCount: 1, committed: 5n });
     const missing = planSettlement(input({ pool: settled }));
     assert.equal(missing.kind, 'skip');
-    const base: BaseSettlement = { index: 1, toEpoch: 3, entitlements: new Map([[OPERATOR_A, 4n]]) };
+    const entitlements = new Map([[OPERATOR_A, 4n]]);
+    const base: BaseSettlement = { index: 1, toEpoch: 3, epochSeconds: 3_600, entitlements };
     const drifted = planSettlement(input({ base, pool: settled }));
     assert.deepEqual(drifted, {
       kind: 'skip',
@@ -169,7 +170,13 @@ describe('planSettlement', () => {
 describe('epochRange', () => {
   it('covers every completed epoch since the base settlement', () => {
     assert.deepEqual(epochRange(null, 5), { fromEpoch: 0, toEpoch: 4 });
-    assert.deepEqual(epochRange({ index: 1, toEpoch: 4, entitlements: new Map() }, 9), { fromEpoch: 5, toEpoch: 8 });
-    assert.equal(epochRange({ index: 1, toEpoch: 8, entitlements: new Map() }, 9), null);
+    const after = (toEpoch: number): BaseSettlement => ({
+      index: 1,
+      toEpoch,
+      epochSeconds: 3_600,
+      entitlements: new Map(),
+    });
+    assert.deepEqual(epochRange(after(4), 9), { fromEpoch: 5, toEpoch: 8 });
+    assert.equal(epochRange(after(8), 9), null);
   });
 });

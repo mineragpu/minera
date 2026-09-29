@@ -169,6 +169,17 @@ describe('settleOnce', () => {
   });
 });
 
+describe('settleOnce after a change of epoch length', () => {
+  it('stops with a reason instead of mixing epoch numbers of two lengths', async () => {
+    await settleOnce(deps());
+    const head = { index: 1, publishedAt: CHAIN_NOW, claimableAt: CHAIN_NOW, vetoed: false };
+    const settled = snapshot({ committed: ETH, head, latest: head, settlementCount: 1 });
+    const outcome = await settleOnce(deps({ readPool: async () => settled, epochSeconds: 86_400 }));
+    assert.equal(outcome.kind, 'skipped');
+    assert.match(outcome.kind === 'skipped' ? outcome.reason : '', /^EPOCH_SECONDS changed from 3600 to 86400/);
+  });
+});
+
 describe('settleOnce after a dropped transaction', () => {
   it('gives up on a transaction no RPC knows and publishes again', async () => {
     assert.deepEqual(await settleOnce(deps({ client: fakeChain(sent, 'pending') })), { kind: 'sent', txHash: TX });
