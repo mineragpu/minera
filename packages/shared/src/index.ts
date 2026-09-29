@@ -16,6 +16,8 @@ export { buildSettlement } from './merkle.ts';
 export type { Settlement } from './merkle.ts';
 export { DEPLOYMENTS, deploymentFor } from './deployments.ts';
 export type { Deployment } from './deployments.ts';
+export { ETH_PAIR, PAIR_LISTINGS, findPair, pairListingFor } from './pairs.ts';
+export type { PairAsset, PairKind, PairListing } from './pairs.ts';
 export {
   MAX_CLOCK_SKEW_SECONDS,
   NODE_HEADERS,
