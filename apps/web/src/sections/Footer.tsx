@@ -20,7 +20,7 @@ export function Footer() {
         </nav>
         <p className="foot__note">
           <PreviewTag />
-          <span>Every figure on this page is example data until the network goes live.</span>
+          <span>marks a figure that is still illustrative. Every other figure is read from the network.</span>
           <span className="brand-story">{BRAND.meaning}</span>
           <span className="copy">
             © {new Date().getFullYear()} <span className="brand">{BRAND.name}</span>
