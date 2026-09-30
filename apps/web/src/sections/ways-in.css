@@ -99,3 +99,15 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Hover and keyboard focus lift a card the same way; the lift is motion, so it waits for permission. */
+@media (prefers-reduced-motion: no-preference) {
+  .way {
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .way:hover,
+  .way:focus-within {
+    transform: translateY(-4px);
+  }
+}

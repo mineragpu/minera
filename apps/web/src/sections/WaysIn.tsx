@@ -2,10 +2,12 @@ import type { ReactNode } from 'react';
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { SheenSpot } from '../components/SheenSpot.tsx';
 import { StatusTag, type StatusTone } from '../components/StatusTag.tsx';
 import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { useMergedRef } from '../lib/useMergedRef.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import { docPath } from '../pages/docs/manifest.ts';
@@ -58,9 +60,11 @@ const WAYS: readonly Way[] = [
 
 function WayCard({ way, children }: { way: Way; children: ReactNode }) {
   const sheen = useSheenFollow<HTMLElement>();
+  const ref = useMergedRef(sheen, revealRef);
   const titleId = `way-${way.audience.toLowerCase().replace(/\W+/g, '-')}`;
   return (
-    <article ref={sheen} className={`way way--${way.tone}`} aria-labelledby={titleId}>
+    <article ref={ref} className={`way way--${way.tone}`} data-reveal="fade-up" aria-labelledby={titleId}>
+      <SheenSpot />
       <div className="way__top">
         <CubeGlyph className="way__glyph" color={way.color} />
         <StatusTag tone={way.tone}>{way.status}</StatusTag>
