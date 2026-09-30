@@ -7,6 +7,7 @@ import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import { rigPath } from '../router/routes.ts';
 import { CubeGlyph } from './CubeGlyph.tsx';
 import { RigState } from './RigState.tsx';
+import { SheenSpot } from './SheenSpot.tsx';
 import './rig-card.css';
 
 /** A rig on the launchpad board. The whole card links to the rig's page. */
@@ -17,6 +18,7 @@ export function RigCard({ rig }: { rig: RigSummary }) {
 
   return (
     <article ref={sheen} className="rig__card" aria-labelledby={titleId} style={{ '--hue': rigHue(rig.nodeKey) }}>
+      <SheenSpot />
       <div className="rig__top">
         <CubeGlyph className="glyph" color={rigHue(rig.nodeKey)} />
         <div>

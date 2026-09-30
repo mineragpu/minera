@@ -165,3 +165,10 @@
   font-weight: 500;
   color: var(--silver);
 }
+
+/* On a fine pointer the card leans a few degrees toward it, under the same eased follow as its sheen. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .rig__card {
+    transform: perspective(900px) rotateX(calc(var(--tilt-y, 0) * -3deg)) rotateY(calc(var(--tilt-x, 0) * 4deg));
+  }
+}

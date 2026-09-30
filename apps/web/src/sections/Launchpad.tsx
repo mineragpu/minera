@@ -5,6 +5,7 @@ import { ButtonLink } from '../components/Button.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
 import { NoRigsYet } from '../components/NoRigsYet.tsx';
+import { Reveal } from '../components/Reveal.tsx';
 import { RigGrid } from '../components/RigGrid.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { Words } from '../components/Words.tsx';
@@ -50,7 +51,7 @@ export function Launchpad({ index }: { index: string }) {
             this epoch, counted by the network, never by the rig.
           </p>
         </div>
-        <div className="tools">
+        <Reveal className="tools" delay={420}>
           <p className="board-count" aria-busy={data === null}>
             {data ? `${formatCount(data.total)} deployed` : <Skeleton width="10ch" />}
           </p>
@@ -58,17 +59,17 @@ export function Launchpad({ index }: { index: string }) {
             Open the launchpad
             <ArrowRightIcon />
           </ButtonLink>
-        </div>
+        </Reveal>
       </div>
 
       <div className="board">{content}</div>
       {data && data.total > data.rigs.length && (
-        <p className="board-note">
+        <Reveal as="p" className="board-note" variant="fade">
           Showing the top {formatCount(data.rigs.length)} of {formatCount(data.total)} rigs.{' '}
           <a className="text-link" href={`${PATHS.launchpad}?sort=epoch`}>
             See the whole board
           </a>
-        </p>
+        </Reveal>
       )}
     </section>
   );

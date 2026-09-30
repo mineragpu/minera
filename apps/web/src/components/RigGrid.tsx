@@ -1,4 +1,5 @@
 import type { RigSummary } from '../api/schemas.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { RigCard } from './RigCard.tsx';
 import { Skeleton } from './Skeleton.tsx';
 import './rig-card.css';
@@ -27,7 +28,7 @@ export function RigGrid({ rigs, placeholders }: RigGridProps) {
     return (
       <ul className="rigs" aria-busy="true">
         {Array.from({ length: placeholders }, (_, index) => (
-          <li key={index} className="rig">
+          <li key={index} className="rig" ref={revealRef} data-reveal="fade-up">
             <PlaceholderCard />
           </li>
         ))}
@@ -37,7 +38,7 @@ export function RigGrid({ rigs, placeholders }: RigGridProps) {
   return (
     <ul className="rigs">
       {rigs.map((rig) => (
-        <li key={rig.nodeKey} className="rig">
+        <li key={rig.nodeKey} className="rig" ref={revealRef} data-reveal="fade-up">
           <RigCard rig={rig} />
         </li>
       ))}
