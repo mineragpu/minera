@@ -54,7 +54,17 @@ const DEPENDS_ON: readonly Point[] = [
   },
   {
     title: 'The coordinator',
-    body: 'The network service measures work, checks answers and builds each settlement. Each settlement’s inputs are published so anyone can recompute it; today the service itself serves them.',
+    body: (
+      <>
+        The network service measures work, checks answers and builds each settlement. Each settlement’s inputs are
+        published so anyone can recompute it; today the service itself serves them. Its defenses against bots and fake
+        GPUs are set out under{' '}
+        <a className="text-link" href="#sentinel">
+          Sentinel
+        </a>
+        .
+      </>
+    ),
   },
   {
     title: 'The chain',

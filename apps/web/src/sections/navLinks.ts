@@ -54,6 +54,7 @@ export const FOOTER_GROUPS: readonly FooterGroup[] = [
     title: 'Network',
     links: [
       { label: 'Burn Pool', href: sectionPath('burn-pool') },
+      { label: 'Sentinel', href: sectionPath('sentinel') },
       { label: 'Campaigns', href: sectionPath('campaigns') },
       { label: 'Live contracts', href: sectionPath('whats-live') },
       { label: 'Roadmap', href: sectionPath('roadmap') },
