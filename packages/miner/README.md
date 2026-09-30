@@ -5,7 +5,7 @@ binds the rig to the operator's wallet, and runs inference jobs from the coordin
 model runtime.
 
 **Status:** the testnet is open. Start against the testnet coordinator at
-`https://coordinator-production-cf00.up.railway.app`. Its `GET /v1/network` reports the model open
+`https://api.mineragpu.tech`. Its `GET /v1/network` reports the model open
 jobs use as `jobs.model`; load that model into your runtime before you start.
 
 ## Requirements
