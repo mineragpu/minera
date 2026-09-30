@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { BRAND } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';
 import './faq.css';
@@ -146,10 +148,10 @@ export function Faq({ index }: { index: string }) {
   return (
     <section className="section shell" id="faq" aria-labelledby="faq-title">
       <div className="faq">
-        <div className="faq__head">
+        <div className="faq__head" ref={revealRef} data-reveal="head">
           <Kicker index={index}>FAQ</Kicker>
           <h2 className="h2" id="faq-title">
-            Questions, answered plainly.
+            <Words>Questions, answered plainly.</Words>
           </h2>
           <p className="lede">If an answer here and the contracts ever disagree, the contracts are right.</p>
           <p className="faq__more">

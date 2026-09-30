@@ -1,7 +1,9 @@
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
 import { BRAND } from '@minera/shared';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import './campaigns.css';
 
 const LATER_CAMPAIGNS = ['02', '03'] as const;
@@ -9,11 +11,11 @@ const LATER_CAMPAIGNS = ['02', '03'] as const;
 export function Campaigns({ index }: { index: string }) {
   return (
     <section className="section shell" id="campaigns" aria-labelledby="camp-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Campaigns</Kicker>
           <h2 className="h2" id="camp-title">
-            Each campaign is announced.
+            <Words>Each campaign is announced.</Words>
           </h2>
         </div>
         <p className="lede">

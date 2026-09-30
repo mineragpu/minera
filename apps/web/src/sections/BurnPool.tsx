@@ -9,8 +9,10 @@ import { LoadError } from '../components/LoadError.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { formatScale, slabUnit } from '../components/vessel/scale.ts';
 import { Vessel } from '../components/vessel/Vessel.tsx';
+import { Words } from '../components/Words.tsx';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
 import { formatAmount, formatCount, toFloat } from '../lib/amount.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { useVesselFill } from '../motion/useVesselFill.ts';
 import './burn-pool.css';
 
@@ -56,10 +58,10 @@ export function BurnPool({ index }: { index: string }) {
   return (
     <section className="section shell" id="burn-pool" aria-labelledby="pool-title">
       <div className="pool">
-        <div className="pool__head">
+        <div className="pool__head" ref={revealRef} data-reveal="head">
           <Kicker index={index}>Burn Pool</Kicker>
           <h2 className="h2" id="pool-title">
-            A pool that only fills.
+            <Words>A pool that only fills.</Words>
           </h2>
           <p className="lede">
             The project wallet can add to the Burn Pool at any time. Every deposit is one-way. Nothing in the

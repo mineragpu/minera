@@ -12,7 +12,7 @@ export function Kicker({ index, children }: KickerProps) {
     <p className="kicker">
       {index && <b>{index}</b>}
       <i aria-hidden="true" />
-      {children}
+      <span className="kicker__text">{children}</span>
     </p>
   );
 }

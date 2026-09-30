@@ -1,5 +1,7 @@
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import './story.css';
 
 interface Beat {
@@ -38,10 +40,10 @@ export function Story({ index }: { index: string }) {
   return (
     <section className="section shell" id="story" aria-labelledby="story-title">
       <div className="story">
-        <div className="story__head">
+        <div className="story__head" ref={revealRef} data-reveal="head">
           <Kicker index={index}>Story</Kicker>
           <h2 className="h2 story__title" id="story-title">
-            The rigs are back.
+            <Words>The rigs are back.</Words>
           </h2>
           <p className="story__close">
             Same cards. <span>Useful work.</span>

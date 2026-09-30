@@ -3,6 +3,8 @@ import { fetchPool } from '../api/coordinator.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { Words } from '../components/Words.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import { docPath } from '../pages/docs/manifest.ts';
 import './security.css';
 
@@ -106,11 +108,11 @@ export function Security({ index }: { index: string }) {
 
   return (
     <section className="section shell" id="security" aria-labelledby="security-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Security and trust</Kicker>
           <h2 className="h2" id="security-title">
-            What the code enforces, and what it trusts.
+            <Words>What the code enforces, and what it trusts.</Words>
           </h2>
         </div>
         <p className="lede">

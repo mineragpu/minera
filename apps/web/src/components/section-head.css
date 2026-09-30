@@ -35,3 +35,60 @@
   max-width: 36em;
   text-wrap: pretty;
 }
+
+/*
+ * A head's entrance, played once when it scrolls into view: the kicker line draws, its label
+ * fades in, the heading's words rise from their masks one after another, and the lede follows.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  [data-reveal="head"] .kicker i {
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok [data-reveal="head"]:not([data-revealed]) .kicker i {
+    scale: 0 1;
+  }
+
+  .motion-ok [data-reveal="head"]:not([data-revealed]) :is(.kicker b, .kicker__text) {
+    opacity: 0;
+    translate: -8px 0;
+  }
+
+  .motion-ok [data-reveal="head"]:not([data-revealed]) .w__in {
+    translate: 0 130%;
+  }
+
+  .motion-ok [data-reveal="head"]:not([data-revealed]) .lede {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  [data-reveal="head"][data-revealed="play"] .kicker i {
+    animation: reveal-draw-x var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  [data-reveal="head"][data-revealed="play"] :is(.kicker b, .kicker__text) {
+    animation: head-label var(--dur-3) var(--ease-out) calc(var(--reveal-at) + 140ms) backwards;
+  }
+
+  [data-reveal="head"][data-revealed="play"] .w__in {
+    animation: head-word var(--dur-4) var(--ease-out) calc(var(--reveal-at) + 180ms + var(--w, 0) * var(--stagger-word)) backwards;
+  }
+
+  [data-reveal="head"][data-revealed="play"] .lede {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) calc(var(--reveal-at) + 420ms) backwards;
+  }
+}
+
+@keyframes head-label {
+  from {
+    opacity: 0;
+    translate: -8px 0;
+  }
+}
+
+@keyframes head-word {
+  from {
+    translate: 0 130%;
+  }
+}

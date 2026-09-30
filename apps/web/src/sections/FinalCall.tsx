@@ -1,8 +1,10 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { PATHS } from '../router/routes.ts';
 import './final-call.css';
 
@@ -13,10 +15,10 @@ export function FinalCall() {
   return (
     <section className="section shell" id="get-started" aria-labelledby="final-title">
       <div className="final">
-        <div className="final__copy">
+        <div className="final__copy" ref={revealRef} data-reveal="head">
           <Kicker>Get started</Kicker>
           <h2 className="final__title" id="final-title">
-            Put your GPU to work.
+            <Words>Put your GPU to work.</Words>
           </h2>
           <p className="lede">
             Deploy a rig on {ACTIVE_NETWORK_LABEL.toLowerCase()}, or ask the network a question first. Both are open

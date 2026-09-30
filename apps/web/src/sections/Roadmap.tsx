@@ -1,6 +1,8 @@
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { StatusTag, type StatusTone } from '../components/StatusTag.tsx';
+import { Words } from '../components/Words.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import './roadmap.css';
 
 interface Phase {
@@ -55,11 +57,11 @@ const PHASES: readonly Phase[] = [
 export function Roadmap({ index }: { index: string }) {
   return (
     <section className="section shell" id="roadmap" aria-labelledby="roadmap-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Roadmap</Kicker>
           <h2 className="h2" id="roadmap-title">
-            Where it stands, and what comes next.
+            <Words>Where it stands, and what comes next.</Words>
           </h2>
         </div>
         <p className="lede">Each phase is marked with its real status. Planned means not built or not deployed yet.</p>

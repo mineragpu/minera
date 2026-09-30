@@ -6,6 +6,7 @@ import { Kicker } from '../components/Kicker.tsx';
 import { LiveDot } from '../components/LiveDot.tsx';
 import { LoadError } from '../components/LoadError.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { Words } from '../components/Words.tsx';
 import { CheckIcon, ExternalIcon } from '../components/icons.tsx';
 import { DEPLOYMENT } from '../config/contracts.ts';
 import { ACTIVE_CHAIN, ACTIVE_NETWORK_LABEL } from '../config/network.ts';
@@ -13,6 +14,7 @@ import { formatAmount, formatCount } from '../lib/amount.ts';
 import { addressUrl } from '../lib/explorer.ts';
 import { timeFromNow } from '../lib/time.ts';
 import { verifiedSourceUrl } from '../lib/verifiedSource.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import '../components/panel.css';
 import './whats-live.css';
 
@@ -173,11 +175,11 @@ export function WhatsLive({ index }: { index: string }) {
   const network = ACTIVE_NETWORK_LABEL.toLowerCase();
   return (
     <section className="section shell" id="whats-live" aria-labelledby="live-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>What’s live</Kicker>
           <h2 className="h2" id="live-title">
-            {DEPLOYMENT ? `Running on ${network} today.` : `Not on ${network} yet.`}
+            <Words>{DEPLOYMENT ? `Running on ${network} today.` : `Not on ${network} yet.`}</Words>
           </h2>
         </div>
         <p className="lede">

@@ -3,8 +3,10 @@ import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { StatusTag, type StatusTone } from '../components/StatusTag.tsx';
+import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';
@@ -76,11 +78,11 @@ function WayCard({ way, children }: { way: Way; children: ReactNode }) {
 export function WaysIn({ index }: { index: string }) {
   return (
     <section className="section shell" id="ways-in" aria-labelledby="ways-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Ways in</Kicker>
           <h2 className="h2" id="ways-title">
-            Three ways in.
+            <Words>Three ways in.</Words>
           </h2>
         </div>
         <p className="lede">Two are open on {NETWORK} today. The third is planned, and marked that way.</p>

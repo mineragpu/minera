@@ -1,0 +1,11 @@
+.w,
+.w__in {
+  display: inline-block;
+}
+
+/* Each word's mask leaves room above for accents and below for descenders. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .w {
+    clip-path: inset(-0.25em -0.2em -0.24em -0.2em);
+  }
+}

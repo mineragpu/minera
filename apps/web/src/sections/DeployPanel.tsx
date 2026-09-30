@@ -1,9 +1,11 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { DEPLOYMENT } from '../config/contracts.ts';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { PATHS } from '../router/routes.ts';
 import '../components/panel.css';
 import './deploy.css';
@@ -20,10 +22,10 @@ export function DeployPanel({ index }: { index: string }) {
   return (
     <section className="section shell" id="deploy" aria-labelledby="deploy-title">
       <div className="deploy">
-        <div className="deploy__copy">
+        <div className="deploy__copy" ref={revealRef} data-reveal="head">
           <Kicker index={index}>Deploy</Kicker>
           <h2 className="h2" id="deploy-title">
-            Name&nbsp;it. Pair&nbsp;it. Deploy&nbsp;it.
+            <Words>Name&nbsp;it. Pair&nbsp;it. Deploy&nbsp;it.</Words>
           </h2>
           <p className="lede">
             The node client creates the rig’s key and signs a deploy code for your wallet. You choose the name and

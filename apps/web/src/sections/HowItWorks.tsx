@@ -1,6 +1,8 @@
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
 import { ChevronRightIcon } from '../components/icons.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import './how-it-works.css';
 
 interface Step {
@@ -35,11 +37,11 @@ const STEPS: readonly Step[] = [
 export function HowItWorks({ index }: { index: string }) {
   return (
     <section className="section shell" id="how-it-works" aria-labelledby="how-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>How it works</Kicker>
           <h2 className="h2" id="how-title">
-            Four steps, in order.
+            <Words>Four steps, in order.</Words>
           </h2>
         </div>
         <p className="lede">From a card on your desk to a claim in the asset you picked.</p>

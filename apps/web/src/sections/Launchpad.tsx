@@ -7,8 +7,10 @@ import { LoadError } from '../components/LoadError.tsx';
 import { NoRigsYet } from '../components/NoRigsYet.tsx';
 import { RigGrid } from '../components/RigGrid.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { formatCount } from '../lib/amount.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import { PATHS } from '../router/routes.ts';
 import './launchpad.css';
 
@@ -37,11 +39,11 @@ export function Launchpad({ index }: { index: string }) {
 
   return (
     <section className="section shell" id="launchpad" aria-labelledby="board-title">
-      <div className="board__head">
+      <div className="board__head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Launchpad</Kicker>
           <h2 className="h2" id="board-title">
-            Rigs on the board.
+            <Words>Rigs on the board.</Words>
           </h2>
           <p className="lede">
             Each deployed rig gets a card, the way a new token does. These are the rigs with the most verified work

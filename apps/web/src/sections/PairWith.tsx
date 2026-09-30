@@ -1,6 +1,8 @@
 import { Kicker } from '../components/Kicker.tsx';
+import { Words } from '../components/Words.tsx';
 import { PAIR_LISTING } from '../config/contracts.ts';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { revealRef } from '../motion/revealObserver.ts';
 import '../components/form.css';
 import '../components/rig-card.css';
 import './pair-with.css';
@@ -65,11 +67,11 @@ export function PairWith({ index }: { index: string }) {
 
   return (
     <section className="section shell" id="pair-with" aria-labelledby="pair-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Pair with</Kicker>
           <h2 className="h2" id="pair-title">
-            Claim in your pair, or in ETH.
+            <Words>Claim in your pair, or in ETH.</Words>
           </h2>
         </div>
         <p className="lede">

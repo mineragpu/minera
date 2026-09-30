@@ -3,6 +3,8 @@ import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
+import { Words } from '../components/Words.tsx';
+import { revealRef } from '../motion/revealObserver.ts';
 import './verified-work.css';
 
 const REFRESH_MS = 60_000;
@@ -72,11 +74,11 @@ function RulesQuote() {
 export function VerifiedWork({ index }: { index: string }) {
   return (
     <section className="section shell" id="verified-work" aria-labelledby="verified-title">
-      <div className="split-head">
+      <div className="split-head" ref={revealRef} data-reveal="head">
         <div>
           <Kicker index={index}>Verified work</Kicker>
           <h2 className="h2" id="verified-title">
-            Only checked answers earn.
+            <Words>Only checked answers earn.</Words>
           </h2>
         </div>
         <p className="lede">
