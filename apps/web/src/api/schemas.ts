@@ -3,6 +3,7 @@
  * strings and are decoded to bigint; timestamps arrive as ISO strings and are decoded to Date.
  */
 
+import { SENTINEL_GATES } from '@minera/shared';
 import {
   address,
   array,
@@ -139,6 +140,13 @@ export const playgroundJob = object({
   rule: string,
 });
 
+/** The last 24 hours at each Sentinel gate, and every deployed rig by its standing now. */
+export const sentinelView = object({
+  asOf: timestamp,
+  gates: array(object({ gate: literal(...SENTINEL_GATES), passed: integer, blocked: integer })),
+  standing: object({ probation: integer, trusted: integer, quarantined: integer }),
+});
+
 export type NetworkView = Decoded<typeof networkView>;
 export type RigBoard = Decoded<typeof rigBoard>;
 export type RigSummary = RigBoard['rigs'][number];
@@ -148,3 +156,4 @@ export type ClaimView = Decoded<typeof claimView>;
 export type PlaygroundReceipt = Decoded<typeof playgroundReceipt>;
 export type PlaygroundJob = Decoded<typeof playgroundJob>;
 export type PlaygroundStatus = PlaygroundJob['status'];
+export type SentinelView = Decoded<typeof sentinelView>;

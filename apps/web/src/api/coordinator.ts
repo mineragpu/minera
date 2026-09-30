@@ -1,6 +1,6 @@
 /** One typed fetcher per public coordinator route the site uses. */
 
-import type { Address } from '@minera/shared';
+import { SENTINEL_ROUTE, type Address } from '@minera/shared';
 import { requestJson } from './client.ts';
 import {
   claimView,
@@ -10,6 +10,7 @@ import {
   poolView,
   rigBoard,
   rigDetail,
+  sentinelView,
   type ClaimView,
   type NetworkView,
   type PlaygroundJob,
@@ -17,6 +18,7 @@ import {
   type PoolView,
   type RigBoard,
   type RigDetail,
+  type SentinelView,
 } from './schemas.ts';
 
 /** The coordinator's board orders: newest first, lifetime verified units, or this epoch's. */
@@ -54,6 +56,10 @@ export function fetchPool(signal: AbortSignal): Promise<PoolView> {
 
 export function fetchClaims(account: Address, signal: AbortSignal): Promise<ClaimView> {
   return requestJson(`/v1/claims/${account}`, claimView, { signal });
+}
+
+export function fetchSentinel(signal: AbortSignal): Promise<SentinelView> {
+  return requestJson(SENTINEL_ROUTE, sentinelView, { signal });
 }
 
 export function submitPrompt(prompt: string): Promise<PlaygroundReceipt> {
