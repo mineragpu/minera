@@ -3,12 +3,15 @@ import { Kicker } from '../components/Kicker.tsx';
 import { Words } from '../components/Words.tsx';
 import { BRAND } from '@minera/shared';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
+import { useMergedRef } from '../lib/useMergedRef.ts';
+import { loopRef } from '../motion/loopGate.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import './campaigns.css';
 
 const LATER_CAMPAIGNS = ['02', '03'] as const;
 
 export function Campaigns({ index }: { index: string }) {
+  const timelineRef = useMergedRef<HTMLOListElement>(loopRef, revealRef);
   return (
     <section className="section shell" id="campaigns" aria-labelledby="camp-title">
       <div className="split-head" ref={revealRef} data-reveal="head">
@@ -22,8 +25,8 @@ export function Campaigns({ index }: { index: string }) {
           {BRAND.rewardAllocation} Every burn carries its campaign id on chain. The first campaign opens with the network on testnet.
         </p>
       </div>
-      <ol className="timeline">
-        <li className="camp camp--live">
+      <ol className="timeline" ref={timelineRef} data-reveal="timeline">
+        <li className="camp camp--live" ref={revealRef} data-reveal="fade-up">
           <span className="camp__node" aria-hidden="true">
             <CubeGlyph color="var(--teal)" />
           </span>
@@ -38,7 +41,7 @@ export function Campaigns({ index }: { index: string }) {
           </div>
         </li>
         {LATER_CAMPAIGNS.map((number) => (
-          <li key={number} className="camp camp--later">
+          <li key={number} className="camp camp--later" ref={revealRef} data-reveal="fade-up">
             <span className="camp__node" aria-hidden="true">
               <CubeGlyph color="var(--muted)" />
             </span>

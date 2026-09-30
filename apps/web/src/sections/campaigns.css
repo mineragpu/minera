@@ -159,3 +159,70 @@
     background: none;
   }
 }
+
+/*
+ * The lit rail draws to the open campaign, then the dashed rail runs on to the later ones; the
+ * open campaign's node keeps a soft pulse, paused off screen.
+ */
+.camp--live .camp__node::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 17px;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid var(--teal);
+  rotate: 45deg;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .timeline::before,
+  .timeline::after {
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok .timeline:not([data-revealed])::before,
+  .motion-ok .timeline:not([data-revealed])::after {
+    scale: 0 1;
+  }
+
+  .timeline[data-revealed="play"]::before {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .timeline[data-revealed="play"]::after {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 700ms) backwards;
+  }
+
+  .camp--live .camp__node::after {
+    animation: camp-pulse 2.8s ease-out 1.2s infinite;
+  }
+
+  .timeline[data-idle] .camp__node::after {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 920px) {
+  .camp--live .camp__node {
+    position: relative;
+    left: auto;
+    top: auto;
+    align-self: start;
+  }
+}
+
+@keyframes camp-pulse {
+  from {
+    opacity: 0.7;
+    scale: 0.8;
+  }
+
+  to {
+    opacity: 0;
+    scale: 2;
+  }
+}
