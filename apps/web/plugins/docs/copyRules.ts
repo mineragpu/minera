@@ -1,6 +1,6 @@
 /**
- * The copy rules the docs must follow (RULES.md §6), checked on the prose: code is left out,
- * since commands and JSON legitimately contain exclamation marks.
+ * The copy style the docs must follow, checked on the prose: code is left out, since commands and
+ * JSON legitimately contain exclamation marks.
  */
 
 const BANNED = [

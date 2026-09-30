@@ -3,8 +3,9 @@ import { PATHS } from '../router/routes.ts';
 import './wordmark.css';
 
 /**
- * The brand mark and name. The mark is `marketing/brand/logo-icon.svg` cropped to its box, with the
- * gold point drawn as its own shape. At 24 px tall every vertical edge falls on a whole pixel.
+ * The brand mark and name. The mark is the small-size icon, drawn on a 7.5-unit grid and cropped
+ * to its box, with the gold point as its own shape. At 24 px tall every vertical edge falls on a
+ * whole pixel.
  */
 export function Wordmark() {
   return (
