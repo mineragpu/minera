@@ -122,7 +122,66 @@
 }
 
 @media (max-width: 480px) {
-  .final__actions .btn {
+  .final__actions .magnet {
     flex: 1 1 auto;
+  }
+
+  .final__actions .magnet .btn {
+    width: 100%;
+  }
+}
+
+/* The pull reaches a little past each button: the padding widens it and the margin cancels it. */
+.magnet {
+  display: inline-flex;
+  padding: 14px;
+  margin: -14px;
+}
+
+/*
+ * The five blocks assemble from above, one after another, settling with a small landing, and then
+ * float as before. The float pauses off screen.
+ */
+.final__cube:nth-child(2) {
+  --cube: 1;
+}
+
+.final__cube:nth-child(3) {
+  --cube: 2;
+}
+
+.final__cube:nth-child(4) {
+  --cube: 3;
+}
+
+.final__cube:nth-child(5) {
+  --cube: 4;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .final__stack:not([data-revealed]) .final__cube {
+    opacity: 0;
+    translate: 0 -48px;
+  }
+
+  .final__stack[data-revealed="play"] .final__cube {
+    animation:
+      final-drop var(--dur-4) var(--ease-back) calc(var(--reveal-at) + 200ms + var(--cube, 0) * 110ms) backwards,
+      final-float 5s var(--ease-io) calc(var(--cube, 0) * -1s) infinite alternate;
+  }
+
+  .final__stack[data-idle] .final__cube {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes final-drop {
+  from {
+    opacity: 0;
+    translate: 0 -48px;
+  }
+
+  60% {
+    opacity: 1;
   }
 }
