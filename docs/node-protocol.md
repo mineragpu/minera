@@ -71,8 +71,10 @@ POST
 4. The node address is a deployed rig on the registry, and the rig is not retired.
 5. The nonce was not used before by this node key. It is recorded only after the checks above
    pass, and kept until the timestamp falls out of the allowed window.
+6. The node key has requests left in its budget: 60 signed requests a minute.
 
-Values that decide payment are never taken from the request. The coordinator measures them.
+Values that decide payment are never taken from the request. The coordinator measures them. These
+checks are the first of [Sentinel](sentinel.md)'s gates.
 
 ### Errors
 
@@ -88,18 +90,21 @@ Values that decide payment are never taken from the request. The coordinator mea
 | 403 | `retired_rig` | The rig is retired and can no longer take work. |
 | 403 | `not_assignee` | The job is not assigned to this rig. |
 | 404 | `job_not_found` | There is no job with this id. |
+| 429 | `rate_limited` | The node key sent more than 60 signed requests this minute. Retry in the next minute. |
+| 429 | `hello_cooldown` | A hello came less than 60 seconds after the previous one. Retry after the pause. |
 
-Errors use the API's shape; see [Coordinator API](api.md#errors).
+Errors use the API's shape; see [Coordinator API](api.md#errors). The node client retries both
+`429` errors with a backoff.
 
 ## Hello
 
-Sent once when the node starts.
+Sent once when the node starts, and at most once a minute.
 
 ```json
 {
   "protocol": {{protocol.version}},
   "clientVersion": "0.0.0",
-  "gpu": { "model": "Example GPU", "vramMb": 24576, "driver": "550.54" },
+  "gpu": { "model": "Example GPU", "vramMb": 24576, "driver": "550.54", "uuid": "GPU-00000000-0000-0000-0000-000000000000" },
   "runtime": { "runtime": "api-chat", "version": "0.5.7", "models": ["example-model:1b"] }
 }
 ```
@@ -108,7 +113,7 @@ Sent once when the node starts.
 |---|---|
 | `protocol` | Must be {{protocol.version}}. |
 | `clientVersion` | 1 to 64 characters. |
-| `gpu` | `null`, or a model of 1 to 128 characters, `vramMb` as a whole number up to 10,000,000, and an optional driver version of up to 64 characters. |
+| `gpu` | `null`, or a model of 1 to 128 characters, `vramMb` as a whole number up to 10,000,000, an optional driver version of up to 64 characters, and an optional `uuid`: the card's unique id from its driver, 4 to 128 letters, digits, `:`, `.`, `_` or `-`. Two rigs reporting the same card never check each other's work. |
 | `runtime` | The runtime interface name (1 to 64 characters), an optional version (up to 64), and up to 64 model names of 1 to 128 characters. |
 
 The reply names the rig as the registry records it, the heartbeat interval, and the benchmark:

@@ -92,10 +92,11 @@ campaign, the current epoch, the model and output limit of open jobs, and the wo
     "startedAt": "2026-09-29T12:00:00.000Z",
     "endsAt": "2026-09-29T13:00:00.000Z"
   },
-  "jobs": { "model": "<model tag>", "maxTokens": 256 },
+  "jobs": { "model": "<model tag>", "maxTokens": 256, "minUnitsPerSecond": 40 },
   "rules": {
     "units": "Work units are estimated tokens: …",
-    "verification": "Only verified work earns rewards. …"
+    "verification": "Only verified work earns rewards. …",
+    "standing": "New rigs start on probation …"
   }
 }
 ```
@@ -103,6 +104,8 @@ campaign, the current epoch, the model and output limit of open jobs, and the wo
 - A rig counts as online when the coordinator heard from it within the last three heartbeat
   intervals. Retired rigs are not counted.
 - `last24h.verifiedUnits` counts verified playground work.
+- `jobs.minUnitsPerSecond` is the speed [Sentinel](sentinel.md#2-proof-of-gpu) asks a rig to reach
+  on `jobs.model` before it gets open work, in work units per second.
 - `pool` is `null` until the coordinator's first read of the pool succeeds. `campaign` is `null`
   before the first burn with a non-zero campaign id.
 
@@ -135,13 +138,16 @@ The launchpad board. Retired rigs are left out.
       "lastSeenAt": "2026-09-29T12:10:30.000Z",
       "models": ["example-model:1b"],
       "verifiedUnits": { "epoch": "120", "lifetime": "960" },
-      "checks": { "passed": 14, "failed": 1 }
+      "checks": { "passed": 14, "failed": 1 },
+      "standing": "trusted"
     }
   ]
 }
 ```
 
 - `pair` is the zero address for ETH.
+- `standing` is `probation`, `trusted` or `quarantined`; see
+  [Sentinel](sentinel.md#5-reputation).
 - `operator` returns only the rigs that wallet operates. The [Claim page](/claim) uses it to
   default a claim to the asset those rigs pair with. An address that operates no live rig gets
   `total` 0 and an empty list.
@@ -163,6 +169,7 @@ first, empty hours included. Answers `404 rig_not_found` for a node key that was
   "models": ["example-model:1b"],
   "verifiedUnits": { "epoch": "120", "lifetime": "960" },
   "checks": { "passed": 14, "failed": 1 },
+  "standing": "trusted",
   "retired": false,
   "retiredAt": null,
   "deployedBlock": "126050000",
@@ -251,9 +258,9 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
   "claimableAt": "2026-09-29T11:31:00.000Z",
   "epochs": { "from": 497408, "to": 497410 },
   "inputsDigest": "0xdddd…",
-  "inputsJson": "{\"version\":1,\"chainId\":{{testnet.chainId}},…}",
+  "inputsJson": "{\"version\":2,\"chainId\":{{testnet.chainId}},…}",
   "inputs": {
-    "version": 1,
+    "version": 2,
     "chainId": {{testnet.chainId}},
     "burnPool": "0x…",
     "previousIndex": 0,
@@ -263,7 +270,7 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
     "poolBlock": "126089990",
     "poolTimestamp": "1790679655",
     "budget": "300000000000000",
-    "work": [{ "nodeKey": "0x1111…", "account": "0x2222…", "units": "960" }],
+    "work": [{ "nodeKey": "0x1111…", "account": "0x2222…", "verified": "960", "units": "960" }],
     "allocation": [{ "account": "0x2222…", "amount": "300000000000000" }],
     "entitlements": [{ "account": "0x2222…", "cumulative": "300000000000000" }]
   },
@@ -278,6 +285,9 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
 ```
 
 - `inputs` is `inputsJson` parsed. The digest covers the exact bytes of `inputsJson`.
+- In `work`, `verified` is a rig's verified units over the epochs and `units` the units it is
+  paid for after Sentinel weighs them by standing. The split uses `units`. Settlements built
+  before Sentinel carry version 1, with `units` only.
 - `inputsDigest`, `inputsJson`, `inputs` and `tree` are `null` for a settlement this coordinator did
   not build.
 - [Verification and rewards](verification-and-rewards.md#check-a-settlement-yourself) explains the
@@ -309,6 +319,35 @@ What an operator wallet can claim now, with the proof for the claim call.
 - `settlement` is `null` and `proof` is empty when no claimable settlement includes the wallet.
 - `pending` shows a newer settlement still inside its challenge delay, with the wallet's cumulative
   total in it and when it becomes claimable.
+
+## GET /v1/sentinel
+
+The decisions of each of [Sentinel](sentinel.md)'s five gates over the last 24 hours, and the
+deployed rigs by standing.
+
+```json
+{
+  "asOf": "2026-09-30T12:00:00.000Z",
+  "gates": [
+    { "gate": "identity", "passed": 41, "blocked": 7 },
+    { "gate": "gpu", "passed": 38, "blocked": 3 },
+    { "gate": "canary", "passed": 120, "blocked": 4 },
+    { "gate": "crosscheck", "passed": 96, "blocked": 2 },
+    { "gate": "reputation", "passed": 5, "blocked": 1 }
+  ],
+  "standing": { "probation": 2, "trusted": 5, "quarantined": 1 }
+}
+```
+
+- `gates` always lists the five gates, in order. Counts are kept per minute, so the window starts
+  at the minute 24 hours before `asOf`.
+- `identity`: accepted hellos pass; refused signatures, replays, unknown rigs, spent budgets and
+  early hellos are blocked.
+- `gpu`: each timed answer passes, unless the rig is below the speed floor on its recent answers.
+- `canary`: canaries passed, and wrong or missed answers to confirmed canaries.
+- `crosscheck`: comparisons settled with agreement, and rigs on the losing side of a tiebreak.
+- `reputation`: rigs that became trusted, and rigs put in quarantine.
+- `standing` counts rigs that are not retired.
 
 ## POST /v1/playground/jobs
 

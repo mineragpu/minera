@@ -30,16 +30,16 @@ coordinator's source.
 
 ### The coordinator
 
-One service, run by the project, decides which answers are verified, measures work units and
-builds every settlement.
+One service, run by the project, decides which answers are verified, measures work units, runs
+[Sentinel](sentinel.md) and builds every settlement.
 
 - **It could get the split wrong.** The pool checks a settlement's total, not how the total is
   divided. A root could lower one wallet's total and raise another's.
 - **What bounds it.** Each settlement stays within the release limit. Its inputs document and full
   tree are published, and their digest is on chain, so anyone can redo the split. The guardian can
   veto a bad settlement during its challenge delay.
-- **What stays private.** The records of individual jobs and answers are not published. The
-  inputs list verified units per rig, but not the jobs behind them.
+- **What stays private.** The records of individual jobs, answers, strikes and quarantines are not
+  published. The inputs list verified and paid units per rig, but not the jobs behind them.
 - **If it stops,** no new settlements are published. The funds stay in the pool, and every
   published settlement can still be claimed directly on the contract.
 
@@ -90,13 +90,16 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
 - **Most work is not cross-checked.** Only a share of prompts, 20% by default, goes to two rigs.
   Answers nobody cross-checked earn nothing.
 - **Comparison is exact.** Two honest rigs can produce different outputs for the same prompt, for
-  example on different hardware, drivers or runtime versions. A mismatch pays neither rig and
-  counts as a failed check for both.
-- **Collusion is not detected.** Two operators who agree on answers in advance, or one person with
-  two wallets, can pass a cross-check without running the model. Operator wallets are not tied to
-  identities, and known-answer checks test only simple arithmetic.
+  example on different hardware, drivers or runtime versions. A third rig breaks the tie; when all
+  three differ, nobody is paid and nobody takes a strike.
+- **Collusion is harder, not impossible.** [Sentinel](sentinel.md) never pairs rigs that share an
+  operator, a network or a card, catches rigs that answer without the model with canaries, and
+  settles disagreements with a third rig. Operators who rent rigs in different networks and agree on
+  answers in advance can still pass a cross-check between them; canaries and tiebreaks are what
+  catch them over time. Operator wallets are not tied to identities, and there is no stake yet.
 - **Work units are estimates.** One unit per four characters of output, not a tokenizer count.
-- **Reported hardware is not verified.** The GPU a node reports is informational.
+- **Reported hardware is not trusted.** The GPU a node reports is informational. Sentinel times
+  answers instead, and card ids only keep rigs apart.
 - **The release limit is linear.** If no settlement is published for
   {{testnet.fullReleaseDays}} days at the testnet rate, the whole uncommitted balance can be
   committed at once.
@@ -112,5 +115,6 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
 
 ## Report a vulnerability
 
-Report a vulnerability privately, not in a public issue. The repository README lists the address
-to write to.
+Report a vulnerability privately, not in a public issue: open a private report on the
+repository's security page. The [security policy](https://github.com/mineragpu/minera/security/policy)
+says what to include and what to expect.

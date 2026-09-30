@@ -18,6 +18,9 @@ length.
 Every job carries deterministic settings: temperature 0, a seed and a token limit. A playground
 prompt may use up to 256 tokens, and a check up to 16.
 
+[Sentinel](sentinel.md) also sends seed prompts and canaries. Both travel as `chat` jobs with the
+playground's settings, so a node cannot single them out, and both pay nothing.
+
 The coordinator hands out jobs on heartbeats. A rig gets at most two jobs at a time, only for
 models it reports, and nothing while it reports itself busy. A chat job that is not returned by
 its deadline goes back to the queue, for up to three assignments in all. A playground prompt still
@@ -39,24 +42,27 @@ least one number remains and every remaining number is the answer.
 - **Checks gate eligibility.** A rig receives open jobs only after it passes a check since its
   latest hello. The benchmark is that first check, so every restart starts with one.
 - **Checks repeat.** A challenge is due 15 minutes after the rig's latest challenge or hello.
-- **A failure pauses the rig.** A failed check, or a disagreement in a cross-check, makes the rig
-  ineligible for open jobs until it passes its next check.
-- **Checks earn nothing.** Their answers can be computed without a GPU.
+- **A failure pauses the rig.** A failed check, a failed canary or the losing side of a tiebreak
+  makes the rig ineligible for open jobs until it passes its next check.
+- **Checks earn nothing.** Their answers can be computed without a GPU. The canaries Sentinel sends
+  cannot, and they decide a rig's standing: see [Sentinel](sentinel.md#3-canaries).
 
 ## Cross-checking
 
 A share of playground prompts, 20% by default, is queued twice so that two rigs answer it.
 
-- The two copies go to rigs of **different operators**. A rig never holds both copies, and a copy
-  is not assigned to a rig whose operator wallet already holds the other one.
+- The two copies go to **unrelated rigs**: never two rigs that share an operator wallet, a network
+  or a card. A rig never holds both copies. See [Sentinel](sentinel.md#4-cross-check) for the rule.
 - When both answers are in, the coordinator compares them after trimming them and collapsing each
   run of whitespace to one space.
   - **Same output:** both answers are verified, and both rigs are credited and count a passed
     check.
-  - **Different output:** both answers are marked as a mismatch. Neither rig is credited, and both
-    count a failed check.
+  - **Different output:** a third rig, unrelated to both, answers the same prompt. The two answers
+    that agree are verified and credited. The rig on the losing side counts a failed check and takes
+    a strike. If all three answers differ, none is credited and nobody takes a strike.
 - Once the first answer is in, a second copy still in the queue waits at most 90 more seconds for
-  a rig. If the second copy is never answered, the first answer is recorded as unverified.
+  a rig, and a tiebreak waits at most 5 minutes. If a copy is never answered, the answers already in
+  are recorded as unverified.
 - An answer to a prompt that was not sent twice is recorded as unverified. It earns nothing.
 - The playground hides the answer until no rig still holds the prompt, so a rig holding the second
   copy cannot read the first answer and submit it as its own.
@@ -85,14 +91,16 @@ completed since the last one.
 
 1. **Budget.** It reads the Burn Pool at its latest block and takes what the
    [release limit](burn-pool.md#the-release-limit) allows on top of what is already committed.
-2. **Split.** It divides the budget across operator wallets in proportion to their verified units.
-   Each share is rounded down to the wei; the remainder stays in the pool for a later settlement.
+2. **Split.** It divides the budget across operator wallets in proportion to their paid units:
+   verified units weighed by each rig's [standing](sentinel.md#5-reputation), in full for a trusted
+   rig, half on probation, and nothing for an epoch in which the rig was quarantined. Each share is
+   rounded down to the wei; the remainder stays in the pool for a later settlement.
 3. **Accumulate.** It adds each share to the wallet's total from the previous settlement.
 4. **Publish.** It builds a Merkle tree over every wallet's cumulative total and publishes the
    root, the new total and the digest of the inputs document to the Burn Pool.
 
 No settlement is built while the previous one is inside its challenge delay, when the budget is
-zero, or when there is no verified work to settle. A published settlement becomes claimable after
+zero, or when there is no paid work to settle. A published settlement becomes claimable after
 the challenge delay, {{testnet.challengeDelay}} on testnet. During that delay the guardian can veto
 it.
 
@@ -120,18 +128,19 @@ tree.
 - `keccak256` of the UTF-8 bytes of `inputsJson` must equal the `inputs` value in the
   `SettlementPublished` event on chain.
 - Rebuilding the tree from its values must give the published root.
-- The inputs list the pool block and time the budget was read at, the budget, the verified units
-  per rig with the wallet each rig pays, each wallet's share and each wallet's cumulative total. You
-  can redo the split and compare.
+- The inputs list the pool block and time the budget was read at, the budget, the verified and paid
+  units per rig with the wallet each rig pays, each wallet's share and each wallet's cumulative
+  total. You can redo the split from the paid units and compare.
 
-The verified units themselves come from the coordinator's own records of jobs and answers, which
-are not published. See [Security and trust](security.md).
+The units themselves come from the coordinator's own records of jobs, answers and Sentinel
+decisions, which are not published. See [Security and trust](security.md).
 
 ## What earns nothing
 
 - Uptime, heartbeats and being online.
-- Benchmarks and challenges.
-- Answers nobody cross-checked, and answers that did not match.
+- Benchmarks, challenges, canaries and seed prompts.
+- Answers nobody cross-checked, and answers on the losing side of a tiebreak.
+- Work done in an epoch in which the rig was quarantined.
 - Results for a job that was already closed or given to another rig.
 - A rig that does not serve the model open jobs use.
 - A retired rig.

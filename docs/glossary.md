@@ -60,15 +60,35 @@ receives open jobs.
 **Challenge.** A known-answer check sent again at intervals, due 15 minutes after the rig's latest
 challenge or hello.
 
-**Cross-check.** Sending one prompt to two rigs of different operators and comparing their answers.
+**Cross-check.** Sending one prompt to two unrelated rigs, which share no operator, network or card,
+and comparing their answers.
 
-**Verified work.** An answer that matched the answer of a rig run by a different operator. Only
-verified work earns rewards.
+**Verified work.** An answer that matched the answer of an unrelated rig. Only verified work earns
+rewards.
 
 **Work unit.** The measure of verified work: one unit per four characters of output, rounded up,
 measured by the coordinator.
 
 **Epoch.** A fixed window in which work is counted, one hour by default.
+
+**Sentinel.** The part of the coordinator that keeps bots, scripts, fake GPUs and sybil rigs from
+earning, through five gates: identity, proof of GPU, canaries, cross-check and reputation. See
+[Sentinel](sentinel.md).
+
+**Canary.** A known-answer check that travels as an ordinary chat job. Its answer is one that
+unrelated rigs agreed on for a seed prompt. It pays nothing.
+
+**Seed prompt.** A prompt Sentinel writes in the style visitors use, to grow its bank of canaries.
+It pays nothing.
+
+**Tiebreak.** A third answer to a prompt two rigs disagreed on, from a rig unrelated to both.
+
+**Strike.** A mark against a rig: a wrong answer to a confirmed canary, a missed canary, the losing
+side of a tiebreak, or a job held past its deadline while online.
+
+**Standing.** A rig's place in Sentinel's reputation gate: probation, trusted or quarantined.
+Probation pays half for verified work, trusted pays in full, and a quarantined rig gets no work and
+earns nothing for that epoch.
 
 **Playground.** The page where anyone can send a prompt to the network. Its prompts are the open
 jobs rigs take.
