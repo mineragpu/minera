@@ -2,10 +2,13 @@ import { fetchNetwork } from '../api/coordinator.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
+import { SheenSpot } from '../components/SheenSpot.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { Words } from '../components/Words.tsx';
 import { CheckIcon } from '../components/icons.tsx';
+import { useMergedRef } from '../lib/useMergedRef.ts';
 import { revealRef } from '../motion/revealObserver.ts';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import './verified-work.css';
 
 const REFRESH_MS = 60_000;
@@ -76,6 +79,8 @@ function RulesQuote() {
 }
 
 export function VerifiedWork({ index }: { index: string }) {
+  const sheen = useSheenFollow<HTMLElement>();
+  const verdictRef = useMergedRef(sheen, revealRef);
   return (
     <section className="section shell" id="verified-work" aria-labelledby="verified-title">
       <div className="split-head" ref={revealRef} data-reveal="head">
@@ -91,7 +96,8 @@ export function VerifiedWork({ index }: { index: string }) {
       </div>
 
       <div className="verdicts section-body">
-        <article className="verdict verdict--earns" ref={revealRef} data-reveal="fade-up" aria-labelledby="verdict-earns">
+        <article className="verdict verdict--earns" ref={verdictRef} data-reveal="fade-up" aria-labelledby="verdict-earns">
+          <SheenSpot />
           <p className="verdict__tag">Earns</p>
           <h3 className="verdict__title" id="verdict-earns">
             Answers a second operator confirms
@@ -103,7 +109,8 @@ export function VerifiedWork({ index }: { index: string }) {
           <CrossCheck />
         </article>
 
-        <article className="verdict verdict--gates" ref={revealRef} data-reveal="fade-up" aria-labelledby="verdict-gates">
+        <article className="verdict verdict--gates" ref={verdictRef} data-reveal="fade-up" aria-labelledby="verdict-gates">
+          <SheenSpot />
           <p className="verdict__tag">Gates</p>
           <h3 className="verdict__title" id="verdict-gates">
             Known-answer checks
@@ -116,7 +123,8 @@ export function VerifiedWork({ index }: { index: string }) {
           <ExampleCheck />
         </article>
 
-        <article className="verdict verdict--none" ref={revealRef} data-reveal="verdict-dim" aria-labelledby="verdict-none">
+        <article className="verdict verdict--none" ref={verdictRef} data-reveal="verdict-dim" aria-labelledby="verdict-none">
+          <SheenSpot />
           <p className="verdict__tag">Earns nothing</p>
           <h3 className="verdict__title" id="verdict-none">
             Everything else

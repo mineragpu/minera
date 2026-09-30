@@ -1,11 +1,14 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { SheenSpot } from '../components/SheenSpot.tsx';
 import { Words } from '../components/Words.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { DEPLOYMENT } from '../config/contracts.ts';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
+import { useMergedRef } from '../lib/useMergedRef.ts';
 import { revealRef } from '../motion/revealObserver.ts';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import { PATHS } from '../router/routes.ts';
 import '../components/panel.css';
 import './deploy.css';
@@ -19,6 +22,8 @@ const STEPS: readonly { title: string; detail: string }[] = [
 ];
 
 export function DeployPanel({ index }: { index: string }) {
+  const sheen = useSheenFollow<HTMLDivElement>();
+  const panelRef = useMergedRef(sheen, revealRef);
   return (
     <section className="section shell" id="deploy" aria-labelledby="deploy-title">
       <div className="deploy">
@@ -56,7 +61,8 @@ export function DeployPanel({ index }: { index: string }) {
           </ul>
         </div>
 
-        <div className="panel deploy-steps" ref={revealRef} data-reveal="fade-up">
+        <div className="panel deploy-steps" ref={panelRef} data-reveal="fade-up">
+          <SheenSpot />
           <div className="panel__head">
             <h3 className="panel__title">New rig</h3>
             {DEPLOYMENT ? (

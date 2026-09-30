@@ -9,6 +9,8 @@
   --tone-bg: var(--state-open-bg);
   --tone-edge: var(--state-open-edge);
   position: relative;
+  isolation: isolate;
+  clip-path: inset(0);
   display: flex;
   flex-direction: column;
   gap: 12px;

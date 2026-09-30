@@ -1,9 +1,11 @@
 import { Kicker } from '../components/Kicker.tsx';
+import { SheenSpot } from '../components/SheenSpot.tsx';
 import { Words } from '../components/Words.tsx';
 import { PAIR_LISTING } from '../config/contracts.ts';
 import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
 import { loopRef } from '../motion/loopGate.ts';
 import { revealRef } from '../motion/revealObserver.ts';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import '../components/form.css';
 import '../components/rig-card.css';
 import './pair-with.css';
@@ -53,8 +55,10 @@ interface StationCardProps {
 }
 
 function StationCard({ station, part, role }: StationCardProps) {
+  const sheen = useSheenFollow<HTMLLIElement>();
   return (
-    <li className={role ? `station station--${role}` : 'station'} style={{ '--part': part }}>
+    <li ref={sheen} className={role ? `station station--${role}` : 'station'} style={{ '--part': part }}>
+      <SheenSpot />
       <p className="station__where">{station.where}</p>
       <p className="station__title">{station.title}</p>
       <p className="station__body">{station.body}</p>

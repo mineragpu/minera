@@ -1,0 +1,35 @@
+/*
+ * The card needs `position: relative`, its own stacking context and a clip (its chamfer clip-path
+ * gives both), so the light sits over the card's surface, under its content and inside its edge.
+ */
+.sheen-spot {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  width: 460px;
+  height: 460px;
+  margin: -230px 0 0 -230px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(140, 107, 255, 0.16), rgba(46, 230, 200, 0.07) 48%, rgba(11, 14, 20, 0) 100%);
+  opacity: 0;
+  transform: translate(var(--sheen-x, 120px), var(--sheen-y, 72px));
+  transition: opacity var(--dur-2) var(--ease-out);
+  pointer-events: none;
+}
+
+:focus-within > .sheen-spot {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :hover > .sheen-spot {
+    opacity: 1;
+  }
+}
+
+@media (forced-colors: active) {
+  .sheen-spot {
+    display: none;
+  }
+}

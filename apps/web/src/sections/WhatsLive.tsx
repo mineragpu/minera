@@ -6,6 +6,7 @@ import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { LiveDot } from '../components/LiveDot.tsx';
 import { LoadError } from '../components/LoadError.tsx';
+import { SheenSpot } from '../components/SheenSpot.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { Words } from '../components/Words.tsx';
 import { CheckIcon, ExternalIcon } from '../components/icons.tsx';
@@ -14,10 +15,12 @@ import { ACTIVE_CHAIN, ACTIVE_NETWORK_LABEL } from '../config/network.ts';
 import { formatAmount, formatCount, toFloat } from '../lib/amount.ts';
 import { addressUrl } from '../lib/explorer.ts';
 import { timeFromNow } from '../lib/time.ts';
+import { useMergedRef } from '../lib/useMergedRef.ts';
 import { verifiedSourceUrl } from '../lib/verifiedSource.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import { useReducedMotion } from '../motion/useReducedMotion.ts';
 import { useReveal } from '../motion/useReveal.ts';
+import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import '../components/panel.css';
 import './whats-live.css';
 
@@ -53,15 +56,19 @@ const CONTRACTS: readonly ContractInfo[] = [
 
 function Contracts() {
   const deployment = DEPLOYMENT;
+  const sheen = useSheenFollow<HTMLDivElement>();
+  const panelRef = useMergedRef(sheen, revealRef);
   if (!deployment) {
     return (
-      <div className="panel live-contracts" ref={revealRef} data-reveal="fade-up">
+      <div className="panel live-contracts" ref={panelRef} data-reveal="fade-up">
+        <SheenSpot />
         <p className="live-contracts__none">The contracts are not deployed on {ACTIVE_CHAIN.name} yet.</p>
       </div>
     );
   }
   return (
-    <div className="panel live-contracts" ref={revealRef} data-reveal="fade-up">
+    <div className="panel live-contracts" ref={panelRef} data-reveal="fade-up">
+      <SheenSpot />
       <div className="panel__head">
         <h3 className="panel__title">Contracts</h3>
         <span className="live-contracts__chain">
