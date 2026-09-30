@@ -60,3 +60,18 @@
   box-shadow: inset 0 0 0 1px var(--state-open-edge);
   color: var(--state-open);
 }
+
+/* A panel that enters draws its lit top line from the left as it rises. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .panel[data-reveal]::before {
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok .panel[data-reveal]:not([data-revealed])::before {
+    scale: 0 1;
+  }
+
+  .panel[data-revealed="play"]::before {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 200ms) backwards;
+  }
+}

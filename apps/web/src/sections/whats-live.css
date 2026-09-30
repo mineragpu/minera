@@ -248,3 +248,83 @@
     border-top: 0;
   }
 }
+
+/*
+ * Entrances: the readout rises and its rail draws down, then its figures step in; each contract
+ * row rises, its cube drops into place, and the Source verified mark stamps with its check drawn.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .live-readout::before {
+    transform-origin: 50% 0;
+  }
+
+  .motion-ok .live-readout:not([data-revealed]) {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  .motion-ok .live-readout:not([data-revealed])::before {
+    scale: 1 0;
+  }
+
+  .motion-ok .live-readout:not([data-revealed]) .live-figures > div {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  .live-readout[data-revealed="play"] {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .live-readout[data-revealed="play"]::before {
+    animation: reveal-draw-y var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 200ms) backwards;
+  }
+
+  .live-readout[data-revealed="play"] .live-figures > div {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) calc(var(--reveal-at) + 260ms + var(--fig, 0) * var(--stagger)) backwards;
+  }
+
+  .motion-ok .contract:not([data-revealed]) {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  .motion-ok .contract:not([data-revealed]) .contract__glyph {
+    opacity: 0;
+    translate: 0 -14px;
+  }
+
+  .motion-ok .contract:not([data-revealed]) .contract__link--verified {
+    opacity: 0;
+    scale: 1.35;
+  }
+
+  .contract[data-revealed="play"] {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .contract[data-revealed="play"] .contract__glyph {
+    animation: contract-drop var(--dur-3) var(--ease-back) calc(var(--reveal-at) + 160ms) backwards;
+  }
+
+  .contract[data-revealed="play"] .contract__link--verified {
+    animation: reveal-stamp var(--dur-3) var(--ease-back) calc(var(--reveal-at) + 520ms) backwards;
+  }
+
+  .contract[data-revealed="play"] .contract__link--verified svg:first-child {
+    animation: check-draw var(--dur-3) var(--ease-out) calc(var(--reveal-at) + 700ms) backwards;
+  }
+}
+
+@keyframes contract-drop {
+  from {
+    opacity: 0;
+    translate: 0 -14px;
+  }
+}
+
+@keyframes check-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
