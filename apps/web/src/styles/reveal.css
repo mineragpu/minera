@@ -1,0 +1,197 @@
+/*
+ * Entrances. An element is hidden before its entrance only under `.motion-ok`, which the script
+ * adds once it runs and motion is allowed, and only on screen; without it everything renders at
+ * rest. Each entrance animates from its own starting point back to the element's style, using the
+ * individual transform properties, so hover transforms stay free.
+ */
+
+@property --reveal-i {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --reveal-order {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --reveal-delay {
+  syntax: "<time>";
+  inherits: false;
+  initial-value: 0s;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Explicit delay, then the batch order and any index within a scene, one stagger each. */
+  [data-reveal] {
+    --reveal-at: calc(var(--reveal-delay, 0s) + (min(var(--reveal-order, 0), 8) + var(--reveal-i, 0)) * var(--stagger));
+  }
+
+  .motion-ok [data-reveal="fade-up"]:not([data-revealed]) {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  [data-reveal="fade-up"][data-revealed="play"] {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="fade"]:not([data-revealed]) {
+    opacity: 0;
+  }
+
+  [data-reveal="fade"][data-revealed="play"] {
+    animation: reveal-fade var(--dur-3) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="clip-up"]:not([data-revealed]) {
+    clip-path: inset(0 0 100% 0);
+    translate: 0 100%;
+  }
+
+  [data-reveal="clip-up"][data-revealed="play"] {
+    animation: reveal-clip-up var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="blur-in"]:not([data-revealed]) {
+    opacity: 0;
+    filter: blur(10px);
+  }
+
+  [data-reveal="blur-in"][data-revealed="play"] {
+    animation: reveal-blur-in var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="scale-in"]:not([data-revealed]) {
+    opacity: 0;
+    scale: 0.94;
+  }
+
+  [data-reveal="scale-in"][data-revealed="play"] {
+    animation: reveal-scale-in var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="stamp"]:not([data-revealed]) {
+    opacity: 0;
+    scale: 1.35;
+  }
+
+  [data-reveal="stamp"][data-revealed="play"] {
+    animation: reveal-stamp var(--dur-3) var(--ease-back) var(--reveal-at) backwards;
+  }
+
+  [data-reveal="draw"] {
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok [data-reveal="draw"]:not([data-revealed]) {
+    scale: 0 1;
+  }
+
+  [data-reveal="draw"][data-revealed="play"] {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  [data-reveal="draw-y"] {
+    transform-origin: 50% 0;
+  }
+
+  .motion-ok [data-reveal="draw-y"]:not([data-revealed]) {
+    scale: 1 0;
+  }
+
+  [data-reveal="draw-y"][data-revealed="play"] {
+    animation: reveal-draw-y var(--dur-5) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="slide-l"]:not([data-revealed]) {
+    opacity: 0;
+    translate: calc(var(--rise) * -1.4) 0;
+  }
+
+  [data-reveal="slide-l"][data-revealed="play"] {
+    animation: reveal-slide-l var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .motion-ok [data-reveal="slide-r"]:not([data-revealed]) {
+    opacity: 0;
+    translate: calc(var(--rise) * 1.4) 0;
+  }
+
+  [data-reveal="slide-r"][data-revealed="play"] {
+    animation: reveal-slide-r var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+}
+
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes reveal-clip-up {
+  from {
+    clip-path: inset(0 0 100% 0);
+    translate: 0 100%;
+  }
+}
+
+@keyframes reveal-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+@keyframes reveal-scale-in {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+@keyframes reveal-stamp {
+  from {
+    opacity: 0;
+    scale: 1.35;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes reveal-draw-x {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes reveal-draw-y {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes reveal-slide-l {
+  from {
+    opacity: 0;
+    translate: calc(var(--rise) * -1.4) 0;
+  }
+}
+
+@keyframes reveal-slide-r {
+  from {
+    opacity: 0;
+    translate: calc(var(--rise) * 1.4) 0;
+  }
+}
