@@ -103,6 +103,11 @@
   box-shadow: inset 0 0 0 1px var(--seam-hover);
 }
 
+/* Focus keeps its ring; it takes the hover color only, since the ring is drawn with box-shadow. */
+.wallet-dialog__close:focus-visible {
+  color: var(--bright);
+}
+
 .wallet-dialog__close svg {
   width: 16px;
   height: 16px;
@@ -174,6 +179,10 @@
 .wallet-option:hover {
   background: var(--surface-2);
   box-shadow: inset 0 0 0 1px var(--seam-hover);
+}
+
+.wallet-option:focus-visible {
+  background: var(--surface-2);
 }
 
 .wallet-option[aria-busy="true"] {

@@ -166,6 +166,11 @@
   flex: none;
 }
 
+/* Focus keeps its ring; it takes the hover color only, since the ring is drawn with box-shadow. */
+.contract__link:focus-visible {
+  color: var(--bright);
+}
+
 .contract__link--verified {
   color: var(--state-open);
   background: var(--state-open-bg);

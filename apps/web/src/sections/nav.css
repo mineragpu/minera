@@ -68,11 +68,13 @@
 }
 
 .topnav a:hover,
+.topnav a:focus-visible,
 .topnav a[aria-current] {
   color: var(--bright);
 }
 
 .topnav a:hover::after,
+.topnav a:focus-visible::after,
 .topnav a[aria-current]::after {
   transform: scaleX(1);
 }

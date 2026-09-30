@@ -74,7 +74,8 @@
   color: var(--ink);
 }
 
-.btn--primary:hover {
+.btn--primary:hover,
+.btn--primary:focus-visible {
   --fill: var(--metal-lit-hover);
 }
 

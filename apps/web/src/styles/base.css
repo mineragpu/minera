@@ -71,7 +71,8 @@ textarea {
   transition: color 0.2s, text-decoration-color 0.2s;
 }
 
-.text-link:hover {
+.text-link:hover,
+.text-link:focus-visible {
   color: var(--teal);
   text-decoration-color: currentColor;
 }

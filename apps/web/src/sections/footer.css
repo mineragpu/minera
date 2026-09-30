@@ -62,7 +62,8 @@
   transition: color 0.2s;
 }
 
-.foot__group a:hover {
+.foot__group a:hover,
+.foot__group a:focus-visible {
   color: var(--bright);
   text-decoration: underline;
   text-decoration-color: var(--seam-hover);
