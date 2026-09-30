@@ -16,6 +16,8 @@ export { buildSettlement } from './merkle.ts';
 export type { Settlement } from './merkle.ts';
 export { DEPLOYMENTS, deploymentFor } from './deployments.ts';
 export type { Deployment } from './deployments.ts';
+export { SENTINEL_GATES, SENTINEL_ROUTE } from './sentinel.ts';
+export type { RigStanding, SentinelGate, SentinelGateStats, SentinelStats } from './sentinel.ts';
 export { ETH_PAIR, PAIR_LISTINGS, findPair, pairListingFor } from './pairs.ts';
 export type { PairAsset, PairKind, PairListing } from './pairs.ts';
 export {
