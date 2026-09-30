@@ -1,0 +1,460 @@
+/*
+ * The Sentinel tunnel. One unit (--u) scales with the stage, as in the hero cluster, and the
+ * sizes come from timeline.ts through the custom properties on .tn-view. The scene's axes: x to
+ * the right, y down, z along the tunnel toward the viewer.
+ */
+
+.tn-stage {
+  width: 100%;
+  container-type: inline-size;
+}
+
+.tn-view {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  perspective: 125cqi;
+  perspective-origin: 50% 22%;
+}
+
+.tn-scene {
+  --u: 10cqi;
+  --F: calc(var(--u) * var(--frame));
+  --B: calc(var(--u) * var(--bar));
+  --D: calc(var(--u) * var(--depth));
+  --C: calc(var(--u) * var(--cube));
+  --T: calc(var(--u) * var(--track));
+  --H: calc(var(--u) * var(--drop));
+  /* The track runs from well before the first gate to past the exit; its far end fades. */
+  --len: 10.4;
+  --mid: -0.4;
+  --L: calc(var(--u) * var(--len));
+  position: absolute;
+  left: 52%;
+  top: 54%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+:where(.tn-ground, .tn-track, .tn-tray, .tn-tray > *, .tn-gate, .tn-gate > *, .tn-item, .tn-bot, .tn-bot > *, .tn-flare) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+.tn-tray,
+.tn-gate,
+.tn-item,
+.tn-bot {
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+/* Ground and track */
+
+.tn-ground {
+  left: calc(var(--u) * -7);
+  top: calc(var(--u) * -5.5);
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 11);
+  transform: translate3d(calc(var(--u) * -0.9), calc(var(--H) + 1px), calc(var(--u) * -0.4)) rotateX(90deg);
+  background: var(--lattice-tile) 50% 50% / calc(var(--u) * 0.8);
+  opacity: 0.13;
+  -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent);
+  mask-image: radial-gradient(closest-side, #000 30%, transparent);
+}
+
+.tn-track--top {
+  left: calc(var(--T) * -1);
+  top: calc(var(--L) / -2);
+  width: calc(var(--T) * 2);
+  height: var(--L);
+  transform: translateZ(calc(var(--u) * var(--mid))) rotateX(90deg);
+  border: solid transparent;
+  border-width: 0 1px;
+  border-image: var(--iri-rail) 1;
+  /* The center line runs iridescent through the gates and turns gold past the last one. */
+  background:
+    linear-gradient(180deg, var(--violet) 0%, var(--blue) 30%, var(--teal) 62%, var(--gold) 76%, var(--gold) 100%) 50% 0 / 2px 100% no-repeat,
+    var(--brushed),
+    var(--metal);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 90%, transparent 100%);
+}
+
+.tn-track--side {
+  left: calc(var(--L) / -2);
+  width: var(--L);
+  height: var(--H);
+  transform: translate3d(calc(var(--T) * -1), 0, calc(var(--u) * var(--mid))) rotateY(-90deg);
+  transform-origin: 50% 0;
+  border-top: 1px solid var(--seam-hover);
+  background: var(--brushed), linear-gradient(180deg, var(--seam-2), var(--surface) 60%, var(--graphite-2));
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 90%, transparent 100%);
+}
+
+/* The quarantine tray, on the ground beside the track */
+
+.tn-tray {
+  --tw: calc(var(--u) * 1);
+  --tl: calc(var(--u) * 3.6);
+  --wall: calc(var(--u) * 0.2);
+  transform: translate3d(calc(var(--u) * var(--tray-x)), var(--H), calc(var(--u) * -0.5));
+}
+
+.tn-tray__floor {
+  left: calc(var(--tw) / -2);
+  top: calc(var(--tl) / -2);
+  width: var(--tw);
+  height: var(--tl);
+  transform: rotateX(90deg);
+  border: 1px solid color-mix(in srgb, var(--magenta) 40%, transparent);
+  background:
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--magenta) 16%, transparent) 0 1px, transparent 1px 9px),
+    color-mix(in srgb, var(--graphite) 80%, var(--magenta));
+}
+
+.tn-tray__wall {
+  top: calc(var(--wall) * -1);
+  height: var(--wall);
+  border-top: 1px solid var(--magenta);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--magenta) 24%, transparent), color-mix(in srgb, var(--magenta) 6%, transparent));
+}
+
+.tn-tray__wall--out,
+.tn-tray__wall--in {
+  left: calc(var(--tl) / -2);
+  width: var(--tl);
+  transform-origin: 50% 100%;
+}
+
+.tn-tray__wall--out {
+  transform: translateX(calc(var(--tw) / -2)) rotateY(-90deg);
+}
+
+.tn-tray__wall--in {
+  transform: translateX(calc(var(--tw) / 2)) rotateY(-90deg);
+}
+
+.tn-tray__wall--far,
+.tn-tray__wall--near {
+  left: calc(var(--tw) / -2);
+  width: var(--tw);
+}
+
+.tn-tray__wall--far {
+  transform: translateZ(calc(var(--tl) / -2));
+}
+
+.tn-tray__wall--near {
+  transform: translateZ(calc(var(--tl) / 2));
+}
+
+/* Gates: a brushed-metal frame with iridescent edges, lit by the scene's light */
+
+.tn-gate {
+  transform: translateZ(calc(var(--u) * var(--gz)));
+}
+
+.tn-gate__ring {
+  left: calc(var(--F) / -2);
+  top: calc(var(--F) * -1);
+  width: var(--F);
+  height: var(--F);
+  padding: calc(var(--B) - 1px);
+  border: 1px solid transparent;
+  border-image: conic-gradient(from var(--eo, 0deg), var(--iri-list)) 1;
+  background: var(--brushed), linear-gradient(180deg, var(--bright) 0%, var(--silver) 30%, var(--muted) 70%, var(--seam-hover) 100%);
+  transform: translateZ(calc(var(--D) / 2));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* The inner edge, around the opening. */
+.tn-gate__ring::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: calc(var(--B) - 2px);
+  border: 1px solid transparent;
+  border-image: conic-gradient(from calc(var(--eo, 0deg) + 180deg), var(--iri-list)) 1;
+}
+
+.tn-gate__ring::after,
+.tn-gate__side::after,
+.tn-gate__cap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--graphite);
+  opacity: var(--sh);
+}
+
+.tn-gate__ring::after {
+  --sh: var(--sh-f);
+}
+
+.tn-gate__side {
+  left: calc(var(--D) / -2);
+  top: calc(var(--F) * -1);
+  width: var(--D);
+  height: var(--F);
+  background: linear-gradient(180deg, var(--silver), var(--muted) 45%, var(--seam-2));
+}
+
+.tn-gate__side::after {
+  --sh: var(--sh-l);
+}
+
+.tn-gate__side--out {
+  transform: translateX(calc(var(--F) / -2)) rotateY(-90deg);
+}
+
+.tn-gate__side--in {
+  transform: translateX(calc(var(--F) / 2 - var(--B))) rotateY(-90deg);
+}
+
+.tn-gate__cap {
+  left: calc(var(--F) / -2);
+  top: calc(var(--F) * -1 - var(--D) / 2);
+  width: var(--F);
+  height: var(--D);
+  transform: rotateX(90deg);
+  background: linear-gradient(90deg, var(--silver), var(--bright) 40%, var(--muted));
+}
+
+.tn-gate__cap::after {
+  --sh: var(--sh-t);
+}
+
+/* The scan films inside each frame: gold as work passes, magenta when a bot is stopped. */
+.tn-gate__film {
+  left: calc(var(--F) / -2 + var(--B));
+  top: calc(var(--F) * -1 + var(--B));
+  width: calc(var(--F) - var(--B) * 2);
+  height: calc(var(--F) - var(--B) * 2);
+  opacity: 0;
+}
+
+.tn-gate__film--pass {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 4%, transparent), color-mix(in srgb, var(--gold) 20%, transparent));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--gold) 85%, transparent),
+    inset 0 0 calc(var(--u) * 0.3) color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.tn-gate__film--block {
+  background:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--magenta) 24%, transparent) 0 1px, transparent 1px 5px),
+    color-mix(in srgb, var(--magenta) 12%, transparent);
+  box-shadow:
+    inset 0 0 0 2px var(--magenta),
+    inset 0 0 calc(var(--u) * 0.4) color-mix(in srgb, var(--magenta) 60%, transparent),
+    0 0 calc(var(--u) * 0.35) color-mix(in srgb, var(--magenta) 55%, transparent);
+}
+
+/* Labels: flat HTML turned back toward the viewer, so they read square-on at any depth. */
+.tn-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  padding: 0.45em 0.6em 0.38em;
+  border: 1px solid var(--seam-2);
+  border-radius: var(--r-tag);
+  background: color-mix(in srgb, var(--graphite) 82%, transparent);
+  font: 500 clamp(8px, 1.45cqi, 13px) / 1 var(--font-mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--bright);
+}
+
+.tn-gate__label {
+  transform: translateY(calc(var(--F) * -1 - var(--u) * 0.14)) rotateY(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) translate(-50%, -100%);
+}
+
+.tn-tray__label {
+  border-color: color-mix(in srgb, var(--magenta) 55%, transparent);
+  color: var(--state-none);
+  text-transform: uppercase;
+  transform: translate3d(calc(var(--tw) / -2), 0, calc(var(--tl) / 2)) rotateY(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) translate(-40%, 30%);
+}
+
+/* Cubes */
+
+.tn-bot__face {
+  left: calc(var(--C) / -2);
+  top: calc(var(--C) / -2);
+  width: var(--C);
+  height: var(--C);
+  overflow: hidden;
+  border: 1.5px solid var(--magenta);
+  background:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--magenta) 18%, transparent) 0 1px, transparent 1px 4px),
+    color-mix(in srgb, var(--magenta) 8%, transparent);
+  box-shadow: inset 0 0 calc(var(--u) * 0.12) color-mix(in srgb, var(--magenta) 45%, transparent);
+}
+
+/* A bright slice that jumps across each face: the bot's glitch. */
+.tn-bot__face::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 0;
+  height: 16%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--magenta) 70%, transparent) 30%, color-mix(in srgb, var(--bright) 60%, transparent) 55%, transparent);
+  opacity: 0;
+}
+
+.tn-bot__face--front {
+  transform: translateZ(calc(var(--C) / 2));
+}
+
+.tn-bot__face--back {
+  transform: rotateY(180deg) translateZ(calc(var(--C) / 2));
+}
+
+.tn-bot__face--right {
+  transform: rotateY(90deg) translateZ(calc(var(--C) / 2));
+}
+
+.tn-bot__face--left {
+  transform: rotateY(-90deg) translateZ(calc(var(--C) / 2));
+}
+
+.tn-bot__face--top {
+  transform: rotateX(90deg) translateZ(calc(var(--C) / 2));
+}
+
+.tn-bot__face--bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--C) / 2));
+}
+
+/* Flares: a gold glint as a rig clears the last gate, a magenta alarm round a stopped bot. */
+.tn-flare {
+  width: calc(var(--u) * 1.2);
+  height: calc(var(--u) * 1.2);
+  margin: calc(var(--u) * -0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tn-flare--glint {
+  transform: translate3d(calc(var(--C) / -2), calc(var(--C) / -2), calc(var(--C) / 2)) rotateY(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1));
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--gold) 75%, transparent), color-mix(in srgb, var(--gold) 22%, transparent) 40%, transparent);
+}
+
+.tn-flare--glint::before,
+.tn-flare--glint::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  margin: -1px 0 0 -50%;
+  background: linear-gradient(90deg, transparent, var(--gold) 35%, var(--bright) 50%, var(--gold) 65%, transparent);
+}
+
+.tn-flare--glint::after {
+  transform: rotate(90deg) scaleX(0.7);
+}
+
+.tn-flare--alarm {
+  width: calc(var(--u) * 1.6);
+  height: calc(var(--u) * 1.6);
+  margin: calc(var(--u) * -0.8);
+  transform: rotateY(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1));
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--magenta) 45%, transparent), color-mix(in srgb, var(--magenta) 12%, transparent) 55%, transparent);
+}
+
+/* A narrow stage stands taller and draws the scene larger, so the gates stay legible on a phone. */
+@container (max-width: 600px) {
+  .tn-view {
+    aspect-ratio: 5 / 4;
+  }
+
+  .tn-scene {
+    --u: 12.6cqi;
+    left: 50%;
+    top: 57%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tn-bot {
+    animation: bot-jitter 2.6s steps(1) infinite;
+  }
+
+  .tn-bot__face::after {
+    animation: bot-glitch 1.7s steps(1) infinite;
+  }
+
+  .tn-bot__face--left::after,
+  .tn-bot__face--back::after {
+    animation-delay: -0.6s;
+  }
+
+  .tn-bot__face--top::after,
+  .tn-bot__face--bottom::after {
+    animation-delay: -1.1s;
+  }
+
+  .tn-view[data-idle] .tn-bot,
+  .tn-view[data-idle] .tn-bot__face::after {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes bot-jitter {
+  0%,
+  86%,
+  94% {
+    transform: none;
+  }
+
+  88% {
+    transform: translate3d(calc(var(--u) * 0.04), 0, 0);
+  }
+
+  91% {
+    transform: translate3d(calc(var(--u) * -0.03), calc(var(--u) * 0.02), 0);
+  }
+}
+
+@keyframes bot-glitch {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translateY(120%);
+  }
+
+  18% {
+    opacity: 0.6;
+    transform: translateY(420%);
+  }
+
+  24% {
+    opacity: 0;
+  }
+
+  61% {
+    opacity: 0.9;
+    transform: translateY(260%);
+  }
+
+  66% {
+    opacity: 0;
+  }
+}
