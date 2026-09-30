@@ -84,6 +84,11 @@ export const DOC_GROUPS: readonly DocGroup[] = [
     title: 'Trust',
     pages: [
       {
+        slug: 'sentinel',
+        title: 'Sentinel',
+        summary: 'The five gates that keep bots, scripts, fake GPUs and sybil rigs from earning.',
+      },
+      {
         slug: 'security',
         title: 'Security and trust',
         summary: 'Trust assumptions and known limitations, stated plainly.',
