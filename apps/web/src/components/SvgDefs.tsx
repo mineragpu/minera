@@ -1,6 +1,6 @@
 /**
- * Gradients and the cube symbol that inline icons across the page reference by id.
- * Rendered once, before any icon that uses them.
+ * Gradients, the cube symbol and the brand mark's metals that inline icons across the page
+ * reference by id. Rendered once, before any icon that uses them.
  */
 export function SvgDefs() {
   return (
@@ -24,6 +24,18 @@ export function SvgDefs() {
         <linearGradient id="g-right" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#363D4A" />
           <stop offset="1" stopColor="#222832" />
+        </linearGradient>
+        <linearGradient id="g-rig-lit" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#F4F7FA" />
+          <stop offset="1" stopColor="#B3BDCA" />
+        </linearGradient>
+        <linearGradient id="g-rig-steel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#C9D1DC" />
+          <stop offset="1" stopColor="#8391A3" />
+        </linearGradient>
+        <linearGradient id="g-rig-gold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#FFE8A6" />
+          <stop offset="1" stopColor="#F5C451" />
         </linearGradient>
         <symbol id="cube" viewBox="0 0 40 44">
           <path d="M20 2.5 37 12 20 21.5 3 12Z" fill="url(#g-top)" />
