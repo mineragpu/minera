@@ -15,8 +15,11 @@ interface NetworkView {
   pool: PoolSummary | null;
   campaign: CampaignView | null;
   epoch: { index: number; seconds: number; startedAt: string; endsAt: string };
-  /** The model open jobs run on, so operators know which one to load before starting a rig. */
-  jobs: { model: string; maxTokens: number };
+  /**
+   * The model open jobs run on, so operators know which one to load before starting a rig, and the
+   * speed Sentinel's proof of GPU gate asks for, in work units per second.
+   */
+  jobs: { model: string; maxTokens: number; minUnitsPerSecond: number };
   rules: typeof WORK_RULES;
 }
 
@@ -47,7 +50,11 @@ export function registerNetworkRoute(app: FastifyInstance, context: RouteContext
         startedAt: epochStart(epoch, config.epochSeconds).toISOString(),
         endsAt: epochStart(epoch + 1, config.epochSeconds).toISOString(),
       },
-      jobs: { model: config.playground.model, maxTokens: config.playground.maxTokens },
+      jobs: {
+        model: config.playground.model,
+        maxTokens: config.playground.maxTokens,
+        minUnitsPerSecond: config.sentinel.minTokensPerSecond,
+      },
       rules: WORK_RULES,
     };
   });

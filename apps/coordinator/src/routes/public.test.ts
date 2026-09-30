@@ -72,6 +72,8 @@ describe('public routes', () => {
     assert.equal(typeof body.jobs.model, "string");
     assert.ok(body.jobs.model.length > 0);
     assert.ok(body.jobs.maxTokens > 0);
+    assert.equal(body.jobs.minUnitsPerSecond, 40);
+    assert.equal(typeof body.rules.standing, 'string');
 
     harness.pool.snapshot = snapshot();
     body = (await get('/v1/network')).json();
