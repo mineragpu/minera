@@ -119,3 +119,25 @@
     padding-right: 4px;
   }
 }
+
+/*
+ * An answer opens and closes with its height. Browsers that can animate to an automatic size do it
+ * here; the others get the same motion from `detailsMotionRef`.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (interpolate-size: allow-keywords) and selector(::details-content) {
+    .faq__list {
+      interpolate-size: allow-keywords;
+    }
+
+    .faq__item::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition: block-size 480ms var(--ease-out), content-visibility 480ms allow-discrete;
+    }
+
+    .faq__item[open]::details-content {
+      block-size: auto;
+    }
+  }
+}

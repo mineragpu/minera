@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import { BRAND } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
+import { Reveal } from '../components/Reveal.tsx';
 import { Words } from '../components/Words.tsx';
+import { useMergedRef } from '../lib/useMergedRef.ts';
+import { detailsMotionRef } from '../motion/detailsMotion.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';
@@ -145,6 +148,7 @@ function PlusMark() {
 }
 
 export function Faq({ index }: { index: string }) {
+  const itemRef = useMergedRef<HTMLDetailsElement>(detailsMotionRef, revealRef);
   return (
     <section className="section shell" id="faq" aria-labelledby="faq-title">
       <div className="faq">
@@ -154,15 +158,15 @@ export function Faq({ index }: { index: string }) {
             <Words>Questions, answered plainly.</Words>
           </h2>
           <p className="lede">If an answer here and the contracts ever disagree, the contracts are right.</p>
-          <p className="faq__more">
+          <Reveal as="p" className="faq__more" delay={520}>
             <a className="text-link" href={docPath('faq')}>
               More answers in the docs
             </a>
-          </p>
+          </Reveal>
         </div>
         <div className="faq__list">
           {QUESTIONS.map(({ question, answer }) => (
-            <details key={question} className="faq__item">
+            <details key={question} className="faq__item" ref={itemRef} data-reveal="fade-up">
               <summary>
                 <h3 className="faq__question">{question}</h3>
                 <PlusMark />
