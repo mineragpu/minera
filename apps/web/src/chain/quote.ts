@@ -1,4 +1,4 @@
-import { ETH_PAIR, type Address } from '@dayagpu/shared';
+import { ETH_PAIR, type Address } from '@minera/shared';
 import { decodeFunctionResult, encodeFunctionData } from 'viem';
 import type { Eip1193Provider } from '../wallet/eip1193.ts';
 import { pairZapAbi, quoterAbi } from './abi.ts';

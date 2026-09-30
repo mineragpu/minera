@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import type { RigListEntry, RigRecord } from '../records.ts';
 import type { RigStore } from '../store.ts';
 import { copy, descending, type StateBox } from './state.ts';

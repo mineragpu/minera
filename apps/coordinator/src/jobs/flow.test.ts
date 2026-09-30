@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
-import type { Address, JobAssignment } from '@dayagpu/shared';
+import type { Address, JobAssignment } from '@minera/shared';
 import { epochOf } from '../epoch.ts';
 import { createMemoryStore } from '../store/memory/index.ts';
 import type { RigRecord } from '../store/records.ts';

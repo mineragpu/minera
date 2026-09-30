@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { keccak256, toBytes } from 'viem';
-import { buildSettlement, releasable, type Address } from '@dayagpu/shared';
+import { buildSettlement, releasable, type Address } from '@minera/shared';
 import { poolState, type PoolSnapshot } from '../chain/pool.ts';
 import type { RigWork } from '../store/records.ts';
 import { seededRandom } from '../testing/seededRandom.ts';

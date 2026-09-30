@@ -1,4 +1,4 @@
-import { ETH_PAIR, type Address, type PairAsset } from '@dayagpu/shared';
+import { ETH_PAIR, type Address, type PairAsset } from '@minera/shared';
 import { Button } from '../../components/Button.tsx';
 import { RadioChip } from '../../components/RadioChip.tsx';
 import { formatAmount } from '../../lib/amount.ts';

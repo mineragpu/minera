@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { CHAINS, NODE_HEADERS, type Address } from '@dayagpu/shared';
+import { CHAINS, NODE_HEADERS, type Address } from '@minera/shared';
 import { signNodeRequest } from '../testing/nodeSigner.ts';
 import { NodeAuthError, verifyNodeRequest, type NodeAuthDeps, type SignedRequest } from './nodeAuth.ts';
 

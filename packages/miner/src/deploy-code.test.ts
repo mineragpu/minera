@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
-import { CHAINS, DEPLOYMENTS, type Address, type Hex } from '@dayagpu/shared';
+import { CHAINS, DEPLOYMENTS, type Address, type Hex } from '@minera/shared';
 import { concat, getAddress, keccak256, recoverAddress, recoverMessageAddress, stringToHex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { createDeployCode, deployDigest, deployTargetFor } from './deploy-code.ts';

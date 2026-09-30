@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { InlineCode } from '../../components/InlineCode.tsx';
 import { rigPath } from '../../router/routes.ts';
 import type { CodeCheck } from './useDeployCodeCheck.ts';

@@ -8,7 +8,7 @@
 import { randomBytes } from 'node:crypto';
 import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import type { LocalAccount } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 

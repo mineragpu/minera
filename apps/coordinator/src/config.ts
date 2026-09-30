@@ -6,7 +6,7 @@ import {
   type Deployment,
   type Hex,
   type NetworkKey,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { Secret } from './secret.ts';
 
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';

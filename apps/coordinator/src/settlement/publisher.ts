@@ -1,6 +1,6 @@
 import { createWalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import type { Address, ChainConfig, Hex } from '@dayagpu/shared';
+import type { Address, ChainConfig, Hex } from '@minera/shared';
 import { burnPoolAbi } from '../chain/abi.ts';
 import { chainDefinition, rpcTransport, type ChainClient } from '../chain/client.ts';
 import type { Secret } from '../secret.ts';

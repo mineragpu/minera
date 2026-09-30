@@ -3,7 +3,7 @@
  * browser never calls a public RPC endpoint itself.
  */
 
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { Eip1193Provider } from '../wallet/eip1193.ts';
 import { parseChainId } from '../wallet/parse.ts';
 

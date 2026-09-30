@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { CHAINS, NODE_HEADERS, NODE_ROUTES, signedMessage, type Hex } from '@dayagpu/shared';
+import { CHAINS, NODE_HEADERS, NODE_ROUTES, signedMessage, type Hex } from '@minera/shared';
 import { keccak256, recoverMessageAddress } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { bodyDigest, newNonce, signRequest } from './signer.ts';

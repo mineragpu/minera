@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { inspect } from 'node:util';
 import { describe, it } from 'node:test';
-import { CHAINS } from '@dayagpu/shared';
+import { CHAINS } from '@minera/shared';
 import { ConfigError, configSummary, loadConfig } from './config.ts';
 
 const DATABASE_URL = 'postgres://coordinator:hunter2@localhost:5432/coordinator';

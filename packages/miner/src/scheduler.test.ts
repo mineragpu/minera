@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import type { JobAssignment } from '@dayagpu/shared';
+import type { JobAssignment } from '@minera/shared';
 import { createScheduler } from './scheduler.ts';
 
 function job(id: string): JobAssignment {

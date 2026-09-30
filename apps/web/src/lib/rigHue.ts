@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 
 const HUES = ['var(--teal)', 'var(--blue)', 'var(--violet)', 'var(--magenta)', 'var(--gold)'] as const;
 

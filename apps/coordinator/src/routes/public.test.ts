@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { keccak256, toBytes } from 'viem';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { PoolSnapshot } from '../chain/pool.ts';
 import { epochOf } from '../epoch.ts';
 import { planSettlement } from '../settlement/plan.ts';

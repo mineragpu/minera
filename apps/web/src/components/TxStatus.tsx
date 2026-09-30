@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Hex } from '@dayagpu/shared';
+import type { Hex } from '@minera/shared';
 import type { TransactionState } from '../chain/useTransaction.ts';
 import { txUrl } from '../lib/explorer.ts';
 import { InlineCode } from './InlineCode.tsx';

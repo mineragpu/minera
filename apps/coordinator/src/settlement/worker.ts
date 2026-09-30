@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { PoolSnapshot } from '../chain/pool.ts';
 import { epochOf, epochStart } from '../epoch.ts';
 import { errorSummary } from '../log.ts';

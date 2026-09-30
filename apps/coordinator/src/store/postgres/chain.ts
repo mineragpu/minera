@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { Queryable } from '../../db/client.ts';
 import type { BurnRecord } from '../records.ts';
 import type { ChainStore } from '../store.ts';

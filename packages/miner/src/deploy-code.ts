@@ -7,7 +7,7 @@
  * EIP-191 personal message over the 32 digest bytes, as `toEthSignedMessageHash(bytes32)` expects.
  */
 
-import { CHAINS, deploymentFor, type Address, type Hex, type NetworkKey } from '@dayagpu/shared';
+import { CHAINS, deploymentFor, type Address, type Hex, type NetworkKey } from '@minera/shared';
 import { encodeAbiParameters, keccak256, type LocalAccount } from 'viem';
 
 export interface DeployTarget {

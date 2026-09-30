@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { fetchRig } from '../../api/coordinator.ts';
 import { usePoll } from '../../api/usePoll.ts';
 import { CommandBlock } from '../../components/CommandBlock.tsx';

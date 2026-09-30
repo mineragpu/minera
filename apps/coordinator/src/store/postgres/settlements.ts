@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { Queryable } from '../../db/client.ts';
 import type { Entitlement, SettlementRecord, SettlementStatus, TreeDump } from '../records.ts';
 import type { SettlementStore } from '../store.ts';

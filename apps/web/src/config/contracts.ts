@@ -1,4 +1,4 @@
-import { deploymentFor, pairListingFor, type Deployment, type PairListing } from '@dayagpu/shared';
+import { deploymentFor, pairListingFor, type Deployment, type PairListing } from '@minera/shared';
 import { ACTIVE_CHAIN } from './network.ts';
 
 /** The contracts on the network this build targets, or null before they are deployed there. */

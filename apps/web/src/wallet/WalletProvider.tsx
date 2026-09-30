@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { ACTIVE_CHAIN } from '../config/network.ts';
 import { getWallets, subscribeWallets, type WalletOption } from './discovery.ts';
 import type { ProviderListener } from './eip1193.ts';

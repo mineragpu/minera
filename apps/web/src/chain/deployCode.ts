@@ -5,7 +5,7 @@
  * before the visitor pays for a transaction that would revert.
  */
 
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { encodeAbiParameters, keccak256, recoverMessageAddress } from 'viem';
 
 const DEPLOY_DOMAIN = 'rig-deploy-v1';

@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { ACTIVE_CHAIN } from '../config/network.ts';
 
 /**

@@ -4,7 +4,7 @@
  */
 
 import { parseArgs } from 'node:util';
-import { isNetworkKey, type Address, type NetworkKey } from '@dayagpu/shared';
+import { isNetworkKey, type Address, type NetworkKey } from '@minera/shared';
 import { getAddress, isAddress } from 'viem';
 import { DEFAULT_RUNTIME_URL } from './runtime.ts';
 import { MAX_CONCURRENCY } from './scheduler.ts';

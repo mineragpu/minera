@@ -1,5 +1,5 @@
 import { encodeAbiParameters, encodeEventTopics, type AbiEvent, type Log } from 'viem';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { indexedEvents } from '../chain/abi.ts';
 
 const hex32 = (n: number): Hex => `0x${n.toString(16).padStart(64, '0')}` as Hex;

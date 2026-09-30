@@ -1,5 +1,5 @@
 import { keccak256, toBytes } from 'viem';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 
 /**
  * Everything a settlement was computed from. Its digest is published on-chain with the root, and

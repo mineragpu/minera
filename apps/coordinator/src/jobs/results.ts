@@ -1,5 +1,5 @@
 import { keccak256, toBytes } from 'viem';
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { epochOf } from '../epoch.ts';
 import type { JobRecord } from '../store/records.ts';
 import type { Store } from '../store/store.ts';

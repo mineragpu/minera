@@ -3,7 +3,7 @@
  * 11434 of this machine. Prompts go to it and nowhere else on the machine.
  */
 
-import type { JobAssignment, RuntimeInfo } from '@dayagpu/shared';
+import type { JobAssignment, RuntimeInfo } from '@minera/shared';
 import { sanitize } from './logger.ts';
 import { endpoint } from './url.ts';
 

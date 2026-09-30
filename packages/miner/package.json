@@ -1,5 +1,5 @@
 {
-  "name": "@dayagpu/miner",
+  "name": "@minera/miner",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -14,7 +14,7 @@
     "fixture:deploy-code": "node scripts/deploy-code-fixture.ts"
   },
   "dependencies": {
-    "@dayagpu/shared": "0.0.0",
+    "@minera/shared": "0.0.0",
     "viem": "2.56.9"
   },
   "devDependencies": {

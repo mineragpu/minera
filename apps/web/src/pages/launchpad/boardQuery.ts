@@ -1,4 +1,4 @@
-import type { PairAsset } from '@dayagpu/shared';
+import type { PairAsset } from '@minera/shared';
 import type { RigQuery, RigSort } from '../../api/coordinator.ts';
 import { PAIR_LISTING } from '../../config/contracts.ts';
 import { PATHS } from '../../router/routes.ts';

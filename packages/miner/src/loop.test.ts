@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { CHAINS, NODE_ROUTES, type JobAssignment, type JobResultRequest, type RuntimeInfo } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type JobAssignment, type JobResultRequest, type RuntimeInfo } from '@minera/shared';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { CoordinatorError, createCoordinatorClient } from './client.ts';
 import { createLogger, type Logger } from './logger.ts';

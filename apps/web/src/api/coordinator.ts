@@ -1,6 +1,6 @@
 /** One typed fetcher per public coordinator route the site uses. */
 
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { requestJson } from './client.ts';
 import {
   claimView,

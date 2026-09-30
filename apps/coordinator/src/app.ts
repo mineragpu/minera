@@ -1,7 +1,7 @@
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
-import { NODE_HEADERS } from '@dayagpu/shared';
+import { NODE_HEADERS } from '@minera/shared';
 import type { LogLevel } from './config.ts';
 import { registerClaimRoute } from './routes/claims.ts';
 import type { RouteContext } from './routes/context.ts';

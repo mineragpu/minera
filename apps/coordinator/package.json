@@ -1,5 +1,5 @@
 {
-  "name": "@dayagpu/coordinator",
+  "name": "@minera/coordinator",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@dayagpu/shared": "0.0.0",
+    "@minera/shared": "0.0.0",
     "@fastify/cors": "11.3.0",
     "@fastify/rate-limit": "11.2.0",
     "fastify": "5.12.5",

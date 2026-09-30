@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { keccak256, toBytes } from 'viem';
 import type { PrivateKeyAccount } from 'viem/accounts';
-import { NODE_HEADERS, signedMessage } from '@dayagpu/shared';
+import { NODE_HEADERS, signedMessage } from '@minera/shared';
 
 export interface SigningOptions {
   /** The chain of the coordinator the request is meant for. */

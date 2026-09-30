@@ -2,7 +2,7 @@
  * Holds assigned jobs and runs up to `concurrency` of them at once, each job id only once.
  */
 
-import type { JobAssignment } from '@dayagpu/shared';
+import type { JobAssignment } from '@minera/shared';
 
 /**
  * Runs one job and reports its own failures; a rejection is ignored so one job cannot stop the

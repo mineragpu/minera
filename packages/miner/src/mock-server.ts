@@ -6,7 +6,7 @@
 
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { NODE_HEADERS, signedMessage, type Hex } from '@dayagpu/shared';
+import { NODE_HEADERS, signedMessage, type Hex } from '@minera/shared';
 import { keccak256, recoverMessageAddress } from 'viem';
 
 export interface RecordedRequest {

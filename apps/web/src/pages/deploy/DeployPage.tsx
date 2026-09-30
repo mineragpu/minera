@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ETH_PAIR, type Address } from '@dayagpu/shared';
+import { ETH_PAIR, type Address } from '@minera/shared';
 import { encodeFunctionData } from 'viem';
 import { rigRegistryAbi } from '../../chain/abi.ts';
 import { useTransaction } from '../../chain/useTransaction.ts';

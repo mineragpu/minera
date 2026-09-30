@@ -4,7 +4,7 @@
  */
 
 import { execFile } from 'node:child_process';
-import type { GpuInfo } from '@dayagpu/shared';
+import type { GpuInfo } from '@minera/shared';
 
 /** Runs a program and resolves its stdout, or null when it is missing, fails or times out. */
 export type CommandRunner = (file: string, args: readonly string[], timeoutMs: number) => Promise<string | null>;

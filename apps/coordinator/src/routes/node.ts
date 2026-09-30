@@ -8,7 +8,7 @@ import {
   type HelloResponse,
   type JobResultResponse,
   type RuntimeInfo,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { verifyNodeRequest } from '../auth/nodeAuth.ts';
 import { issueBenchmark } from '../jobs/benchmark.ts';
 import { assignJobs } from '../jobs/dispatch.ts';

@@ -1,6 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 import { docsPlugin } from './plugins/docs/plugin.ts';
 
 const HTML_ESCAPES: Readonly<Record<string, string>> = {

@@ -1,4 +1,4 @@
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 import { PreviewTag } from '../components/PreviewTag.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
 import { FOOTER_GROUPS } from './navLinks.ts';

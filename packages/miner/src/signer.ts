@@ -5,7 +5,7 @@
  */
 
 import { randomBytes } from 'node:crypto';
-import { NODE_HEADERS, signedMessage, type Hex } from '@dayagpu/shared';
+import { NODE_HEADERS, signedMessage, type Hex } from '@minera/shared';
 import { keccak256 } from 'viem';
 import type { MessageSigner } from './deploy-code.ts';
 

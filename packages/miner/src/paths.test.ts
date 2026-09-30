@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 import { configDirectory, nodePaths } from './paths.ts';
 import { readSettings, writeSettings } from './settings.ts';
 

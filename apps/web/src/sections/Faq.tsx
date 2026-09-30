@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
 import { docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath } from '../router/routes.ts';

@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { parseEventLogs, type Log } from 'viem';
-import { DEPLOYMENTS, type Address, type Hex } from '@dayagpu/shared';
+import { DEPLOYMENTS, type Address, type Hex } from '@minera/shared';
 import { createMemoryStore } from '../store/memory/index.ts';
 import { encodeLog } from '../testing/encodeLog.ts';
 import { indexedEvents } from './abi.ts';

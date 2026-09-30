@@ -1,4 +1,4 @@
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 import { PATHS } from '../router/routes.ts';
 import './wordmark.css';
 

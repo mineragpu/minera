@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Address, PairAsset } from '@dayagpu/shared';
+import type { Address, PairAsset } from '@minera/shared';
 import { quoteClaim, type Quote } from '../../chain/quote.ts';
 import { DEPLOYMENT, PAIR_LISTING } from '../../config/contracts.ts';
 import type { Eip1193Provider } from '../../wallet/eip1193.ts';

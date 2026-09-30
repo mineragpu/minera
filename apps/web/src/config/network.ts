@@ -1,4 +1,4 @@
-import { CHAINS, DEFAULT_NETWORK, isNetworkKey, type ChainConfig } from '@dayagpu/shared';
+import { CHAINS, DEFAULT_NETWORK, isNetworkKey, type ChainConfig } from '@minera/shared';
 
 const requested: unknown = import.meta.env.VITE_NETWORK;
 

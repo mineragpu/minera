@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { epochOf } from '../epoch.ts';
 import { onlineSince, type RouteContext } from './context.ts';
 import { ApiError } from './errors.ts';

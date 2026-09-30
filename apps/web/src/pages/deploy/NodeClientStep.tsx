@@ -1,4 +1,4 @@
-import { BRAND, type Address } from '@dayagpu/shared';
+import { BRAND, type Address } from '@minera/shared';
 import { CommandBlock } from '../../components/CommandBlock.tsx';
 
 /** The directory `git clone` creates. */

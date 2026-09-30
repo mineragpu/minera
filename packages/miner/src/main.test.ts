@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CHAINS, NODE_ROUTES, type Hex } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type Hex } from '@minera/shared';
 import { getAddress, recoverMessageAddress } from 'viem';
 import { deployDigest, deployTargetFor } from './deploy-code.ts';
 import { main, type MainEnvironment } from './main.ts';

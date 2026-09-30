@@ -3,7 +3,7 @@
  * the typed value or throws a DecodeError naming the first field that did not match.
  */
 
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 
 export type Decoder<T> = (value: unknown, path: string) => T;
 

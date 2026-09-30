@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
 import { TransactionNotFoundError, TransactionReceiptNotFoundError, type TransactionReceipt } from 'viem';
-import { releasable, type Address, type Hex } from '@dayagpu/shared';
+import { releasable, type Address, type Hex } from '@minera/shared';
 import { poolState, type PoolSnapshot } from '../chain/pool.ts';
 import { epochOf } from '../epoch.ts';
 import { createMemoryStore } from '../store/memory/index.ts';

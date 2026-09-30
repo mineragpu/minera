@@ -1,4 +1,4 @@
-import type { HeartbeatRequest, JobAssignment } from '@dayagpu/shared';
+import type { HeartbeatRequest, JobAssignment } from '@minera/shared';
 import type { Random } from '../random.ts';
 import type { JobRecord, RigRecord } from '../store/records.ts';
 import type { Store } from '../store/store.ts';

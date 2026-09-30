@@ -3,7 +3,7 @@
  * in-process against a temporary directory.
  */
 
-import type { GpuInfo } from '@dayagpu/shared';
+import type { GpuInfo } from '@minera/shared';
 import type { Logger } from '../logger.ts';
 import type { NodePaths } from '../paths.ts';
 

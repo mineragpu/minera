@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import postgres from 'postgres';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { migrate } from '../db/migrate.ts';
 import { createMemoryStore } from './memory/index.ts';
 import { createPostgresStore } from './postgres/index.ts';

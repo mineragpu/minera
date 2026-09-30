@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { ACTIVE_CHAIN } from '../config/network.ts';
 import { useWallet } from '../wallet/useWallet.ts';
 import { describeTransactionError } from './revert.ts';

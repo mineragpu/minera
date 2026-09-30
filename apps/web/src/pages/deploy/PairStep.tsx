@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import { RadioChip } from '../../components/RadioChip.tsx';
 import { PAIR_LISTING } from '../../config/contracts.ts';
 

@@ -5,7 +5,7 @@ import {
   WaitForTransactionReceiptTimeoutError,
   type TransactionReceipt,
 } from 'viem';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { burnPoolEvents } from '../chain/abi.ts';
 import type { ChainClient } from '../chain/client.ts';
 import type { PublishedSettlement } from '../store/records.ts';

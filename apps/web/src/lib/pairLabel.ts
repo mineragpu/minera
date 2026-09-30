@@ -1,4 +1,4 @@
-import { findPair, type Address, type PairKind } from '@dayagpu/shared';
+import { findPair, type Address, type PairKind } from '@minera/shared';
 import { ACTIVE_CHAIN } from '../config/network.ts';
 import { shortAddress } from '../wallet/format.ts';
 

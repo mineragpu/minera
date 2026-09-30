@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ETH_PAIR, type Address, type PairAsset } from '@dayagpu/shared';
+import { ETH_PAIR, type Address, type PairAsset } from '@minera/shared';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
 import { fetchClaims, fetchRigs } from '../../api/coordinator.ts';
 import type { ClaimView } from '../../api/schemas.ts';

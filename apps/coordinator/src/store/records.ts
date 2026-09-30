@@ -1,4 +1,4 @@
-import type { Address, GpuInfo, Hex, JobAssignment, JobKind, RuntimeInfo, Settlement } from '@dayagpu/shared';
+import type { Address, GpuInfo, Hex, JobAssignment, JobKind, RuntimeInfo, Settlement } from '@minera/shared';
 
 export type ChatMessage = JobAssignment['messages'][number];
 export type JobParams = JobAssignment['params'];

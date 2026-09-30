@@ -1,4 +1,4 @@
-import type { Deployment } from '@dayagpu/shared';
+import type { Deployment } from '@minera/shared';
 import type { Store } from '../store/store.ts';
 import { indexedEvents } from './abi.ts';
 import { applyChainEvents } from './apply.ts';

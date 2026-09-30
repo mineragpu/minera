@@ -2,7 +2,7 @@
  * Runs one assigned job on the local model runtime and shapes the result the coordinator expects.
  */
 
-import type { JobAssignment, JobResultRequest } from '@dayagpu/shared';
+import type { JobAssignment, JobResultRequest } from '@minera/shared';
 import { RuntimeError, chat } from './runtime.ts';
 
 export type JobRunner = (job: JobAssignment, stop: AbortSignal) => Promise<JobResultRequest>;

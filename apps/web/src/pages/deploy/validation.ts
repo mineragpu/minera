@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { getAddress } from 'viem';
 
 export const NAME_MAX_BYTES = 32;

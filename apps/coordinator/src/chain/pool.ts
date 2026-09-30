@@ -1,4 +1,4 @@
-import type { Address, PoolState } from '@dayagpu/shared';
+import type { Address, PoolState } from '@minera/shared';
 import { burnPoolAbi } from './abi.ts';
 import type { ChainClient } from './client.ts';
 

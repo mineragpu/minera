@@ -2,7 +2,7 @@
  * `rig code`: print the deploy code of the existing node key for an operator wallet and network.
  */
 
-import { BRAND, type Address } from '@dayagpu/shared';
+import { BRAND, type Address } from '@minera/shared';
 import type { Command } from '../args.ts';
 import { createDeployCode, deployTargetFor, type DeployTarget } from '../deploy-code.ts';
 import { loadNodeKey, type NodeKey } from '../keystore.ts';

@@ -1,4 +1,4 @@
-import type { Hex } from '@dayagpu/shared';
+import type { Hex } from '@minera/shared';
 import { decodeErrorResult } from 'viem';
 import { ERROR_CODES, WALLET_MESSAGES, errorCode } from '../wallet/errors.ts';
 import { burnPoolAbi, pairZapAbi, rigRegistryAbi } from './abi.ts';

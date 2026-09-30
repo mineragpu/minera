@@ -1,4 +1,4 @@
-import { ETH_PAIR, type Address, type PairAsset, type PairListing } from '@dayagpu/shared';
+import { ETH_PAIR, type Address, type PairAsset, type PairListing } from '@minera/shared';
 import type { RigSummary } from '../../api/schemas.ts';
 
 export interface ClaimPlan {

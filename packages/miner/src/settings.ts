@@ -6,7 +6,7 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { DEFAULT_NETWORK, isNetworkKey, type NetworkKey } from '@dayagpu/shared';
+import { DEFAULT_NETWORK, isNetworkKey, type NetworkKey } from '@minera/shared';
 
 export interface Settings {
   network: NetworkKey;

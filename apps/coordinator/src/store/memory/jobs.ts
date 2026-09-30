@@ -1,4 +1,4 @@
-import type { Address, JobKind } from '@dayagpu/shared';
+import type { Address, JobKind } from '@minera/shared';
 import type { HourlyUnits, JobRecord } from '../records.ts';
 import type { JobStore } from '../store.ts';
 import { copy, type StateBox } from './state.ts';

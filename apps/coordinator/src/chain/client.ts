@@ -1,5 +1,5 @@
 import { createPublicClient, defineChain, fallback, http, type Chain, type PublicClient, type Transport } from 'viem';
-import type { ChainConfig } from '@dayagpu/shared';
+import type { ChainConfig } from '@minera/shared';
 
 export type ChainClient = PublicClient<Transport, Chain>;
 

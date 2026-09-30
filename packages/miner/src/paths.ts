@@ -4,7 +4,7 @@
 
 import { homedir } from 'node:os';
 import { posix, win32 } from 'node:path';
-import { BRAND } from '@dayagpu/shared';
+import { BRAND } from '@minera/shared';
 
 export interface PathEnvironment {
   platform: NodeJS.Platform;

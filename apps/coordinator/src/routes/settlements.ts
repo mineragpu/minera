@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import type { Hex } from '@dayagpu/shared';
+import type { Hex } from '@minera/shared';
 import type { TreeDump } from '../store/records.ts';
 import type { RouteContext } from './context.ts';
 import { ApiError } from './errors.ts';

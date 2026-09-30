@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { CHAINS, NODE_HEADERS, NODE_ROUTES, type HelloRequest, type JobAssignment } from '@dayagpu/shared';
+import { CHAINS, NODE_HEADERS, NODE_ROUTES, type HelloRequest, type JobAssignment } from '@minera/shared';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { CoordinatorError, createCoordinatorClient } from './client.ts';
 import { signerOf, startMockServer, type MockHandler, type RecordedRequest } from './mock-server.ts';

@@ -6,7 +6,7 @@ import {
   releasable,
   totalOf,
   type Address,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { poolState, type PoolSnapshot } from '../chain/pool.ts';
 import type { RigWork, SettlementDraft } from '../store/records.ts';
 import { encodeInputs, type SettlementInputs } from './inputs.ts';

@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import type { JobAssignment } from '@dayagpu/shared';
+import type { JobAssignment } from '@minera/shared';
 import { startMockServer, type MockHandler, type MockServer } from './mock-server.ts';
 import { JobFailedError, createJobRunner } from './runner.ts';
 

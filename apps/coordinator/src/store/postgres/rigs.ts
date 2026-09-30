@@ -1,4 +1,4 @@
-import type { Address, GpuInfo } from '@dayagpu/shared';
+import type { Address, GpuInfo } from '@minera/shared';
 import type { Fragment, Queryable } from '../../db/client.ts';
 import type { RigListEntry, RigRecord, RigSort } from '../records.ts';
 import type { RigStore } from '../store.ts';

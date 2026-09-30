@@ -1,4 +1,4 @@
-import { ETH_PAIR, type Address } from '@dayagpu/shared';
+import { ETH_PAIR, type Address } from '@minera/shared';
 import type { ApiError } from '../../api/errors.ts';
 import type { RigBoard } from '../../api/schemas.ts';
 import { LoadError } from '../../components/LoadError.tsx';

@@ -2,7 +2,7 @@
  * `rig start`: check the machine, connect to the coordinator and run jobs until stopped.
  */
 
-import { BRAND, CHAINS } from '@dayagpu/shared';
+import { BRAND, CHAINS } from '@minera/shared';
 import type { Command } from '../args.ts';
 import { CoordinatorError, createCoordinatorClient } from '../client.ts';
 import { describeGpu } from '../gpu.ts';

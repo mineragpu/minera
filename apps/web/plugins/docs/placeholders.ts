@@ -12,7 +12,7 @@ import {
   PROTOCOL_VERSION,
   deploymentFor,
   pairListingFor,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { keccak256 } from 'viem';
 import testnetConfig from '../../../../packages/contracts/deploy/testnet.json' with { type: 'json' };
 

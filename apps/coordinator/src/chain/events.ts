@@ -1,5 +1,5 @@
 import type { Log } from 'viem';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { LogPosition } from '../store/records.ts';
 import type { indexedEvents } from './abi.ts';
 

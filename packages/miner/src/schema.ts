@@ -10,7 +10,7 @@ import type {
   JobAssignment,
   JobKind,
   JobResultResponse,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { isAddress } from 'viem';
 import { sanitize } from './logger.ts';
 

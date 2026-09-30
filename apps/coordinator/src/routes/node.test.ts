@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from 'viem/accounts';
-import { CHAINS, NODE_ROUTES, type Address, type JobAssignment } from '@dayagpu/shared';
+import { CHAINS, NODE_ROUTES, type Address, type JobAssignment } from '@minera/shared';
 import { submitPlaygroundJob } from '../jobs/playground.ts';
 import { viewPlaygroundJob } from '../jobs/playgroundView.ts';
 import { signNodeRequest } from '../testing/nodeSigner.ts';

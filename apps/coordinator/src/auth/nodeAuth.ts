@@ -5,7 +5,7 @@ import {
   signedMessage,
   type Address,
   type Hex,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 
 export interface SignedRequest {
   method: string;

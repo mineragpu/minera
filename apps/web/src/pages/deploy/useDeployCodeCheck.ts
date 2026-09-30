@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import { deployCodeSigner } from '../../chain/deployCode.ts';
 import { DEPLOYMENT } from '../../config/contracts.ts';
 import { ACTIVE_CHAIN } from '../../config/network.ts';

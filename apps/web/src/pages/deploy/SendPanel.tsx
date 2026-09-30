@@ -1,4 +1,4 @@
-import type { Address, PairAsset } from '@dayagpu/shared';
+import type { Address, PairAsset } from '@minera/shared';
 import { decodeEventLog } from 'viem';
 import { rigRegistryAbi } from '../../chain/abi.ts';
 import type { Receipt } from '../../chain/rpc.ts';

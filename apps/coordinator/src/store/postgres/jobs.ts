@@ -1,4 +1,4 @@
-import type { Address, Hex, JobKind } from '@dayagpu/shared';
+import type { Address, Hex, JobKind } from '@minera/shared';
 import type { Queryable } from '../../db/client.ts';
 import type { ChatMessage, JobParams, JobRecord, JobStatus, Verification } from '../records.ts';
 import type { JobStore } from '../store.ts';

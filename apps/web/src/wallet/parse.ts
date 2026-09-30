@@ -1,4 +1,4 @@
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const HEX_QUANTITY = /^0x[0-9a-fA-F]+$/;

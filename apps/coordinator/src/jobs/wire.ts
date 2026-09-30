@@ -1,4 +1,4 @@
-import type { JobAssignment } from '@dayagpu/shared';
+import type { JobAssignment } from '@minera/shared';
 import type { JobRecord } from '../store/records.ts';
 import { JOB_POLICY } from './policy.ts';
 

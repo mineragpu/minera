@@ -1,4 +1,4 @@
-import type { Address, Hex, JobKind, RuntimeInfo } from '@dayagpu/shared';
+import type { Address, Hex, JobKind, RuntimeInfo } from '@minera/shared';
 import type {
   BurnRecord,
   CampaignSummary,

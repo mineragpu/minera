@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { JobKind } from '@dayagpu/shared';
+import type { JobKind } from '@minera/shared';
 import { epochOf, epochStart } from '../epoch.ts';
 import { onlineSince, type RouteContext } from './context.ts';
 import { campaignView, poolSummary, WORK_RULES, type CampaignView, type PoolSummary } from './format.ts';

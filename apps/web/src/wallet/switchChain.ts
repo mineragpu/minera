@@ -1,4 +1,4 @@
-import { addChainParameter, type ChainConfig } from '@dayagpu/shared';
+import { addChainParameter, type ChainConfig } from '@minera/shared';
 import type { Eip1193Provider } from './eip1193.ts';
 import { ERROR_CODES, errorCode } from './errors.ts';
 

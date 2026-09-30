@@ -14,7 +14,7 @@ import {
   type JobAssignment,
   type JobResultRequest,
   type RuntimeInfo,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import { CoordinatorError, type CoordinatorClient } from './client.ts';
 import type { Logger } from './logger.ts';
 import { JobFailedError, type JobRunner } from './runner.ts';

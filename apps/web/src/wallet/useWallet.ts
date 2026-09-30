@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { Address } from '@dayagpu/shared';
+import type { Address } from '@minera/shared';
 import type { WalletOption } from './discovery.ts';
 
 type WalletStatus = 'disconnected' | 'connecting' | 'connected';

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import type { Address, Hex } from '@dayagpu/shared';
+import type { Address, Hex } from '@minera/shared';
 import type { RouteContext } from './context.ts';
 import { iso } from './format.ts';
 import { addressSchema, parse } from './validate.ts';

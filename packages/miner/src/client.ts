@@ -11,7 +11,7 @@ import {
   type HelloResponse,
   type JobResultRequest,
   type JobResultResponse,
-} from '@dayagpu/shared';
+} from '@minera/shared';
 import type { MessageSigner } from './deploy-code.ts';
 import { sanitize } from './logger.ts';
 import {

@@ -1,4 +1,4 @@
-import type { JobKind } from '@dayagpu/shared';
+import type { JobKind } from '@minera/shared';
 
 /** Scheduling limits. Tuned for a small testnet fleet running small local models. */
 export const JOB_POLICY = {
