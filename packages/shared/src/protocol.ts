@@ -49,6 +49,11 @@ export interface GpuInfo {
   model: string;
   vramMb: number;
   driver?: string;
+  /**
+   * The driver's identifier for the physical card. Two rigs reporting the same one are never
+   * paired to check each other's work.
+   */
+  uuid?: string;
 }
 
 export interface RuntimeInfo {
