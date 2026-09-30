@@ -1,42 +1,119 @@
 <div align="center">
 
-<img src="docs/assets/hero.png" alt="The landing page: a cluster of metal compute blocks with iridescent edges beside the headline Deploy a GPU like you would launch a token." width="100%">
+<a href="https://mineragpu.tech"><img src="docs/assets/banner.png" alt="The Minera home page in a browser window: the rig logo in the navbar and the headline Deploy a GPU like you'd launch a token beside a cluster of metal compute blocks with iridescent edges." width="100%"></a>
 
 # Minera
 
 **Deploy a GPU like you'd launch a token.**
 
-A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized stock,
+A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized stock,<br>
 and mine from a pool that only fills.
 
 *Minera means mining.*
 
-[Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
+<a href="https://github.com/mineragpu/minera/actions/workflows/ci.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
+<a href="https://github.com/mineragpu/minera/actions/workflows/codeql.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" height="20"></a>
+<a href="#sentinel"><img src="docs/assets/badges/security.svg" alt="Security: Sentinel" height="20"></a>
+<a href="#testnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
+<a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
+<a href="LICENSE"><img src="docs/assets/badges/license.svg" alt="License: Apache-2.0" height="20"></a>
+
+[Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [API](https://mineragpu.tech/docs/api) · [Security policy](SECURITY.md)
 
 </div>
 
----
+<br>
+
+## Security first
+
+Rigs are paid for work done on machines the network does not control, and their rewards sit in a
+contract. Both halves are built to be checked, not trusted: nodes are untrusted about their own
+work, every value that determines payment is derived on the server, and the contracts bound what
+any key can do with the pool.
+
+> [!IMPORTANT]
+> The contracts have not been audited yet. The network runs on testnet only, with test assets.
+> Trust assumptions and known limitations are published in [docs/security.md](docs/security.md).
+
+### Sentinel
+
+Sentinel is the security node that protects mining from bots and scripts. Every rig meets the same
+five gates before its work can earn.
+
+```mermaid
+flowchart LR
+    R["Rig"] --> G1["Identity"] --> G2["Proof of GPU"] --> G3["Canary checks"] --> G4["Cross-check"] --> G5["Reputation"] --> E["Work that earns"]
+
+    classDef endpoint fill:#0F131B,stroke:#8C98AA,stroke-width:1px,color:#EEF2F7
+    classDef teal fill:#151A24,stroke:#2EE6C8,stroke-width:2px,color:#EEF2F7
+    classDef blue fill:#151A24,stroke:#5A8DFF,stroke-width:2px,color:#EEF2F7
+    classDef violet fill:#151A24,stroke:#8C6BFF,stroke-width:2px,color:#EEF2F7
+    classDef magenta fill:#151A24,stroke:#FF4FA3,stroke-width:2px,color:#EEF2F7
+    classDef gold fill:#151A24,stroke:#F5C451,stroke-width:2px,color:#EEF2F7
+    class R,E endpoint
+    class G1 teal
+    class G2 blue
+    class G3 violet
+    class G4 magenta
+    class G5 gold
+```
+
+| Gate | How it works |
+|---|---|
+| **1.&nbsp;Identity** | Every node request is signed by the rig's node key, bound to one chain, and carries a one-time nonce. Sentinel adds a request budget per key and a cooldown on hello, so a script can neither flood the coordinator nor reset its own checks. |
+| **2.&nbsp;Proof&nbsp;of&nbsp;GPU** | The coordinator times every answer itself. A rig must hold a minimum generation speed on the network's model that CPU scripts do not reach. Reported hardware is never trusted, and a rig below the floor gets no open work until it proves its speed again. |
+| **3.&nbsp;Canary&nbsp;checks** | Known-answer checks arrive as ordinary chat jobs at random times, drawn from prompts whose answers were settled by rigs of different operators. A rig cannot tell a check from paid work, and a check left unanswered counts as a miss. |
+| **4.&nbsp;Cross&#8209;check** | Copies of a job go to rigs that share no operator, no network and no GPU. When two answers disagree, a third rig breaks the tie, and only the rig on the losing side takes a strike, so one bad answer cannot knock an honest rig out. |
+| **5.&nbsp;Reputation** | Each rig holds a standing built from its record. New rigs start on probation and earn at half rate until they pass five canaries. Repeated strikes put a rig in quarantine: it gets no work, and its work in that epoch earns nothing. |
+
+Live counts per gate over the last 24 hours are public at
+[`https://api.mineragpu.tech/v1/sentinel`](https://api.mineragpu.tech/v1/sentinel).
+
+### On chain
+
+| Guarantee | What the contracts enforce |
+|---|---|
+| **No&nbsp;withdraw** | Anyone can deposit into the Burn Pool. There is no withdraw, sweep or recovery function and no admin key over funds: deposits leave only through claims against published settlements. |
+| **Bounded&nbsp;release** | A block root can never commit more than the pool has received, and each block's release is capped by the active campaign and the daily release limit. |
+| **Published&nbsp;inputs** | Every block's inputs and claim table are published, and their digest is on chain, so anyone can recompute every entitlement. |
+| **Guardian&nbsp;veto** | A root becomes claimable only after a challenge delay. During it, a guardian can veto a bad root. The guardian can never move funds. |
+| **Not&nbsp;upgradeable** | The contracts cannot be upgraded. A change of rules means new contracts at new addresses. |
+
+Found a vulnerability? Report it privately through
+[a security advisory](https://github.com/mineragpu/minera/security/advisories/new), not in a public
+issue. [SECURITY.md](SECURITY.md) has the scope and response times.
 
 ## What it is
 
-| | |
+| Part | What it does |
 |---|---|
 | **Deploy** | Register a GPU the way a token gets launched. Name the rig, run one command, and the node detects and benchmarks the card. |
-| **Pair with** | Choose the asset your rig's claims default to: ETH, or a tokenized stock listed on the network. The pair zap converts the ETH as you claim, and claiming in ETH always works. The operator can change the pair on the registry. |
+| **Pair&nbsp;with** | Choose the asset your rig's claims default to: ETH, or a tokenized stock listed on the network. The pair zap converts the ETH as you claim, and claiming in ETH always works. The operator can change the pair on the registry. |
 | **Mine** | Rigs earn by doing verified GPU work. Wall-clock uptime alone earns nothing. |
-| **Burn Pool** | Rewards come from a pool with no withdraw function. What goes in can only leave as mining rewards. |
+| **Burn&nbsp;Pool** | Rewards come from a pool with no withdraw function. What goes in can only leave as mining rewards. |
 | **Campaigns** | Rewards are added to the Burn Pool on a regular schedule, through buyback and burn and a distribution of about 10% of creator fees. Each campaign is announced with its schedule. |
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    A[Project wallet] -- burn --> P[(Burn Pool<br/>no withdraw)]
-    R1[Rig · paired with ETH] -- verified work --> C[Coordinator]
-    R2[Rig · paired with a stock token] -- verified work --> C
-    C -- block root --> P
-    P -- claim in ETH --> R1
-    P -- claim in the pair, or in ETH --> R2
+    R1["Rig · paired with ETH"] -- verified work --> C["Coordinator<br/>with Sentinel"]
+    R2["Rig · paired with a stock token"] -- verified work --> C
+    C -- block root --> P[("Burn Pool<br/>no withdraw")]
+    A["Project wallet"] -- burn --> P
+    P -- claim in ETH --> O1["Operator wallet<br/>of the ETH rig"]
+    P -- claim in the pair, or in ETH --> O2["Operator wallet<br/>of the stock rig"]
+
+    classDef rig fill:#151A24,stroke:#2EE6C8,stroke-width:2px,color:#EEF2F7
+    classDef coordinator fill:#151A24,stroke:#8C6BFF,stroke-width:2px,color:#EEF2F7
+    classDef wallet fill:#151A24,stroke:#FF4FA3,stroke-width:2px,color:#EEF2F7
+    classDef pool fill:#0B0E14,stroke:#F5C451,stroke-width:2px,color:#EEF2F7
+    classDef operator fill:#151A24,stroke:#5A8DFF,stroke-width:2px,color:#EEF2F7
+    class R1,R2 rig
+    class C coordinator
+    class A wallet
+    class P pool
+    class O1,O2 operator
 ```
 
 1. **Deploy.** A rig registers with a signed node key and its chosen pair.
@@ -48,40 +125,9 @@ flowchart LR
    pair: a stock token is bought with the ETH through the pair zap as the claim is paid. Claiming
    in ETH always works, and the contracts do not enforce the pair.
 
-## The Burn Pool
-
-- **One-way.** Anyone can deposit. There is no withdraw, sweep or recovery function, and the
-  contract cannot be upgraded.
-- **Bounded.** A block root can never commit more than the pool has received, and each block's
-  release is capped by the active campaign.
-- **Checkable.** Every block's inputs and claim table are published, so anyone can recompute every
-  entitlement.
-- **Guarded.** During the challenge delay a guardian can veto a bad root. The guardian can never
-  move funds.
-
-## Repository
-
-```
-apps/
-  web/            site and app: launchpad, deploy, rig pages, Burn Pool, campaigns, docs
-  coordinator/    API, verification, block settlement, chain indexer
-packages/
-  shared/         brand, chain config, mining math, merkle, shared types
-  miner/          the node client
-  contracts/      Burn Pool, rig registry, pair swaps
-docs/             documentation
-ops/              deployment configuration
-```
-
-## Status
-
-| Phase | Scope | State |
-|---|---|---|
-| 0 · Identity | Brand, design system, site | In progress |
-| 1 · Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | In progress: contracts live |
-| 2 · Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in the rigs' pair or in ETH | Planned |
-
 ## Testnet contracts
+
+<img src="docs/assets/testnet.png" alt="The What's live panel on the site: network figures read from the coordinator, and the three contracts with their addresses, each marked source verified." width="100%">
 
 Deployed on the testnet (chain ID 46630) and verified with an exact source match.
 
@@ -98,15 +144,69 @@ Deployed on the testnet (chain ID 46630) and verified with an exact source match
 | Publisher rotation delay | 1 hour |
 | Delay before a new pair or zap can be used | 10 minutes / 30 minutes |
 
-## Security
+Roles, functions, events and errors are listed in [Contracts](https://mineragpu.tech/docs/contracts).
 
-- The pool contract holds no admin key over funds. Deposits leave only through verified claims.
-- Nodes are untrusted about their own work. Every value that determines payment is derived
-  server-side.
-- Known limitations and trust assumptions are published in the docs as each part ships.
+## Status
 
-Report a vulnerability privately through the repository's security advisories. Please do not open a
-public issue for it.
+| Phase | Scope | State |
+|---|---|---|
+| 0&nbsp;·&nbsp;Identity | Brand, design system, site | In progress |
+| 1&nbsp;·&nbsp;Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | In progress: contracts live |
+| 2&nbsp;·&nbsp;Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in the rigs' pair or in ETH | Planned |
+
+## Repository
+
+```
+apps/
+  web/            site and app: launchpad, deploy, rig pages, Burn Pool, campaigns, docs
+  coordinator/    API, Sentinel, verification, block settlement, chain indexer
+packages/
+  shared/         brand, chain config, mining math, merkle, shared types
+  miner/          the node client
+  contracts/      Burn Pool, rig registry, pair swaps
+docs/             documentation, rendered by the site
+ops/              deployment configuration
+.github/          CI, code scanning, dependency updates, issue and pull request forms
+```
+
+<details>
+<summary><b>Build and test locally</b></summary>
+
+<br>
+
+Requires Node.js 24 (see `.nvmrc`) and, for the contracts, Foundry.
+
+```sh
+npm ci
+npm run typecheck
+npm test -w @minera/shared -w @minera/coordinator -w @minera/miner
+npm run build -w @minera/web
+
+cd packages/contracts
+forge soldeer install
+forge test
+```
+
+Set `TEST_DATABASE_URL` to also run the coordinator's store tests against Postgres.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the full setup, the commit format and pull requests.
+
+</details>
+
+## Documentation
+
+| Start | Mining | Reference | Trust |
+|---|---|---|---|
+| [Overview](https://mineragpu.tech/docs/overview) | [Pairs and claims](https://mineragpu.tech/docs/pairs-and-claims) | [Contracts](https://mineragpu.tech/docs/contracts) | [Security and trust](https://mineragpu.tech/docs/security) |
+| [Quickstart: run a node](https://mineragpu.tech/docs/quickstart) | [Verification and rewards](https://mineragpu.tech/docs/verification-and-rewards) | [Coordinator API](https://mineragpu.tech/docs/api) | [FAQ](https://mineragpu.tech/docs/faq) |
+| [Deploy a rig](https://mineragpu.tech/docs/deploy-a-rig) | [Burn Pool](https://mineragpu.tech/docs/burn-pool) | [Node protocol](https://mineragpu.tech/docs/node-protocol) | [Glossary](https://mineragpu.tech/docs/glossary) |
+| | [Campaigns](https://mineragpu.tech/docs/campaigns) | | |
+
+The coordinator API is served at `https://api.mineragpu.tech`. The same pages are in [`docs/`](docs).
+
+## Contributing
+
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first, and follow the
+[code of conduct](CODE_OF_CONDUCT.md). Security issues go through [SECURITY.md](SECURITY.md).
 
 ## License
 
