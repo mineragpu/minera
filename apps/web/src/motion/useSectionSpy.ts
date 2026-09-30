@@ -8,7 +8,7 @@ export function useSectionSpy(active: boolean): string {
   const [current, setCurrent] = useState('');
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || !('IntersectionObserver' in window)) return;
     const sections = document.querySelectorAll('main > section');
     const observer = new IntersectionObserver(
       (entries) => {

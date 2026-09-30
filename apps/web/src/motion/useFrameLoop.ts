@@ -41,20 +41,24 @@ export function useFrameLoop(target: RefObject<Element | null>, onFrame: FrameCa
       }
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const latest = entries[entries.length - 1];
-        if (latest) onScreen = latest.isIntersecting;
-        sync();
-      },
-      { rootMargin: '120px' },
-    );
-    observer.observe(element);
+    // Without IntersectionObserver the loop runs whenever the tab is visible.
+    const observer =
+      'IntersectionObserver' in window
+        ? new IntersectionObserver(
+            (entries) => {
+              const latest = entries[entries.length - 1];
+              if (latest) onScreen = latest.isIntersecting;
+              sync();
+            },
+            { rootMargin: '120px' },
+          )
+        : null;
+    observer?.observe(element);
     document.addEventListener('visibilitychange', sync);
     sync();
 
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
       document.removeEventListener('visibilitychange', sync);
       if (frame) cancelAnimationFrame(frame);
     };
