@@ -3,7 +3,7 @@ import { useReducedMotion } from './useReducedMotion.ts';
 
 /** Only a fine pointer on a wide screen gets the pull; phones and tablets keep still buttons. */
 const WHERE = '(hover: hover) and (pointer: fine) and (min-width: 1024px)';
-/** Share of the pointer's offset from the centre the element follows, and the most it moves. */
+/** Share of the pointer's offset from the center the element follows, and the most it moves. */
 const STRENGTH = 0.28;
 const MAX_PX = 8;
 const EASE = 0.18;
