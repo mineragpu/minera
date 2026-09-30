@@ -55,7 +55,22 @@
 }
 
 .dsteps {
+  position: relative;
   list-style: none;
+}
+
+/* A thin rail between the numbers and the steps; it draws down as the steps arrive. */
+.dsteps::before {
+  content: "";
+  position: absolute;
+  left: 43px;
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: var(--iri-rail);
+  opacity: 0.55;
+  transform-origin: 50% 0;
+  pointer-events: none;
 }
 
 .dsteps li {
@@ -93,5 +108,51 @@
 
   .deploy__copy {
     position: static;
+  }
+}
+
+/*
+ * The steps arrive one row at a time as the rail draws down beside them; each number lands as the
+ * rail reaches it, and the status and the button follow.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .dsteps:not([data-revealed])::before {
+    scale: 1 0;
+  }
+
+  .motion-ok .dsteps:not([data-revealed]) li {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  .motion-ok .deploy-steps:not([data-revealed]) :is(.status, .btn) {
+    opacity: 0;
+  }
+
+  .dsteps[data-revealed="play"]::before {
+    animation: reveal-draw-y var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 120ms) backwards;
+  }
+
+  .dsteps[data-revealed="play"] li {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) calc(var(--reveal-at) + var(--row, 0) * 120ms) backwards;
+  }
+
+  .dsteps[data-revealed="play"] .dsteps__n {
+    animation: dstep-number var(--dur-3) var(--ease-back) calc(var(--reveal-at) + 200ms + var(--row, 0) * 120ms) backwards;
+  }
+
+  .deploy-steps[data-revealed="play"] .status {
+    animation: reveal-stamp var(--dur-3) var(--ease-back) calc(var(--reveal-at) + 520ms) backwards;
+  }
+
+  .deploy-steps[data-revealed="play"] > .btn {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) calc(var(--reveal-at) + 900ms) backwards;
+  }
+}
+
+@keyframes dstep-number {
+  from {
+    opacity: 0;
+    scale: 0.6;
   }
 }

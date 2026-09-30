@@ -32,21 +32,21 @@ export function DeployPanel({ index }: { index: string }) {
             the pair, then send one transaction.
           </p>
           <ul className="points">
-            <li>
+            <li ref={revealRef} data-reveal="fade-up">
               <CubeGlyph color="var(--teal)" />
               <div>
                 <b>Signed by the node</b>
                 <span className="pt">The deploy code proves the node agreed to your wallet, on this network only.</span>
               </div>
             </li>
-            <li>
+            <li ref={revealRef} data-reveal="fade-up">
               <CubeGlyph color="var(--violet)" />
               <div>
                 <b>Claimed in your pair</b>
                 <span className="pt">Claims default to the pair you choose. ETH is always available instead.</span>
               </div>
             </li>
-            <li>
+            <li ref={revealRef} data-reveal="fade-up">
               <CubeGlyph color="var(--gold)" />
               <div>
                 <b>On the board in a minute</b>
@@ -56,7 +56,7 @@ export function DeployPanel({ index }: { index: string }) {
           </ul>
         </div>
 
-        <div className="panel deploy-steps">
+        <div className="panel deploy-steps" ref={revealRef} data-reveal="fade-up">
           <div className="panel__head">
             <h3 className="panel__title">New rig</h3>
             {DEPLOYMENT ? (
@@ -65,9 +65,9 @@ export function DeployPanel({ index }: { index: string }) {
               <span className="status">Not open yet</span>
             )}
           </div>
-          <ol className="dsteps">
+          <ol className="dsteps" ref={revealRef} data-reveal="dsteps">
             {STEPS.map((step, index) => (
-              <li key={step.title}>
+              <li key={step.title} style={{ '--row': index }}>
                 <span className="dsteps__n" aria-hidden="true">
                   {String(index + 1).padStart(2, '0')}
                 </span>
