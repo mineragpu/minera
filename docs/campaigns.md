@@ -1,12 +1,11 @@
 # Campaigns
 
-A campaign is an announced period with its own share of creator fees that goes into the Burn Pool.
-Each campaign announces the share that is burned into the pool, and when.
+A campaign is an announced period of burns into the Burn Pool. {{brand.rewardAllocation}}
 
 ## Where the funds come from
 
-- The share is a share of creator fees, the fees the project earns from its own token. The token
-  is planned, so there are no creator fees yet.
+- Creator fees are the fees the project earns from its own token. The token is planned, so there
+  are no creator fees, buybacks or burns from them yet.
 - Until then, burns come from the project wallet.
 - Whatever the source, burned ETH can leave the pool only as mining rewards. See
   [Burn Pool](burn-pool.md).
@@ -26,11 +25,10 @@ Each campaign announces the share that is burned into the pool, and when.
 Campaign 1 exists on testnet: the first burn into the testnet Burn Pool carried campaign id 1. Its
 figures are read live on the home page and from the API, in test ETH.
 
-## Shares
+## Allocation
 
-The share is announced per campaign. The share for the first mainnet campaign is not decided yet;
-mainnet is planned. Where the home page shows a campaign share that is not decided, it marks the
-figure as preview data.
+{{brand.rewardAllocation}} This applies once the token has launched; mainnet is planned. Each
+campaign is announced with its schedule before it opens.
 
 ## What a campaign does not change
 

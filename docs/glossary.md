@@ -81,7 +81,7 @@ until it is claimed as rewards.
 **Burn Pool.** The contract that holds the ETH rewards are paid from. It has no withdraw function.
 See [Burn Pool](burn-pool.md).
 
-**Campaign.** An announced period with its own share of creator fees burned into the pool. See
+**Campaign.** An announced period of burns into the pool, recorded on chain by its campaign id. See
 [Campaigns](campaigns.md).
 
 **Settlement.** A published Merkle root of every operator wallet's cumulative earnings, with the new
