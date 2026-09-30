@@ -12,6 +12,7 @@ import { PairWith } from '../sections/PairWith.tsx';
 import { PlaygroundSection } from '../sections/PlaygroundSection.tsx';
 import { Roadmap } from '../sections/Roadmap.tsx';
 import { Security } from '../sections/Security.tsx';
+import { Sentinel } from '../sections/Sentinel.tsx';
 import { Story } from '../sections/Story.tsx';
 import { VerifiedWork } from '../sections/VerifiedWork.tsx';
 import { WaysIn } from '../sections/WaysIn.tsx';
@@ -22,6 +23,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   WhatsLive,
   Story,
   HowItWorks,
+  Sentinel,
   DeployPanel,
   PairWith,
   BurnPool,
