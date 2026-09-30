@@ -18,7 +18,7 @@ export const BRAND = {
     'A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized ' +
     'stock, and mine from a pool that only fills.',
   links: {
-    site: 'https://web-production-360d4.up.railway.app',
+    site: 'https://mineragpu.tech',
     x: 'https://x.com/mineragpu',
     github: 'https://github.com/mineragpu/minera',
   },
