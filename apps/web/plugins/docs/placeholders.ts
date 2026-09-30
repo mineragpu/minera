@@ -78,6 +78,7 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
   const release = testnetConfig.releaseBpsPerDay;
   const entries: Record<string, string | number> = {
     'brand.name': BRAND.name,
+    'brand.rewardAllocation': BRAND.rewardAllocation,
     'brand.repository': BRAND.links.github,
     'brand.repoDirectory': BRAND.links.github.split('/').pop() ?? '',
     'brand.configDirectory': BRAND.name.toLowerCase(),

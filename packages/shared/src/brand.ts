@@ -10,6 +10,10 @@ export const BRAND = {
   pronunciation: 'mih-NEH-rah',
   meaning: 'Minera means mining.',
   tagline: "Deploy a GPU like you'd launch a token.",
+  /** How the Burn Pool is refilled once the token has launched. */
+  rewardAllocation:
+    'Rewards are added to the Burn Pool on a regular schedule, through buyback and burn' +
+    ' and a distribution of about 10% of creator fees.',
   oneLiner:
     'A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized ' +
     'stock, and mine from a pool that only fills.',
@@ -36,7 +40,7 @@ export const LEXICON = {
   pool: 'Burn Pool',
   /** One settlement period of verified work. */
   block: 'block',
-  /** An announced period with its own share of creator fees burned to the pool. */
+  /** An announced period of burns into the pool, recorded on chain by its campaign id. */
   campaign: 'campaign',
   /** Bonding tokens behind a rig. */
   back: 'back',
