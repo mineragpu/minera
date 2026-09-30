@@ -78,8 +78,8 @@ export function ClaimPairNote({ board, plan, error, onRetry, selected }: ClaimPa
               <li key={rig.nodeKey}>
                 <a className="text-link" href={rigPath(rig.nodeKey)}>
                   {rig.name}
-                </a>{' '}
-                — {symbol(rig.pair)}
+                </a>
+                , paired with {symbol(rig.pair)}
               </li>
             ))}
             {more > 0 && <li>and {more} more</li>}
