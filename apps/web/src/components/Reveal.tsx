@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 import { revealRef } from '../motion/revealObserver.ts';
 
 /** The entrances in `styles/reveal.css`. */
-export type RevealVariant =
+type RevealVariant =
   | 'fade-up'
   | 'fade'
   | 'clip-up'
