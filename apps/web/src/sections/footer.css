@@ -105,3 +105,27 @@
     margin-left: 0;
   }
 }
+
+/* The footer's top hairline catches the iridescence; it draws from the left as the footer enters. */
+.foot::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+  background: var(--iri-line);
+  opacity: 0.5;
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .foot:not([data-revealed])::before {
+    scale: 0 1;
+  }
+
+  .foot[data-revealed="play"]::before {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) var(--reveal-at) backwards;
+  }
+}
