@@ -140,3 +140,33 @@
     border-top: 1px solid var(--seam);
   }
 }
+
+/*
+ * What the contracts enforce slides in from the left and what depends on keys and operators from
+ * the right; each column's tone bar then draws and its points follow in order.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .trust__col::before {
+    transform-origin: 0 50%;
+  }
+
+  .trust__col--trusted::before {
+    transform-origin: 100% 50%;
+  }
+
+  .motion-ok .trust__col:not([data-revealed])::before {
+    scale: 0 1;
+  }
+
+  .motion-ok .trust__col:not([data-revealed]) .trust__points li {
+    opacity: 0;
+  }
+
+  .trust__col[data-revealed="play"]::before {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 300ms) backwards;
+  }
+
+  .trust__col[data-revealed="play"] .trust__points li {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) calc(var(--reveal-at) + 380ms + var(--pt, 0) * var(--stagger)) backwards;
+  }
+}

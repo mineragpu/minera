@@ -33,8 +33,8 @@ interface Point {
 function PointList({ points }: { points: readonly Point[] }) {
   return (
     <ul className="trust__points">
-      {points.map((point) => (
-        <li key={point.title}>
+      {points.map((point, position) => (
+        <li key={point.title} style={{ '--pt': position }}>
           <h4>{point.title}</h4>
           <p>{point.body}</p>
         </li>
@@ -122,7 +122,7 @@ export function Security({ index }: { index: string }) {
       </div>
 
       <div className="trust section-body">
-        <div className="trust__col trust__col--enforced" aria-busy={loading}>
+        <div className="trust__col trust__col--enforced" ref={revealRef} data-reveal="slide-l" aria-busy={loading}>
           <h3 className="trust__head">
             <span className="trust__tag">Enforced</span>
             By the contracts
@@ -132,7 +132,7 @@ export function Security({ index }: { index: string }) {
             <p className="trust__foot">Limits read from the Burn Pool on the chain, through the network service.</p>
           )}
         </div>
-        <div className="trust__col trust__col--trusted">
+        <div className="trust__col trust__col--trusted" ref={revealRef} data-reveal="slide-r">
           <h3 className="trust__head">
             <span className="trust__tag">Trusted</span>
             Keys and operators
@@ -141,7 +141,7 @@ export function Security({ index }: { index: string }) {
         </div>
       </div>
 
-      <p className="trust__audit">
+      <p className="trust__audit" ref={revealRef} data-reveal="fade-up">
         <b>Not audited yet</b> The contracts have not had an external audit. Their source is verified against the
         deployed code.{' '}
         <a className="text-link" href={docPath('security')}>
