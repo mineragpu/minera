@@ -31,5 +31,6 @@ export function copyProblems(markdown: string): string[] {
   }
   if (/!(?=\s|$)/m.test(text)) problems.push('uses an exclamation mark');
   if (/\p{Extended_Pictographic}/u.test(text)) problems.push('uses an emoji');
+  if (text.includes('—')) problems.push('uses an em dash');
   return problems;
 }
