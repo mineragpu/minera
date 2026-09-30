@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { submitPlaygroundJob } from '../jobs/playground.ts';
 import { viewPlaygroundJob, type PlaygroundView } from '../jobs/playgroundView.ts';
+import { networkKey } from '../sentinel/network.ts';
 import type { RouteContext } from './context.ts';
 import { ApiError } from './errors.ts';
 import { iso, WORK_RULES } from './format.ts';
@@ -27,6 +28,7 @@ interface PlaygroundJobView extends Omit<PlaygroundView, 'createdAt' | 'finished
 
 export function registerPlaygroundRoutes(app: FastifyInstance, context: RouteContext): void {
   const { store, config, clock, random } = context;
+  const salt = config.sentinel.networkSalt.reveal();
 
   app.post('/v1/playground/jobs', { config: { rateLimit: PLAYGROUND_RATE_LIMIT } }, async (request, reply) => {
     const { prompt } = parse(promptSchema, request.body, 'body');
@@ -36,6 +38,7 @@ export function registerPlaygroundRoutes(app: FastifyInstance, context: RouteCon
       prompt,
       clock(),
       random,
+      networkKey(request.ip, salt),
     );
     return reply.status(202).send({ id, status: 'queued' });
   });

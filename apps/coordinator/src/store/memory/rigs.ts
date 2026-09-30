@@ -1,4 +1,4 @@
-import type { Address } from '@minera/shared';
+import type { Address, RigStanding } from '@minera/shared';
 import type { RigListEntry, RigRecord } from '../records.ts';
 import type { RigStore } from '../store.ts';
 import { copy, descending, type StateBox } from './state.ts';
@@ -32,6 +32,12 @@ export function memoryRigs(box: StateBox): RigStore {
         checksPassed: 0,
         checksFailed: 0,
         verifiedUnits: 0n,
+        standing: 'probation',
+        canariesPassed: 0,
+        quarantinedUntil: null,
+        network: null,
+        speedSamples: [],
+        nextCanaryAt: null,
       });
     },
 
@@ -56,17 +62,30 @@ export function memoryRigs(box: StateBox): RigStore {
       rig.runtimeVersion = report.runtime.version ?? null;
       rig.models = [...report.runtime.models];
       rig.clientVersion = report.clientVersion;
+      rig.network = report.network;
       rig.helloAt = now;
       rig.lastSeenAt = now;
     },
 
-    async recordHeartbeat(nodeKey, runtime, now) {
+    async recordHeartbeat(nodeKey, runtime, network, now) {
       const rig = find(nodeKey);
       if (!rig) return;
       rig.runtime = runtime.runtime;
       rig.runtimeVersion = runtime.version ?? null;
       rig.models = [...runtime.models];
+      rig.network = network;
       rig.lastSeenAt = now;
+    },
+
+    async updateSentinel(nodeKey, patch) {
+      const rig = find(nodeKey);
+      if (rig) Object.assign(rig, copy(patch));
+    },
+
+    async standingCounts() {
+      const counts: Record<RigStanding, number> = { probation: 0, trusted: 0, quarantined: 0 };
+      for (const rig of box.state.rigs.values()) if (!rig.retired) counts[rig.standing] += 1;
+      return counts;
     },
 
     async recordCheck(nodeKey, passed, now) {

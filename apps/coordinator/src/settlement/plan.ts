@@ -88,7 +88,7 @@ export function planSettlement(input: PlanInput): SettlementPlan {
   const records = input.work
     .filter((entry) => entry.units > 0n)
     .map((entry) => ({ account: entry.operator, units: entry.units }));
-  if (records.length === 0) return skip('there is no verified work to settle');
+  if (records.length === 0) return skip('there is no paid work to settle');
 
   const allocation = allocate(budget, records);
   if (allocation.size === 0) return skip('the budget is too small to pay any account');
@@ -105,7 +105,7 @@ export function planSettlement(input: PlanInput): SettlementPlan {
   }
 
   const inputs: SettlementInputs = {
-    version: 1,
+    version: 2,
     chainId: input.chainId,
     burnPool: input.burnPool.toLowerCase() as Address,
     previousIndex: headIndex,
@@ -117,7 +117,12 @@ export function planSettlement(input: PlanInput): SettlementPlan {
     budget: budget.toString(),
     work: [...input.work]
       .sort((a, b) => (a.nodeKey < b.nodeKey ? -1 : a.nodeKey > b.nodeKey ? 1 : 0))
-      .map((entry) => ({ nodeKey: entry.nodeKey, account: entry.operator, units: entry.units.toString() })),
+      .map((entry) => ({
+        nodeKey: entry.nodeKey,
+        account: entry.operator,
+        verified: entry.verified.toString(),
+        units: entry.units.toString(),
+      })),
     allocation: [...allocation]
       .map(([account, amount]) => ({ account, amount: amount.toString() }))
       .sort(byAddress),

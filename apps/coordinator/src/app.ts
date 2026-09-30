@@ -13,6 +13,7 @@ import { registerPlaygroundRoutes } from './routes/playground.ts';
 import { registerPoolRoute } from './routes/pool.ts';
 import { keepRawJsonBodies } from './routes/rawBody.ts';
 import { registerRigRoutes } from './routes/rigs.ts';
+import { registerSentinelRoute } from './routes/sentinel.ts';
 import { registerSettlementRoute } from './routes/settlements.ts';
 
 export interface AppOptions extends RouteContext {
@@ -72,6 +73,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerSettlementRoute(app, context);
   registerClaimRoute(app, context);
   registerPlaygroundRoutes(app, context);
+  registerSentinelRoute(app, context);
   registerNodeRoutes(app, context);
   return app;
 }

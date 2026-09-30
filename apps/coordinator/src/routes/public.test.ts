@@ -47,8 +47,9 @@ beforeEach(async () => {
   const two = { nodeKey: RIG_2, operator: OPERATOR_B, pair: STOCK, name: 'two', deployedAt, deployedBlock: 2n };
   await store.rigs.deploy(one);
   await store.rigs.deploy(two);
-  await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['llama3.2:1b'] }, clock.now);
-  await store.work.credit(RIG_2, epochOf(clock.now, harness.config.epochSeconds), { verified: 12, unverified: 0 });
+  await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['llama3.2:1b'] }, null, clock.now);
+  const epoch = epochOf(clock.now, harness.config.epochSeconds);
+  await store.work.credit(RIG_2, epoch, { verified: 12, unverified: 0, paid: 12 });
 });
 
 afterEach(async () => {
@@ -122,12 +123,34 @@ describe('public routes', () => {
   it('shows a rig with 24 hourly buckets, and 400 or 404 for bad keys', async () => {
     const detail = (await get(`/v1/rigs/${RIG_2}`)).json();
     assert.equal(detail.name, 'two');
+    assert.equal(detail.standing, 'probation');
     assert.equal(detail.hourly.length, 24);
     assert.equal(detail.hourly.at(-1).hour, '2026-09-29T12:00:00.000Z');
     assert.equal((await get('/v1/rigs/0x123')).statusCode, 400);
     const missing = await get(`/v1/rigs/${address(0xdead)}`);
     assert.equal(missing.statusCode, 404);
     assert.equal(missing.json().error.code, 'rig_not_found');
+  });
+
+  it('publishes the sentinel tally for the last day and the rigs by standing', async () => {
+    const { store, clock } = harness;
+    await store.sentinel.tally('identity', 'blocked', new Date(clock.now.getTime() - 25 * 3_600_000));
+    await store.sentinel.tally('identity', 'blocked', clock.now);
+    await store.sentinel.tally('canary', 'passed', clock.now);
+    await store.rigs.updateSentinel(RIG_1, { standing: 'trusted' });
+    const response = await get('/v1/sentinel');
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.json(), {
+      asOf: clock.now.toISOString(),
+      gates: [
+        { gate: 'identity', passed: 0, blocked: 1 },
+        { gate: 'gpu', passed: 0, blocked: 0 },
+        { gate: 'canary', passed: 1, blocked: 0 },
+        { gate: 'crosscheck', passed: 0, blocked: 0 },
+        { gate: 'reputation', passed: 0, blocked: 0 },
+      ],
+      standing: { probation: 1, trusted: 1, quarantined: 0 },
+    });
   });
 
   it('serves pool state, burns and settlements', async () => {
@@ -159,8 +182,8 @@ describe('public routes', () => {
       fromEpoch: 0,
       toEpoch: 5,
       work: [
-        { nodeKey: RIG_1, operator: OPERATOR_A, units: 1n },
-        { nodeKey: RIG_2, operator: OPERATOR_B, units: 3n },
+        { nodeKey: RIG_1, operator: OPERATOR_A, verified: 1n, units: 1n },
+        { nodeKey: RIG_2, operator: OPERATOR_B, verified: 3n, units: 3n },
       ],
       chainId: 46630,
       burnPool: address(0xf0),

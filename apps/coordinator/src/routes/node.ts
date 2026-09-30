@@ -9,11 +9,14 @@ import {
   type JobResultResponse,
   type RuntimeInfo,
 } from '@minera/shared';
-import { verifyNodeRequest } from '../auth/nodeAuth.ts';
+import { NodeAuthError, verifyNodeRequest } from '../auth/nodeAuth.ts';
 import { issueBenchmark } from '../jobs/benchmark.ts';
 import { assignJobs } from '../jobs/dispatch.ts';
 import { JOB_POLICY } from '../jobs/policy.ts';
 import { acceptResult } from '../jobs/results.ts';
+import { requestBudget } from '../sentinel/budget.ts';
+import { networkKey } from '../sentinel/network.ts';
+import { SENTINEL_POLICY } from '../sentinel/policy.ts';
 import type { RigRecord } from '../store/records.ts';
 import type { RouteContext } from './context.ts';
 import { ApiError } from './errors.ts';
@@ -33,6 +36,10 @@ const helloSchema = z.object({
       model: z.string().min(1).max(128),
       vramMb: z.number().int().min(0).max(10_000_000),
       driver: z.string().max(64).optional(),
+      uuid: z
+        .string()
+        .regex(/^[0-9A-Za-z][0-9A-Za-z:._-]{3,127}$/, 'must be the driver id of the card')
+        .optional(),
     })
     .nullable(),
   runtime: runtimeSchema,
@@ -62,23 +69,51 @@ function runtimeInfo(value: z.output<typeof runtimeSchema>): RuntimeInfo {
 
 function gpuInfo(value: z.output<typeof helloSchema>['gpu']): GpuInfo | null {
   if (value === null) return null;
-  const { model, vramMb, driver } = value;
-  return driver === undefined ? { model, vramMb } : { model, vramMb, driver };
+  const { model, vramMb, driver, uuid } = value;
+  const info: GpuInfo = { model, vramMb };
+  if (driver !== undefined) info.driver = driver;
+  if (uuid !== undefined) info.uuid = uuid;
+  return info;
 }
 
 export function registerNodeRoutes(app: FastifyInstance, context: RouteContext): void {
   const { store, config, clock, random } = context;
+  const budget = requestBudget(SENTINEL_POLICY.requestsPerMinute);
+  const salt = config.sentinel.networkSalt.reveal();
+  const speedFloor = config.sentinel.minTokensPerSecond;
 
-  const authenticate = (request: FastifyRequest): Promise<RigRecord> =>
-    verifyNodeRequest(
-      { method: request.method, path: request.url, headers: request.headers, body: request.rawBody },
-      {
-        chainId: config.chain.id,
-        now: clock,
-        findRig: (nodeKey) => store.rigs.get(nodeKey),
-        useNonce: (...args) => store.nonces.use(...args),
-      },
-    );
+  /**
+   * The identity gate: a valid signature from a deployed rig, a fresh nonce, and a request budget
+   * per key. Every refusal is tallied.
+   */
+  const authenticate = async (request: FastifyRequest): Promise<RigRecord> => {
+    let rig: RigRecord;
+    try {
+      rig = await verifyNodeRequest(
+        { method: request.method, path: request.url, headers: request.headers, body: request.rawBody },
+        {
+          chainId: config.chain.id,
+          now: clock,
+          findRig: (nodeKey) => store.rigs.get(nodeKey),
+          useNonce: (...args) => store.nonces.use(...args),
+        },
+      );
+    } catch (error) {
+      if (error instanceof NodeAuthError) await store.sentinel.tally('identity', 'blocked', clock());
+      throw error;
+    }
+    if (!budget.take(rig.nodeKey, clock())) {
+      await store.sentinel.tally('identity', 'blocked', clock());
+      throw new ApiError(
+        429,
+        'rate_limited',
+        `This rig sent more than ${SENTINEL_POLICY.requestsPerMinute} requests in a minute. Slow down and retry.`,
+      );
+    }
+    return rig;
+  };
+
+  const networkOf = (request: FastifyRequest): string | null => networkKey(request.ip, salt);
 
   const reload = async (rig: RigRecord): Promise<RigRecord> => (await store.rigs.get(rig.nodeKey)) ?? rig;
 
@@ -86,11 +121,27 @@ export function registerNodeRoutes(app: FastifyInstance, context: RouteContext):
     const rig = await authenticate(request);
     const hello = parse(helloSchema, request.body, 'body');
     const now = clock();
+    // A hello issues a fresh benchmark; without a pause a script could reset its checks at will.
+    const cooldownMs = SENTINEL_POLICY.helloCooldownSeconds * 1000;
+    if (rig.helloAt !== null && now.getTime() - rig.helloAt.getTime() < cooldownMs) {
+      await store.sentinel.tally('identity', 'blocked', now);
+      throw new ApiError(
+        429,
+        'hello_cooldown',
+        `Wait ${SENTINEL_POLICY.helloCooldownSeconds} seconds between hellos from the same rig.`,
+      );
+    }
     await store.rigs.recordHello(
       rig.nodeKey,
-      { clientVersion: hello.clientVersion, gpu: gpuInfo(hello.gpu), runtime: runtimeInfo(hello.runtime) },
+      {
+        clientVersion: hello.clientVersion,
+        gpu: gpuInfo(hello.gpu),
+        runtime: runtimeInfo(hello.runtime),
+        network: networkOf(request),
+      },
       now,
     );
+    await store.sentinel.tally('identity', 'passed', now);
     const benchmark = await issueBenchmark(store, await reload(rig), config.playground.model, now, random);
     return {
       rig: { nodeKey: rig.nodeKey, operator: rig.operator, name: rig.name, pair: rig.pair },
@@ -103,8 +154,16 @@ export function registerNodeRoutes(app: FastifyInstance, context: RouteContext):
     const rig = await authenticate(request);
     const heartbeat = parse(heartbeatSchema, request.body, 'body');
     const now = clock();
-    await store.rigs.recordHeartbeat(rig.nodeKey, runtimeInfo(heartbeat.runtime), now);
-    const jobs = await assignJobs(store, await reload(rig), heartbeat.load, config.playground.model, now, random);
+    await store.rigs.recordHeartbeat(rig.nodeKey, runtimeInfo(heartbeat.runtime), networkOf(request), now);
+    const jobs = await assignJobs(
+      store,
+      await reload(rig),
+      heartbeat.load,
+      config.playground.model,
+      now,
+      random,
+      speedFloor,
+    );
     return { heartbeatSeconds: config.heartbeatSeconds, jobs };
   });
 
@@ -118,6 +177,8 @@ export function registerNodeRoutes(app: FastifyInstance, context: RouteContext):
       output: result.output,
       now: clock(),
       epochSeconds: config.epochSeconds,
+      speedFloor,
+      random,
     });
     switch (decision.kind) {
       case 'accepted':

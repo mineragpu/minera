@@ -1,5 +1,8 @@
 import type { HeartbeatRequest, JobAssignment } from '@minera/shared';
 import type { Random } from '../random.ts';
+import { canaryIfDue } from '../sentinel/canary.ts';
+import { belowFloor } from '../sentinel/speed.ts';
+import { refreshStanding } from '../sentinel/standing.ts';
 import type { JobRecord, RigRecord } from '../store/records.ts';
 import type { Store } from '../store/store.ts';
 import { checkModel, createCheck, isQualified } from './checks.ts';
@@ -37,8 +40,9 @@ function onePerGroup(jobs: readonly JobRecord[], limit: number): JobRecord[] {
 }
 
 /**
- * Assign work to a rig on its heartbeat: a challenge when one is due, then queued jobs for the
- * models it serves, up to its free capacity. Open jobs only go to a qualified rig.
+ * Assign work to a rig on its heartbeat. A quarantined rig gets nothing. Otherwise a canary or a
+ * challenge when one is due, then queued jobs for the models it serves, up to its free capacity.
+ * Open jobs only go to a rig that passed its checks and has not shown it is too slow to be a GPU.
  */
 export async function assignJobs(
   store: Store,
@@ -47,17 +51,23 @@ export async function assignJobs(
   preferredModel: string,
   now: Date,
   random: Random,
+  speedFloor: number,
 ): Promise<JobAssignment[]> {
   return store.transaction(async (tx) => {
-    await challengeIfDue(tx, rig, preferredModel, now, random);
-    const capacity = load.busy ? 0 : JOB_POLICY.maxInFlight - (await tx.jobs.inFlight(rig.nodeKey));
+    const current = await refreshStanding(tx, rig, now);
+    if (current.standing === 'quarantined') return [];
+    if (!(await canaryIfDue(tx, current, preferredModel, now, random))) {
+      await challengeIfDue(tx, current, preferredModel, now, random);
+    }
+    const capacity = load.busy ? 0 : JOB_POLICY.maxInFlight - (await tx.jobs.inFlight(current.nodeKey));
     if (capacity <= 0) return [];
 
-    const candidates = await tx.jobs.assignable({ rig, qualified: isQualified(rig), now, limit: capacity * 2 });
+    const qualified = isQualified(current) && !belowFloor(current.speedSamples, speedFloor);
+    const candidates = await tx.jobs.assignable({ rig: current, qualified, now, limit: capacity * 2 });
     const picked = onePerGroup(candidates, capacity);
     const assignments: JobAssignment[] = [];
     for (const job of picked) {
-      await tx.jobs.assign(job.id, rig.nodeKey, now, deadlineFor(job.kind, now));
+      await tx.jobs.assign(job.id, current.nodeKey, now, deadlineFor(job.kind, now));
       assignments.push(toAssignment(job));
     }
     return assignments;

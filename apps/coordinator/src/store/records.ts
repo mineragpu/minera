@@ -1,4 +1,13 @@
-import type { Address, GpuInfo, Hex, JobAssignment, JobKind, RuntimeInfo, Settlement } from '@minera/shared';
+import type {
+  Address,
+  GpuInfo,
+  Hex,
+  JobAssignment,
+  JobKind,
+  RigStanding,
+  RuntimeInfo,
+  Settlement,
+} from '@minera/shared';
 
 export type ChatMessage = JobAssignment['messages'][number];
 export type JobParams = JobAssignment['params'];
@@ -13,6 +22,16 @@ export type JobStatus = 'queued' | 'assigned' | 'done' | 'expired' | 'cancelled'
  * - `failed`: a known-answer check came back wrong.
  */
 export type Verification = 'pending' | 'verified' | 'unverified' | 'mismatch' | 'failed';
+
+/**
+ * - `playground`: a visitor's prompt. The only work that pays.
+ * - `seed`: a prompt Sentinel writes to grow its canary bank. Rigs cannot tell it from a visitor's.
+ * - `canary`: a known-answer check sent as an ordinary chat job.
+ * - `check`: a benchmark or an arithmetic challenge.
+ */
+export type JobOrigin = 'playground' | 'seed' | 'canary' | 'check';
+
+export type StrikeReason = 'canary_failed' | 'canary_missed' | 'tiebreak_lost' | 'job_abandoned';
 
 export interface DeployedRig {
   nodeKey: Address;
@@ -40,12 +59,28 @@ export interface RigRecord extends DeployedRig {
   checksFailed: number;
   /** Lifetime verified work units. */
   verifiedUnits: bigint;
+  standing: RigStanding;
+  /** Canaries passed since the rig last entered probation. */
+  canariesPassed: number;
+  quarantinedUntil: Date | null;
+  /** A keyed digest of the subnet the rig last called from; never the address itself. */
+  network: string | null;
+  /** Recent tokens per second, as timed by the coordinator, oldest first. */
+  speedSamples: number[];
+  nextCanaryAt: Date | null;
 }
+
+/** The Sentinel fields a rig's standing is kept in. */
+export type SentinelState = Pick<
+  RigRecord,
+  'standing' | 'canariesPassed' | 'quarantinedUntil' | 'speedSamples' | 'nextCanaryAt'
+>;
 
 export interface NodeReport {
   clientVersion: string;
   gpu: GpuInfo | null;
   runtime: RuntimeInfo;
+  network: string | null;
 }
 
 export type RigSort = 'new' | 'top' | 'epoch';
@@ -78,6 +113,11 @@ export interface JobRecord {
    */
   groupId: string;
   kind: JobKind;
+  origin: JobOrigin;
+  /** The network a playground prompt was sent from; rigs on it never answer that prompt. */
+  originNetwork: string | null;
+  /** The bank entry a canary was drawn from. */
+  canaryId: string | null;
   model: string;
   messages: ChatMessage[];
   params: JobParams;
@@ -104,7 +144,19 @@ export interface JobRecord {
 
 export type NewJob = Pick<
   JobRecord,
-  'id' | 'groupId' | 'kind' | 'model' | 'messages' | 'params' | 'expected' | 'targetNode' | 'createdAt' | 'expiresAt'
+  | 'id'
+  | 'groupId'
+  | 'kind'
+  | 'origin'
+  | 'originNetwork'
+  | 'canaryId'
+  | 'model'
+  | 'messages'
+  | 'params'
+  | 'expected'
+  | 'targetNode'
+  | 'createdAt'
+  | 'expiresAt'
 >;
 
 export interface JobResult {
@@ -124,8 +176,36 @@ export interface HourlyUnits {
 export interface RigWork {
   nodeKey: Address;
   operator: Address;
+  verified: bigint;
+  /** Verified units after Sentinel's weighting; the units the settlement pays for. */
   units: bigint;
 }
+
+export interface WorkCredit {
+  verified: number;
+  unverified: number;
+  /** Verified units weighted by the rig's standing when the work was done. */
+  paid: number;
+}
+
+/** A prompt two independent rigs answered alike, kept to check other rigs with. */
+export interface CanaryRecord {
+  id: string;
+  model: string;
+  messages: ChatMessage[];
+  params: JobParams;
+  /** The agreed answer, normalized. */
+  answer: string;
+  /** Every rig that saw the prompt. None of them is ever checked with it. */
+  sources: Address[];
+  servedTo: Address[];
+  /** Rigs that later answered it alike. Only a confirmed canary can strike a rig. */
+  confirmations: number;
+  disputes: number;
+  createdAt: Date;
+}
+
+export type NewCanary = Pick<CanaryRecord, 'id' | 'model' | 'messages' | 'params' | 'answer' | 'sources' | 'createdAt'>;
 
 export type SettlementStatus = 'sending' | 'sent' | 'published' | 'failed';
 

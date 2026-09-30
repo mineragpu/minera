@@ -107,7 +107,7 @@ beforeEach(async () => {
   sent = [];
   const deployedAt = NOW;
   await store.rigs.deploy({ nodeKey: RIG, operator: OPERATOR, pair: RIG, name: 'rig', deployedAt, deployedBlock: 1n });
-  await store.work.credit(RIG, epochOf(NOW, EPOCH_SECONDS) - 1, { verified: 40, unverified: 7 });
+  await store.work.credit(RIG, epochOf(NOW, EPOCH_SECONDS) - 1, { verified: 40, unverified: 7, paid: 40 });
 });
 
 describe('settleOnce', () => {

@@ -11,6 +11,8 @@ import { sweepJobs } from './jobs/janitor.ts';
 import { errorSummary, type Logger } from './log.ts';
 import { startLoop, type Loop } from './loop.ts';
 import { cryptoRandom } from './random.ts';
+import { seedCanaries } from './sentinel/canary.ts';
+import { SENTINEL_POLICY } from './sentinel/policy.ts';
 import { createPublisher } from './settlement/publisher.ts';
 import { nextRoundDelay, settleOnce, type SettleOutcome } from './settlement/worker.ts';
 import { createPostgresStore } from './store/postgres/index.ts';
@@ -18,6 +20,7 @@ import { createPostgresStore } from './store/postgres/index.ts';
 const INDEX_POLL_MS = 5_000;
 const POOL_REFRESH_MS = 15_000;
 const JANITOR_MS = 10_000;
+const SENTINEL_MS = 60_000;
 const RETRY_MS = 30_000;
 const SHUTDOWN_TIMEOUT_MS = 20_000;
 
@@ -97,6 +100,18 @@ async function start(config: Config): Promise<void> {
         if (swept.requeued > 0 || swept.expired > 0) log.info(swept, 'swept overdue jobs');
         await store.nonces.prune(now);
         return JANITOR_MS;
+      },
+    }),
+    startLoop({
+      name: 'sentinel',
+      log,
+      retryMs: RETRY_MS,
+      run: async () => {
+        const now = new Date();
+        const seeded = await seedCanaries(store, config.playground, now, cryptoRandom);
+        if (seeded > 0) log.debug({ seeded }, 'queued sentinel seeds');
+        await store.sentinel.prune(new Date(now.getTime() - SENTINEL_POLICY.retentionSeconds * 1000), SENTINEL_POLICY.bankSize);
+        return SENTINEL_MS;
       },
     }),
     startLoop({

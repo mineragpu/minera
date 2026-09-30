@@ -1,9 +1,17 @@
-import type { Address, JobKind } from '@minera/shared';
-import type { HourlyUnits, JobRecord } from '../records.ts';
+import type { JobKind } from '@minera/shared';
+import type { HourlyUnits, JobRecord, RigRecord } from '../records.ts';
 import type { JobStore } from '../store.ts';
 import { copy, type StateBox } from './state.ts';
 
 const HOUR_MS = 3_600_000;
+
+/** Whether two rigs may not check each other: one operator, one network or one card. */
+function related(a: RigRecord, b: RigRecord): boolean {
+  if (a.nodeKey === b.nodeKey || a.operator === b.operator) return true;
+  if (a.network !== null && a.network === b.network) return true;
+  const card = a.gpu?.uuid;
+  return card !== undefined && card === b.gpu?.uuid;
+}
 
 export function memoryJobs(box: StateBox): JobStore {
   const all = (): JobRecord[] => [...box.state.jobs.values()];
@@ -12,7 +20,6 @@ export function memoryJobs(box: StateBox): JobStore {
     if (!job) throw new Error(`unknown job ${id}`);
     return job;
   };
-  const operatorOf = (nodeKey: Address): Address | undefined => box.state.rigs.get(nodeKey)?.operator;
   const byCreation = (a: JobRecord, b: JobRecord): number =>
     a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
@@ -48,14 +55,13 @@ export function memoryJobs(box: StateBox): JobStore {
     },
 
     async assignable({ rig, qualified, now, limit }) {
-      const heldBySameOperator = (job: JobRecord): boolean =>
-        all().some(
-          (twin) =>
-            twin.groupId === job.groupId &&
-            twin.id !== job.id &&
-            twin.assignedNode !== null &&
-            operatorOf(twin.assignedNode) === rig.operator,
-        );
+      const heldByRelatedRig = (job: JobRecord): boolean =>
+        all().some((other) => {
+          if (other.groupId !== job.groupId || other.id === job.id || other.assignedNode === null) return false;
+          const holder = box.state.rigs.get(other.assignedNode);
+          return holder !== undefined && related(rig, holder);
+        });
+      const fromRigNetwork = (job: JobRecord): boolean => job.originNetwork !== null && job.originNetwork === rig.network;
       return all()
         .filter(
           (job) =>
@@ -63,7 +69,8 @@ export function memoryJobs(box: StateBox): JobStore {
             job.expiresAt > now &&
             rig.models.includes(job.model) &&
             (job.targetNode === rig.nodeKey || (job.targetNode === null && qualified)) &&
-            !heldBySameOperator(job),
+            !heldByRelatedRig(job) &&
+            !fromRigNetwork(job),
         )
         .sort((a, b) => Number(a.targetNode === null) - Number(b.targetNode === null) || byCreation(a, b))
         .slice(0, limit)
@@ -76,18 +83,18 @@ export function memoryJobs(box: StateBox): JobStore {
 
     async openChecks(nodeKey) {
       return all()
-        .filter(
-          (job) =>
-            job.targetNode === nodeKey &&
-            job.kind !== 'chat' &&
-            (job.status === 'queued' || job.status === 'assigned'),
-        )
+        .filter((job) => job.targetNode === nodeKey && (job.status === 'queued' || job.status === 'assigned'))
         .sort(byCreation)
         .map(copy);
     },
 
     async queuedCount(kind) {
       return all().filter((job) => job.kind === kind && job.status === 'queued').length;
+    },
+
+    async openCount(origin) {
+      const open = (job: JobRecord): boolean => job.status === 'queued' || job.status === 'assigned';
+      return all().filter((job) => job.origin === origin && open(job)).length;
     },
 
     async assign(id, nodeKey, at, deadline) {
@@ -181,5 +188,5 @@ export function memoryJobs(box: StateBox): JobStore {
 }
 
 function isPaidVerified(job: JobRecord): boolean {
-  return job.verification === 'verified' && job.kind === 'chat';
+  return job.verification === 'verified' && job.origin === 'playground';
 }

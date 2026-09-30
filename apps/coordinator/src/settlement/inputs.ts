@@ -6,7 +6,7 @@ import type { Address, Hex } from '@minera/shared';
  * the document itself is served in full, so anyone can redo the computation and compare.
  */
 export interface SettlementInputs {
-  version: 1;
+  version: 2;
   chainId: number;
   burnPool: Address;
   /** The settlement these entitlements build on; 0 before the first. */
@@ -19,8 +19,12 @@ export interface SettlementInputs {
   poolTimestamp: string;
   /** New reward released by this settlement, in wei. */
   budget: string;
-  /** Verified units per rig over the epoch range, and the account each rig pays. */
-  work: { nodeKey: Address; account: Address; units: string }[];
+  /**
+   * Per rig over the epoch range: the account it pays, its verified units, and the units paid for
+   * after Sentinel's weighting (half on probation, nothing in a quarantined epoch). The split uses
+   * the paid units.
+   */
+  work: { nodeKey: Address; account: Address; verified: string; units: string }[];
   /** This settlement's share per account, in wei. */
   allocation: { account: Address; amount: string }[];
   /** Cumulative entitlements per account, in wei: the leaves of the tree. */

@@ -1,4 +1,4 @@
-import type { Address, Hex } from '@minera/shared';
+import type { Address, Hex, RigStanding } from '@minera/shared';
 import type { PoolSnapshot } from '../chain/pool.ts';
 import type { BurnRecord, CampaignSummary, RigRecord, SettlementRecord } from '../store/records.ts';
 
@@ -6,9 +6,13 @@ import type { BurnRecord, CampaignSummary, RigRecord, SettlementRecord } from '.
 export const WORK_RULES = {
   units: 'Work units are estimated tokens: one per four characters of output, rounded up, measured by the coordinator.',
   verification:
-    'Only verified work earns rewards. An answer is verified when a rig run by a different operator returns the ' +
-    'same output for the same prompt. Answers nobody cross-checked are recorded as unverified and earn nothing on ' +
-    'their own. Known-answer checks decide which rigs may take work, and they earn nothing themselves.',
+    'Only verified work earns rewards. An answer is verified when a rig that shares no operator, network or card ' +
+    'with it returns the same output for the same prompt; when two answers disagree, a third rig decides. Answers ' +
+    'nobody cross-checked are recorded as unverified and earn nothing on their own. Known-answer checks decide ' +
+    'which rigs may take work and earn nothing themselves.',
+  standing:
+    'New rigs start on probation and earn half for verified work until they pass five canary checks. Repeated ' +
+    'strikes put a rig in quarantine: it gets no work, and its work in that epoch earns nothing.',
 } as const;
 
 export function iso(date: Date | null): string | null {
@@ -40,6 +44,7 @@ export interface RigSummary {
   models: string[];
   verifiedUnits: { epoch: string; lifetime: string };
   checks: { passed: number; failed: number };
+  standing: RigStanding;
 }
 
 export function rigSummary(rig: RigRecord, epochUnits: bigint, onlineSince: Date): RigSummary {
@@ -54,6 +59,7 @@ export function rigSummary(rig: RigRecord, epochUnits: bigint, onlineSince: Date
     models: rig.models,
     verifiedUnits: { epoch: epochUnits.toString(), lifetime: rig.verifiedUnits.toString() },
     checks: { passed: rig.checksPassed, failed: rig.checksFailed },
+    standing: rig.standing,
   };
 }
 

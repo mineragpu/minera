@@ -3,6 +3,7 @@ import { memoryChain } from './chain.ts';
 import { memoryJobs } from './jobs.ts';
 import { memoryNonces } from './nonces.ts';
 import { memoryRigs } from './rigs.ts';
+import { memorySentinel } from './sentinel.ts';
 import { memorySettlements } from './settlements.ts';
 import { emptyState, type StateBox } from './state.ts';
 import { memoryWork } from './work.ts';
@@ -20,6 +21,7 @@ export function createMemoryStore(): Store {
     work: memoryWork(box),
     settlements: memorySettlements(box),
     chain: memoryChain(box),
+    sentinel: memorySentinel(box),
   };
 
   const inTransaction: Store = {

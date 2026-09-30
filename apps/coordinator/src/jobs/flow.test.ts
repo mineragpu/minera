@@ -21,9 +21,11 @@ const later = (seconds: number): Date => new Date(T0.getTime() + seconds * 1000)
 const address = (n: number): Address => `0x${n.toString(16).padStart(40, '0')}` as Address;
 const OPERATOR_A = address(0xa);
 const OPERATOR_B = address(0xb);
+const OPERATOR_C = address(0xc);
 const R1 = address(0x101);
 const R2 = address(0x102);
 const R3 = address(0x103);
+const R4 = address(0x104);
 const IDLE = { busy: false, queue: 0 };
 const CHALLENGE_DUE = JOB_POLICY.challengeIntervalSeconds + 1;
 const SINGLE = { model: MODEL, maxTokens: 64, redundancyRate: 0 };
@@ -46,7 +48,8 @@ function answerTo(assignment: JobAssignment): string {
 }
 
 async function submit(nodeKey: Address, jobId: string, output: string, now: Date) {
-  return acceptResult(store, { nodeKey, jobId, output, now, epochSeconds: EPOCH_SECONDS });
+  const random = seededRandom(99);
+  return acceptResult(store, { nodeKey, jobId, output, now, epochSeconds: EPOCH_SECONDS, speedFloor: 0, random });
 }
 
 async function qualify(nodeKey: Address, random = seededRandom(1)): Promise<void> {
@@ -56,16 +59,18 @@ async function qualify(nodeKey: Address, random = seededRandom(1)): Promise<void
 }
 
 async function heartbeat(nodeKey: Address, now: Date, random = seededRandom(2)): Promise<JobAssignment[]> {
-  return assignJobs(store, await rig(nodeKey), IDLE, MODEL, now, random);
+  return assignJobs(store, await rig(nodeKey), IDLE, MODEL, now, random, 0);
 }
 
 beforeEach(async () => {
   store = createMemoryStore();
-  for (const [nodeKey, operator] of [[R1, OPERATOR_A], [R2, OPERATOR_A], [R3, OPERATOR_B]] as const) {
+  const rigs = [[R1, OPERATOR_A], [R2, OPERATOR_A], [R3, OPERATOR_B], [R4, OPERATOR_C]] as const;
+  for (const [nodeKey, operator] of rigs) {
     const name = `rig-${nodeKey.slice(-3)}`;
     await store.rigs.deploy({ nodeKey, operator, pair: address(0), name, deployedAt: T0, deployedBlock: 1n });
     const runtime = { runtime: 'local', models: [MODEL] };
-    await store.rigs.recordHello(nodeKey, { clientVersion: '0.1.0', gpu: null, runtime }, T0);
+    const network = `net-${nodeKey.slice(-3)}`;
+    await store.rigs.recordHello(nodeKey, { clientVersion: '0.1.0', gpu: null, runtime, network }, T0);
   }
 });
 
@@ -74,7 +79,7 @@ describe('job flow', () => {
     const benchmark = await issueBenchmark(store, await rig(R1), MODEL, T0, seededRandom(3));
     assert.equal(benchmark?.kind, 'benchmark');
     assert.equal('expected' in (benchmark ?? {}), false);
-    const id = await submitPlaygroundJob(store, SINGLE, 'Say hi', T0, seededRandom(4));
+    const id = await submitPlaygroundJob(store, SINGLE, 'Say hi', T0, seededRandom(4), null);
     assert.deepEqual(await heartbeat(R1, later(5)), []);
 
     assert.ok(benchmark);
@@ -99,7 +104,7 @@ describe('job flow', () => {
 
   it('verifies a job two operators answered the same, and credits both rigs', async () => {
     for (const nodeKey of [R1, R2, R3]) await qualify(nodeKey);
-    const id = await submitPlaygroundJob(store, TWICE, 'Sky?', T0, seededRandom(5, { chance: true }));
+    const id = await submitPlaygroundJob(store, TWICE, 'Sky?', T0, seededRandom(5, { chance: true }), null);
 
     const [first] = await heartbeat(R1, later(1));
     assert.equal(first?.kind, 'chat');
@@ -117,30 +122,63 @@ describe('job flow', () => {
     const view = await viewPlaygroundJob(store, id);
     assert.deepEqual([view?.verification, view?.crossChecked, view?.output], ['verified', true, 'The sky is blue.']);
     const epoch = epochOf(later(3), EPOCH_SECONDS);
+    // Both rigs are new and on probation, so they are paid half of their verified units.
     assert.deepEqual(await store.work.verifiedByRig(epoch, epoch), [
-      { nodeKey: R1, operator: OPERATOR_A, units: 4n },
-      { nodeKey: R3, operator: OPERATOR_B, units: 4n },
+      { nodeKey: R1, operator: OPERATOR_A, verified: 4n, units: 2n },
+      { nodeKey: R3, operator: OPERATOR_B, verified: 4n, units: 2n },
     ]);
   });
 
-  it('pays nothing for a disagreement or a wrong answer, and counts both against the rigs', async () => {
-    for (const nodeKey of [R1, R3]) await qualify(nodeKey);
-    const id = await submitPlaygroundJob(store, TWICE, 'Sky?', T0, seededRandom(6, { chance: true }));
+  it('settles a disagreement with a third rig and strikes only the rig that disagreed', async () => {
+    for (const nodeKey of [R1, R3, R4]) await qualify(nodeKey);
+    const id = await submitPlaygroundJob(store, TWICE, 'Sky?', T0, seededRandom(6, { chance: true }), null);
     const [first] = await heartbeat(R1, later(1));
     const [second] = await heartbeat(R3, later(1));
     assert.ok(first && second);
     await submit(R1, first.id, 'Blue.', later(2));
     await submit(R3, second.id, 'Green.', later(2));
-    assert.equal((await viewPlaygroundJob(store, id))?.verification, 'mismatch');
-    assert.deepEqual([(await rig(R1)).checksFailed, (await rig(R3)).checksFailed], [1, 1]);
-    await submitPlaygroundJob(store, SINGLE, 'Again?', later(3), seededRandom(9));
-    assert.deepEqual(await heartbeat(R1, later(4)), []);
+    assert.deepEqual([(await viewPlaygroundJob(store, id))?.status, (await rig(R3)).checksFailed], ['checking', 0]);
 
+    // The tiebreak never goes back to a rig that answered, nor to one of the same operator.
+    assert.deepEqual(await heartbeat(R1, later(3)), []);
+    assert.deepEqual(await heartbeat(R2, later(3)), []);
+    const [third] = await heartbeat(R4, later(3));
+    assert.ok(third);
+    assert.deepEqual([third.messages, third.params], [first.messages, first.params]);
+    await submit(R4, third.id, 'Blue.', later(4));
+
+    const view = await viewPlaygroundJob(store, id);
+    assert.deepEqual([view?.status, view?.verification, view?.output], ['done', 'verified', 'Blue.']);
+    const failed = await Promise.all([R1, R3, R4].map(async (nodeKey) => (await rig(nodeKey)).checksFailed));
+    assert.deepEqual(failed, [0, 1, 0]);
+    assert.equal(await store.sentinel.strikesSince(R3, T0), 1);
+    const epoch = epochOf(later(4), EPOCH_SECONDS);
+    const paid = await store.work.verifiedByRig(epoch, epoch);
+    assert.deepEqual(paid.map((entry) => entry.nodeKey), [R1, R4]);
+  });
+
+  it('strikes nobody when three rigs all disagree, and pays nobody', async () => {
+    for (const nodeKey of [R1, R3, R4]) await qualify(nodeKey);
+    await submitPlaygroundJob(store, TWICE, 'Sky?', T0, seededRandom(6, { chance: true }), null);
+    const [first] = await heartbeat(R1, later(1));
+    const [second] = await heartbeat(R3, later(1));
+    assert.ok(first && second);
+    await submit(R1, first.id, 'Blue.', later(2));
+    await submit(R3, second.id, 'Green.', later(2));
+    const [third] = await heartbeat(R4, later(3));
+    assert.ok(third);
+    await submit(R4, third.id, 'Gray.', later(4));
+    for (const nodeKey of [R1, R3, R4]) assert.equal(await store.sentinel.strikesSince(nodeKey, T0), 0);
+    assert.deepEqual(await store.work.verifiedByRig(0, 10_000_000), []);
+  });
+
+  it('fails a rig that answers a challenge wrongly', async () => {
+    await qualify(R3);
     const [challenge] = await heartbeat(R3, later(CHALLENGE_DUE));
     assert.equal(challenge?.kind, 'challenge');
     assert.ok(challenge);
     await submit(R3, challenge.id, '-1', later(CHALLENGE_DUE + 1));
-    assert.equal((await rig(R3)).checksFailed, 2);
+    assert.equal((await rig(R3)).checksFailed, 1);
     assert.deepEqual(await store.work.verifiedByRig(0, 10_000_000), []);
   });
 
@@ -157,7 +195,7 @@ describe('job flow', () => {
 
   it('refuses results from a rig that does not hold the job, and duplicates', async () => {
     await qualify(R1);
-    const id = await submitPlaygroundJob(store, SINGLE, 'Hello', T0, seededRandom(7));
+    const id = await submitPlaygroundJob(store, SINGLE, 'Hello', T0, seededRandom(7), null);
     const [queued] = await store.jobs.group(id);
     assert.ok(queued);
     assert.deepEqual(await submit(R1, queued.id, 'x', later(1)), { kind: 'not_assignee' });
@@ -171,7 +209,7 @@ describe('job flow', () => {
 
   it('requeues overdue jobs and leaves an answer unverified when its twin is dropped', async () => {
     for (const nodeKey of [R1, R3]) await qualify(nodeKey);
-    const id = await submitPlaygroundJob(store, TWICE, 'Hi', T0, seededRandom(8, { chance: true }));
+    const id = await submitPlaygroundJob(store, TWICE, 'Hi', T0, seededRandom(8, { chance: true }), null);
     const [first] = await heartbeat(R1, later(1));
     assert.ok(first);
     assert.deepEqual(await sweepJobs(store, later(122), EPOCH_SECONDS), { requeued: 1, expired: 0 });

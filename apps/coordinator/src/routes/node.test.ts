@@ -16,7 +16,7 @@ const ETH = '0x0000000000000000000000000000000000000000' as Address;
 let harness: TestApp;
 let rig: PrivateKeyAccount;
 
-async function send(account: PrivateKeyAccount, path: string, payload: unknown, extra: Record<string, string> = {}) {
+async function send(account: PrivateKeyAccount, path: string, payload: unknown, remoteAddress = '203.0.113.7') {
   const body = JSON.stringify(payload);
   const headers = await signNodeRequest(account, {
     chainId: harness.config.chain.id,
@@ -28,9 +28,16 @@ async function send(account: PrivateKeyAccount, path: string, payload: unknown, 
   return harness.app.inject({
     method: 'POST',
     url: path,
-    headers: { ...headers, 'content-type': 'application/json', ...extra },
+    headers: { ...headers, 'content-type': 'application/json' },
     payload: body,
+    remoteAddress,
   });
+}
+
+async function identityGate(): Promise<{ passed: number; blocked: number } | undefined> {
+  const counts = await harness.store.sentinel.gateCounts(new Date(0));
+  const identity = counts.find((entry) => entry.gate === 'identity');
+  return identity && { passed: identity.passed, blocked: identity.blocked };
 }
 
 function answer(assignment: JobAssignment): string {
@@ -139,6 +146,7 @@ describe('node routes', () => {
       'Say hello',
       harness.clock.now,
       seededRandom(9),
+      null,
     );
     assert.deepEqual((await send(rig, NODE_ROUTES.heartbeat, heartbeat)).json().jobs, []);
 
@@ -172,6 +180,51 @@ describe('node routes', () => {
       [view?.status, view?.output, view?.rig?.name, view?.crossChecked, view?.verification],
       ['done', 'Hello.', 'basement', false, 'unverified'],
     );
+  });
+
+  it('makes a rig wait between hellos, so it cannot reset its checks at will', async () => {
+    assert.equal((await send(rig, NODE_ROUTES.hello, hello)).statusCode, 200);
+    const early = await send(rig, NODE_ROUTES.hello, hello);
+    assert.equal(early.statusCode, 429);
+    assert.equal(early.json().error.code, 'hello_cooldown');
+    harness.clock.now = new Date(harness.clock.now.getTime() + 61_000);
+    assert.equal((await send(rig, NODE_ROUTES.hello, hello)).statusCode, 200);
+    assert.deepEqual(await identityGate(), { passed: 2, blocked: 1 });
+  });
+
+  it('caps the signed requests one key may send in a minute', async () => {
+    await send(rig, NODE_ROUTES.hello, hello);
+    const statuses: number[] = [];
+    for (let i = 0; i < 60; i += 1) statuses.push((await send(rig, NODE_ROUTES.heartbeat, heartbeat)).statusCode);
+    assert.deepEqual([...new Set(statuses.slice(0, 59))], [200]);
+    const over = await send(rig, NODE_ROUTES.heartbeat, heartbeat);
+    assert.deepEqual([statuses[59], over.statusCode, over.json().error.code], [429, 429, 'rate_limited']);
+    harness.clock.now = new Date(harness.clock.now.getTime() + 60_000);
+    assert.equal((await send(rig, NODE_ROUTES.heartbeat, heartbeat)).statusCode, 200);
+  });
+
+  it('counts refused signatures at the identity gate', async () => {
+    await harness.app.inject({ method: 'POST', url: NODE_ROUTES.hello, payload: hello });
+    await send(privateKeyToAccount(generatePrivateKey()), NODE_ROUTES.hello, hello);
+    assert.deepEqual(await identityGate(), { passed: 0, blocked: 2 });
+  });
+
+  it('keeps the rig network as a keyed digest of its subnet, and the card id it reports', async () => {
+    const withCard = { ...hello, gpu: { ...hello.gpu, uuid: 'GPU-3f2a9c1e-7b4d-4e8a-9c21-5d6e7f809a1b' } };
+    assert.equal((await send(rig, NODE_ROUTES.hello, withCard, '198.51.100.23')).statusCode, 200);
+    const stored = await harness.store.rigs.get(rig.address.toLowerCase() as Address);
+    assert.equal(stored?.gpu?.uuid, 'GPU-3f2a9c1e-7b4d-4e8a-9c21-5d6e7f809a1b');
+    assert.match(stored?.network ?? '', /^[0-9a-f]{24}$/);
+    assert.equal(stored?.network?.includes('198'), false);
+
+    await send(rig, NODE_ROUTES.heartbeat, heartbeat, '198.51.100.99');
+    assert.equal((await harness.store.rigs.get(rig.address.toLowerCase() as Address))?.network, stored?.network);
+    await send(rig, NODE_ROUTES.heartbeat, heartbeat, '198.51.101.99');
+    assert.notEqual((await harness.store.rigs.get(rig.address.toLowerCase() as Address))?.network, stored?.network);
+
+    const badCard = { ...hello, gpu: { ...hello.gpu, uuid: 'not a card id' } };
+    harness.clock.now = new Date(harness.clock.now.getTime() + 61_000);
+    assert.equal((await send(rig, NODE_ROUTES.hello, badCard)).statusCode, 400);
   });
 
   it('rejects malformed job ids, unknown jobs and oversized output', async () => {

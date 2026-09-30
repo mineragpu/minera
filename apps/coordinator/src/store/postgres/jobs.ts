@@ -1,6 +1,6 @@
 import type { Address, Hex, JobKind } from '@minera/shared';
 import type { Queryable } from '../../db/client.ts';
-import type { ChatMessage, JobParams, JobRecord, JobStatus, Verification } from '../records.ts';
+import type { ChatMessage, JobOrigin, JobParams, JobRecord, JobStatus, Verification } from '../records.ts';
 import type { JobStore } from '../store.ts';
 import { jsonb, toBigInt, toSafeNumber } from './convert.ts';
 
@@ -8,6 +8,9 @@ interface JobRow {
   id: string;
   group_id: string;
   kind: JobKind;
+  origin: JobOrigin;
+  origin_network: string | null;
+  canary_id: string | null;
   model: string;
   messages: ChatMessage[];
   params: JobParams;
@@ -36,6 +39,9 @@ function toJob(row: JobRow): JobRecord {
     id: row.id,
     groupId: row.group_id,
     kind: row.kind,
+    origin: row.origin,
+    originNetwork: row.origin_network,
+    canaryId: row.canary_id,
     model: row.model,
     messages: row.messages,
     params: row.params,
@@ -61,9 +67,12 @@ export function postgresJobs(db: Queryable): JobStore {
   return {
     async insert(job) {
       await db`
-        INSERT INTO jobs (id, group_id, kind, model, messages, params, expected, target_node, created_at, expires_at)
+        INSERT INTO jobs (
+          id, group_id, kind, origin, origin_network, canary_id, model, messages, params, expected, target_node,
+          created_at, expires_at
+        )
         VALUES (
-          ${job.id}, ${job.groupId}, ${job.kind}, ${job.model},
+          ${job.id}, ${job.groupId}, ${job.kind}, ${job.origin}, ${job.originNetwork}, ${job.canaryId}, ${job.model},
           ${jsonb(db, job.messages)}, ${jsonb(db, job.params)},
           ${job.expected}, ${job.targetNode}, ${job.createdAt}, ${job.expiresAt}
         )
@@ -83,15 +92,23 @@ export function postgresJobs(db: Queryable): JobStore {
     },
 
     async assignable({ rig, qualified, now, limit }) {
+      const card = rig.gpu?.uuid ?? null;
       const rows = await db<JobRow[]>`
         SELECT j.* FROM jobs j
         WHERE j.status = 'queued'
           AND j.expires_at > ${now}
           AND j.model = ANY(${rig.models}::text[])
           AND (j.target_node = ${rig.nodeKey} OR (j.target_node IS NULL AND ${qualified}::boolean))
+          AND (j.origin_network IS NULL OR ${rig.network}::text IS NULL OR j.origin_network <> ${rig.network}::text)
           AND NOT EXISTS (
-            SELECT 1 FROM jobs twin JOIN rigs holder ON holder.node_key = twin.assigned_node
-            WHERE twin.group_id = j.group_id AND twin.id <> j.id AND holder.operator = ${rig.operator}
+            SELECT 1 FROM jobs other JOIN rigs holder ON holder.node_key = other.assigned_node
+            WHERE other.group_id = j.group_id AND other.id <> j.id
+              AND (
+                holder.node_key = ${rig.nodeKey}
+                OR holder.operator = ${rig.operator}
+                OR (holder.network IS NOT NULL AND holder.network = ${rig.network}::text)
+                OR (holder.gpu ->> 'uuid' IS NOT NULL AND holder.gpu ->> 'uuid' = ${card}::text)
+              )
           )
         ORDER BY (j.target_node IS NULL), j.created_at, j.id
         LIMIT ${limit}
@@ -110,7 +127,7 @@ export function postgresJobs(db: Queryable): JobStore {
     async openChecks(nodeKey) {
       const rows = await db<JobRow[]>`
         SELECT * FROM jobs
-        WHERE target_node = ${nodeKey} AND kind <> 'chat' AND status IN ('queued', 'assigned')
+        WHERE target_node = ${nodeKey} AND status IN ('queued', 'assigned')
         ORDER BY created_at, id
       `;
       return rows.map(toJob);
@@ -119,6 +136,13 @@ export function postgresJobs(db: Queryable): JobStore {
     async queuedCount(kind) {
       const [row] = await db<{ count: string }[]>`
         SELECT count(*) AS count FROM jobs WHERE kind = ${kind} AND status = 'queued'
+      `;
+      return toSafeNumber(row?.count ?? 0);
+    },
+
+    async openCount(origin) {
+      const [row] = await db<{ count: string }[]>`
+        SELECT count(*) AS count FROM jobs WHERE origin = ${origin} AND status IN ('queued', 'assigned')
       `;
       return toSafeNumber(row?.count ?? 0);
     },
@@ -185,7 +209,7 @@ export function postgresJobs(db: Queryable): JobStore {
     async verifiedUnitsSince(since) {
       const [row] = await db<{ units: string }[]>`
         SELECT COALESCE(sum(units), 0) AS units FROM jobs
-        WHERE verification = 'verified' AND kind = 'chat' AND verified_at >= ${since}
+        WHERE verification = 'verified' AND origin = 'playground' AND verified_at >= ${since}
       `;
       return toBigInt(row?.units ?? 0);
     },
@@ -194,7 +218,7 @@ export function postgresJobs(db: Queryable): JobStore {
       const rows = await db<{ hour: Date; units: string }[]>`
         SELECT to_timestamp(floor(extract(epoch FROM verified_at) / 3600) * 3600) AS hour, sum(units) AS units
         FROM jobs
-        WHERE assigned_node = ${nodeKey} AND verification = 'verified' AND kind = 'chat'
+        WHERE assigned_node = ${nodeKey} AND verification = 'verified' AND origin = 'playground'
           AND verified_at >= ${since}
         GROUP BY 1
         ORDER BY 1

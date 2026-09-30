@@ -1,11 +1,13 @@
 import type { Address } from '@minera/shared';
 import type {
   BurnRecord,
+  CanaryRecord,
   ClaimRecord,
   Entitlement,
   JobRecord,
   RigRecord,
   SettlementRecord,
+  StrikeReason,
 } from '../records.ts';
 
 export interface WorkRow {
@@ -13,6 +15,13 @@ export interface WorkRow {
   epoch: number;
   verified: bigint;
   unverified: bigint;
+  paid: bigint;
+}
+
+export interface StrikeRow {
+  nodeKey: Address;
+  reason: StrikeReason;
+  at: Date;
 }
 
 export interface MemoryState {
@@ -26,6 +35,12 @@ export interface MemoryState {
   claims: ClaimRecord[];
   cursor: bigint | null;
   nextSettlementId: number;
+  canaries: Map<string, CanaryRecord>;
+  strikes: StrikeRow[];
+  /** `nodeKey:epoch` of every quarantined epoch. */
+  quarantines: Set<string>;
+  /** Counts keyed by `minute|gate|outcome`, the minute in epoch milliseconds. */
+  tally: Map<string, number>;
 }
 
 /** The state lives in a box so a failed transaction can swap it back for its snapshot. */
@@ -45,6 +60,10 @@ export function emptyState(): MemoryState {
     claims: [],
     cursor: null,
     nextSettlementId: 1,
+    canaries: new Map(),
+    strikes: [],
+    quarantines: new Set(),
+    tally: new Map(),
   };
 }
 

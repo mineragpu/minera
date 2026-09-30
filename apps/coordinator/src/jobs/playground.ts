@@ -14,11 +14,13 @@ export class PlaygroundBusyError extends Error {
   override name = 'PlaygroundBusyError';
 }
 
-const SYSTEM = 'You are a helpful assistant. Answer clearly and briefly.';
+/** Shared with Sentinel's seeds and canaries, so a node cannot tell them from a visitor's prompt. */
+export const PLAYGROUND_SYSTEM = 'You are a helpful assistant. Answer clearly and briefly.';
 
 /**
  * Queue a visitor's prompt, sometimes twice, and return its public id. The public id is the group
- * id, which no rig ever receives, so a rig cannot look up its own prompt on the playground.
+ * id, which no rig ever receives, so a rig cannot look up its own prompt on the playground. Rigs on
+ * the visitor's network never answer it, so an operator cannot feed work to their own rigs.
  */
 export async function submitPlaygroundJob(
   store: Store,
@@ -26,6 +28,7 @@ export async function submitPlaygroundJob(
   prompt: string,
   now: Date,
   random: Random,
+  originNetwork: string | null,
 ): Promise<string> {
   return store.transaction(async (tx) => {
     if ((await tx.jobs.queuedCount('chat')) >= JOB_POLICY.maxQueuedPlayground) throw new PlaygroundBusyError();
@@ -34,9 +37,12 @@ export async function submitPlaygroundJob(
       id: random.uuid(),
       groupId,
       kind: 'chat',
+      origin: 'playground',
+      originNetwork,
+      canaryId: null,
       model: settings.model,
       messages: [
-        { role: 'system', content: SYSTEM },
+        { role: 'system', content: PLAYGROUND_SYSTEM },
         { role: 'user', content: prompt },
       ],
       params: { temperature: 0, seed: random.int(MAX_SEED), maxTokens: settings.maxTokens },

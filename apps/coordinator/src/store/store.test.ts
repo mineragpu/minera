@@ -6,6 +6,7 @@ import type { Address, Hex } from '@minera/shared';
 import { migrate } from '../db/migrate.ts';
 import { createMemoryStore } from './memory/index.ts';
 import { createPostgresStore } from './postgres/index.ts';
+import { seededRandom } from '../testing/seededRandom.ts';
 import type { NewJob, RigListQuery, SettlementDraft, TreeDump } from './records.ts';
 import type { Store } from './store.ts';
 
@@ -20,6 +21,10 @@ const OPERATOR_B = address(0xb);
 const RIG_1 = address(0x1001);
 const RIG_2 = address(0x1002);
 const RIG_3 = address(0x1003);
+const RIG_4 = address(0x1004);
+const RIG_5 = address(0x1005);
+const OPERATOR_C = address(0xc);
+const OPERATOR_D = address(0xd);
 const RUNTIME = { runtime: 'local', version: '1.0.0', models: ['small-model'] };
 
 async function deployRigs(store: Store): Promise<void> {
@@ -30,7 +35,8 @@ async function deployRigs(store: Store): Promise<void> {
   ];
   for (const rig of rigs) await store.rigs.deploy(rig);
   for (const nodeKey of [RIG_1, RIG_2, RIG_3]) {
-    const report = { clientVersion: '0.1.0', gpu: { model: 'card', vramMb: 8_192 }, runtime: RUNTIME };
+    const gpu = { model: 'card', vramMb: 8_192, uuid: `GPU-${nodeKey.slice(-4)}` };
+    const report = { clientVersion: '0.1.0', gpu, runtime: RUNTIME, network: `net-${nodeKey.slice(-4)}` };
     await store.rigs.recordHello(nodeKey, report, at(3));
   }
 }
@@ -41,6 +47,9 @@ function job(overrides: Partial<NewJob> = {}): NewJob {
     id,
     groupId: id,
     kind: 'chat',
+    origin: overrides.kind === undefined || overrides.kind === 'chat' ? 'playground' : 'check',
+    originNetwork: null,
+    canaryId: null,
     model: 'small-model',
     messages: [{ role: 'user', content: 'hello' }],
     params: { temperature: 0, seed: 7, maxTokens: 64 },
@@ -97,7 +106,8 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(one?.pair, STOCK);
       assert.equal(one?.deployedBlock, 10n);
       assert.deepEqual(one?.models, ['small-model']);
-      assert.deepEqual(one?.gpu, { model: 'card', vramMb: 8_192 });
+      assert.deepEqual(one?.gpu, { model: 'card', vramMb: 8_192, uuid: 'GPU-1001' });
+      assert.equal(one?.network, 'net-1001');
       const two = await store.rigs.get(RIG_2);
       assert.equal(two?.retired, true);
       assert.deepEqual(two?.retiredAt, at(20));
@@ -108,9 +118,9 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       store.rigs.list({ sort: 'new', pair: null, operator: null, epoch: 7, limit: 10, offset: 0, ...query });
 
     it('lists the board with sorting, a pair filter and pagination', async () => {
-      await store.work.credit(RIG_1, 7, { verified: 5, unverified: 0 });
-      await store.work.credit(RIG_3, 6, { verified: 50, unverified: 0 });
-      await store.work.credit(RIG_3, 7, { verified: 1, unverified: 3 });
+      await store.work.credit(RIG_1, 7, { verified: 5, unverified: 0, paid: 5 });
+      await store.work.credit(RIG_3, 6, { verified: 50, unverified: 0, paid: 50 });
+      await store.work.credit(RIG_3, 7, { verified: 1, unverified: 3, paid: 1 });
       const newest = await board({});
       assert.deepEqual(newest.rigs.map((rig) => rig.nodeKey), [RIG_3, RIG_2, RIG_1]);
       assert.equal(newest.total, 3);
@@ -144,12 +154,12 @@ function storeContract(name: string, open: () => Promise<Store>): void {
     });
 
     it('tracks liveness, checks and challenges', async () => {
-      await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['other'] }, at(40));
+      await store.rigs.recordHeartbeat(RIG_1, { runtime: 'local', models: ['other'] }, 'net-moved', at(40));
       await store.rigs.recordCheck(RIG_1, true, at(41));
       await store.rigs.recordCheck(RIG_1, false, at(42));
       await store.rigs.markChallenged(RIG_1, at(43));
       const rig = await store.rigs.get(RIG_1);
-      assert.deepEqual(rig?.models, ['other']);
+      assert.deepEqual([rig?.models, rig?.network], [['other'], 'net-moved']);
       assert.equal(rig?.runtimeVersion, null);
       assert.deepEqual([rig?.checksPassed, rig?.checksFailed], [1, 1]);
       assert.equal(rig?.qualifiedAt, null);
@@ -258,19 +268,175 @@ function storeContract(name: string, open: () => Promise<Store>): void {
     });
 
     it('credits work per epoch and sums it per rig with its operator', async () => {
-      await store.work.credit(RIG_1, 3, { verified: 10, unverified: 4 });
-      await store.work.credit(RIG_1, 3, { verified: 5, unverified: 0 });
-      await store.work.credit(RIG_1, 4, { verified: 1, unverified: 0 });
-      await store.work.credit(RIG_3, 4, { verified: 0, unverified: 9 });
-      await store.work.credit(RIG_3, 9, { verified: 2, unverified: 0 });
+      await store.work.credit(RIG_1, 3, { verified: 10, unverified: 4, paid: 5 });
+      await store.work.credit(RIG_1, 3, { verified: 5, unverified: 0, paid: 5 });
+      await store.work.credit(RIG_1, 4, { verified: 1, unverified: 0, paid: 1 });
+      await store.work.credit(RIG_3, 4, { verified: 0, unverified: 9, paid: 0 });
+      await store.work.credit(RIG_3, 9, { verified: 2, unverified: 0, paid: 2 });
       assert.equal(await store.work.epochUnits(RIG_1, 3), 15n);
       assert.equal(await store.work.epochUnits(RIG_2, 3), 0n);
       assert.equal((await store.rigs.get(RIG_1))?.verifiedUnits, 16n);
-      assert.deepEqual(await store.work.verifiedByRig(3, 4), [{ nodeKey: RIG_1, operator: OPERATOR_A, units: 16n }]);
-      assert.deepEqual(await store.work.verifiedByRig(0, 100), [
-        { nodeKey: RIG_1, operator: OPERATOR_A, units: 16n },
-        { nodeKey: RIG_3, operator: OPERATOR_B, units: 2n },
+      assert.deepEqual(await store.work.verifiedByRig(3, 4), [
+        { nodeKey: RIG_1, operator: OPERATOR_A, verified: 16n, units: 11n },
       ]);
+      assert.deepEqual(await store.work.verifiedByRig(0, 100), [
+        { nodeKey: RIG_1, operator: OPERATOR_A, verified: 16n, units: 11n },
+        { nodeKey: RIG_3, operator: OPERATOR_B, verified: 2n, units: 2n },
+      ]);
+    });
+
+    it('pays nothing for an epoch in which the rig was quarantined', async () => {
+      await store.work.credit(RIG_1, 3, { verified: 10, unverified: 0, paid: 10 });
+      await store.work.credit(RIG_1, 4, { verified: 6, unverified: 0, paid: 6 });
+      await store.work.credit(RIG_3, 4, { verified: 8, unverified: 0, paid: 8 });
+      await store.sentinel.quarantine(RIG_1, [4, 5]);
+      await store.sentinel.quarantine(RIG_1, [4]);
+      assert.deepEqual(await store.work.verifiedByRig(3, 5), [
+        { nodeKey: RIG_1, operator: OPERATOR_A, verified: 16n, units: 10n },
+        { nodeKey: RIG_3, operator: OPERATOR_B, verified: 8n, units: 8n },
+      ]);
+      assert.deepEqual(await store.work.verifiedByRig(4, 4), [
+        { nodeKey: RIG_3, operator: OPERATOR_B, verified: 8n, units: 8n },
+      ]);
+    });
+
+    it('keeps rigs that share an operator, a network or a card from checking each other', async () => {
+      const report = (network: string, uuid: string) => ({
+        clientVersion: '0.1.0',
+        gpu: { model: 'card', vramMb: 8_192, uuid },
+        runtime: RUNTIME,
+        network,
+      });
+      const four = { nodeKey: RIG_4, operator: OPERATOR_C, pair: ETH, name: 'four', deployedAt: at(4), deployedBlock: 13n };
+      const five = { nodeKey: RIG_5, operator: OPERATOR_D, pair: ETH, name: 'five', deployedAt: at(4), deployedBlock: 14n };
+      await store.rigs.deploy(four);
+      await store.rigs.deploy(five);
+      await store.rigs.recordHello(RIG_4, report('net-1003', 'GPU-own4'), at(4));
+      await store.rigs.recordHello(RIG_5, report('net-own5', 'GPU-1003'), at(4));
+      const first = job({ createdAt: at(5) });
+      const twin = job({ groupId: first.id, createdAt: at(5) });
+      for (const entry of [first, twin]) await store.jobs.insert(entry);
+      await store.jobs.assign(first.id, RIG_3, at(6), at(9));
+
+      const offered = async (nodeKey: Address): Promise<string[]> => {
+        const rig = await store.rigs.get(nodeKey);
+        assert.ok(rig);
+        return (await store.jobs.assignable({ rig, qualified: true, now: at(7), limit: 10 })).map((j) => j.id);
+      };
+      assert.deepEqual(await offered(RIG_4), [], 'same network as the holder');
+      assert.deepEqual(await offered(RIG_5), [], 'same card as the holder');
+      assert.deepEqual(await offered(RIG_1), [twin.id]);
+    });
+
+    it('offers a playground prompt to no rig on the network it came from', async () => {
+      const prompt = job({ originNetwork: 'net-1001' });
+      await store.jobs.insert(prompt);
+      const offered = async (nodeKey: Address): Promise<string[]> => {
+        const rig = await store.rigs.get(nodeKey);
+        assert.ok(rig);
+        return (await store.jobs.assignable({ rig, qualified: true, now: at(7), limit: 10 })).map((j) => j.id);
+      };
+      assert.deepEqual(await offered(RIG_1), []);
+      assert.deepEqual(await offered(RIG_3), [prompt.id]);
+      const stored = await store.jobs.get(prompt.id);
+      assert.deepEqual([stored?.origin, stored?.originNetwork, stored?.canaryId], ['playground', 'net-1001', null]);
+    });
+
+    it('keeps each rig standing, speed and canary schedule, and counts rigs by standing', async () => {
+      const fresh = await store.rigs.get(RIG_1);
+      assert.deepEqual(
+        [fresh?.standing, fresh?.canariesPassed, fresh?.quarantinedUntil, fresh?.speedSamples, fresh?.nextCanaryAt],
+        ['probation', 0, null, [], null],
+      );
+      await store.rigs.updateSentinel(RIG_1, { standing: 'trusted', canariesPassed: 5, speedSamples: [81.5, 90] });
+      await store.rigs.updateSentinel(RIG_3, { standing: 'quarantined', quarantinedUntil: at(50), nextCanaryAt: at(9) });
+      const trusted = await store.rigs.get(RIG_1);
+      assert.deepEqual([trusted?.standing, trusted?.canariesPassed, trusted?.speedSamples], ['trusted', 5, [81.5, 90]]);
+      const held = await store.rigs.get(RIG_3);
+      assert.deepEqual([held?.quarantinedUntil, held?.nextCanaryAt], [at(50), at(9)]);
+      assert.deepEqual(await store.rigs.standingCounts(), { probation: 1, trusted: 1, quarantined: 1 });
+      await store.rigs.retire(RIG_2, at(60));
+      assert.deepEqual(await store.rigs.standingCounts(), { probation: 0, trusted: 1, quarantined: 1 });
+    });
+
+    it('tallies gate decisions and counts strikes inside a window', async () => {
+      await store.sentinel.tally('identity', 'passed', at(10));
+      await store.sentinel.tally('identity', 'passed', at(10));
+      await store.sentinel.tally('identity', 'blocked', at(11));
+      await store.sentinel.tally('canary', 'blocked', at(40));
+      assert.deepEqual(await store.sentinel.gateCounts(at(0)), [
+        { gate: 'identity', passed: 2, blocked: 1 },
+        { gate: 'gpu', passed: 0, blocked: 0 },
+        { gate: 'canary', passed: 0, blocked: 1 },
+        { gate: 'crosscheck', passed: 0, blocked: 0 },
+        { gate: 'reputation', passed: 0, blocked: 0 },
+      ]);
+      const identityAfter = async (minute: number) =>
+        (await store.sentinel.gateCounts(at(minute))).find((entry) => entry.gate === 'identity');
+      assert.deepEqual(await identityAfter(30), { gate: 'identity', passed: 0, blocked: 0 });
+
+      await store.sentinel.strike(RIG_1, 'canary_failed', at(10));
+      await store.sentinel.strike(RIG_1, 'tiebreak_lost', at(20));
+      await store.sentinel.strike(RIG_3, 'job_abandoned', at(20));
+      assert.equal(await store.sentinel.strikesSince(RIG_1, at(0)), 2);
+      assert.equal(await store.sentinel.strikesSince(RIG_1, at(15)), 1);
+
+      await store.sentinel.prune(at(15), 10);
+      assert.equal(await store.sentinel.strikesSince(RIG_1, at(0)), 1);
+      assert.deepEqual(await identityAfter(0), { gate: 'identity', passed: 0, blocked: 0 });
+    });
+
+    it('draws canaries a rig never saw, and confirms, disputes, retires and prunes them', async () => {
+      const canary = (id: string, minute: number, sources: Address[]) => ({
+        id,
+        model: 'small-model',
+        messages: [{ role: 'user' as const, content: `prompt ${id}` }],
+        params: { temperature: 0 as const, seed: 3, maxTokens: 64 },
+        answer: 'the agreed answer',
+        sources,
+        createdAt: at(minute),
+      });
+      const [one, two, three] = [randomUUID(), randomUUID(), randomUUID()];
+      await store.sentinel.addCanary(canary(one, 1, [RIG_1, RIG_3]));
+      await store.sentinel.addCanary(canary(two, 2, [RIG_2, RIG_3]));
+      await store.sentinel.addCanary({ ...canary(three, 3, [RIG_2]), model: 'large-model' });
+      assert.equal(await store.sentinel.canaryCount('small-model'), 2);
+
+      const random = seededRandom(5);
+      const forRig1 = await store.sentinel.pickCanary('small-model', RIG_1, random);
+      assert.equal(forRig1?.id, two);
+      assert.deepEqual([forRig1?.servedTo, forRig1?.confirmations, forRig1?.disputes], [[], 0, 0]);
+      assert.deepEqual(forRig1?.messages, canary(two, 2, []).messages);
+      assert.equal(await store.sentinel.pickCanary('small-model', RIG_3, random), null);
+
+      await store.sentinel.markServed(two, RIG_1);
+      await store.sentinel.markServed(two, RIG_1);
+      assert.equal(await store.sentinel.pickCanary('small-model', RIG_1, random), null);
+      assert.deepEqual((await store.sentinel.getCanary(two))?.servedTo, [RIG_1]);
+
+      await store.sentinel.confirm(two);
+      await store.sentinel.dispute(two);
+      const judged = await store.sentinel.getCanary(two);
+      assert.deepEqual([judged?.confirmations, judged?.disputes], [1, 1]);
+      await store.sentinel.retire(one);
+      assert.equal(await store.sentinel.getCanary(one), null);
+
+      await store.sentinel.addCanary(canary(randomUUID(), 4, [RIG_1]));
+      await store.sentinel.prune(at(0), 1);
+      assert.equal(await store.sentinel.canaryCount('small-model'), 1);
+      assert.equal(await store.sentinel.getCanary(two), null, 'the oldest past the bank size goes first');
+      assert.equal(await store.sentinel.canaryCount('large-model'), 1);
+    });
+
+    it('counts open jobs by origin', async () => {
+      const seed = job({ origin: 'seed' });
+      const done = job({ origin: 'seed' });
+      for (const entry of [seed, done, job()]) await store.jobs.insert(entry);
+      await store.jobs.assign(done.id, RIG_1, at(10), at(12));
+      await store.jobs.close(done.id, 'expired', at(13));
+      assert.equal(await store.jobs.openCount('seed'), 1);
+      assert.equal(await store.jobs.openCount('playground'), 1);
+      assert.equal(await store.jobs.openCount('canary'), 0);
     });
 
     it('carries a settlement from draft to publication and veto', async () => {
@@ -397,7 +563,8 @@ if (databaseUrl) {
   });
   storeContract('postgres', async () => {
     await sql`
-      TRUNCATE rigs, nonces, jobs, work, settlements, entitlements, burns, claims, chain_cursor
+      TRUNCATE rigs, nonces, jobs, work, settlements, entitlements, burns, claims, chain_cursor,
+        canaries, strikes, quarantines, sentinel_tally
       RESTART IDENTITY CASCADE
     `;
     return createPostgresStore(sql);

@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import {
   CHAINS,
@@ -30,6 +31,12 @@ export interface Config {
   playground: { model: string; maxTokens: number };
   /** Reverse proxies in front of the service, so the client address is read from the right hop. */
   trustProxyHops: number;
+  sentinel: {
+    /** Tokens per second a rig must reach on the network's model to keep taking open work. */
+    minTokensPerSecond: number;
+    /** Keys the digest rigs' networks are stored as. Without one, a fresh key is drawn at start. */
+    networkSalt: Secret<string>;
+  };
   logLevel: LogLevel;
 }
 
@@ -55,6 +62,8 @@ const envSchema = z.object({
   PLAYGROUND_MAX_TOKENS: z.coerce.number().int().min(1).max(4_096).default(256),
   PLAYGROUND_MODEL: z.string().trim().min(1).max(128).default('llama3.2:1b'),
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(1),
+  SENTINEL_MIN_TOKENS_PER_SECOND: z.coerce.number().min(0).max(100_000).default(40),
+  SENTINEL_NETWORK_SALT: z.string().min(16, 'must be at least 16 characters').optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 
@@ -110,6 +119,10 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
     redundancyRate: values.REDUNDANCY_RATE,
     playground: { model: values.PLAYGROUND_MODEL, maxTokens: values.PLAYGROUND_MAX_TOKENS },
     trustProxyHops: values.TRUST_PROXY_HOPS,
+    sentinel: {
+      minTokensPerSecond: values.SENTINEL_MIN_TOKENS_PER_SECOND,
+      networkSalt: new Secret(values.SENTINEL_NETWORK_SALT ?? randomBytes(32).toString('hex')),
+    },
     logLevel: values.LOG_LEVEL,
   };
 }
@@ -126,5 +139,6 @@ export function configSummary(config: Config): Record<string, unknown> {
     heartbeatSeconds: config.heartbeatSeconds,
     redundancyRate: config.redundancyRate,
     playground: config.playground,
+    sentinel: { minTokensPerSecond: config.sentinel.minTokensPerSecond },
   };
 }

@@ -1,4 +1,4 @@
-import type { Address, GpuInfo } from '@minera/shared';
+import type { Address, GpuInfo, RigStanding } from '@minera/shared';
 import type { Fragment, Queryable } from '../../db/client.ts';
 import type { RigListEntry, RigRecord, RigSort } from '../records.ts';
 import type { RigStore } from '../store.ts';
@@ -24,6 +24,12 @@ interface RigRow {
   checks_passed: number;
   checks_failed: number;
   verified_units: string;
+  standing: RigStanding;
+  canaries_passed: number;
+  quarantined_until: Date | null;
+  network: string | null;
+  speed_samples: number[];
+  next_canary_at: Date | null;
 }
 
 function toRig(row: RigRow): RigRecord {
@@ -48,6 +54,12 @@ function toRig(row: RigRow): RigRecord {
     checksPassed: row.checks_passed,
     checksFailed: row.checks_failed,
     verifiedUnits: toBigInt(row.verified_units),
+    standing: row.standing,
+    canariesPassed: row.canaries_passed,
+    quarantinedUntil: row.quarantined_until,
+    network: row.network,
+    speedSamples: row.speed_samples.map(Number),
+    nextCanaryAt: row.next_canary_at,
   };
 }
 
@@ -95,21 +107,50 @@ export function postgresRigs(db: Queryable): RigStore {
           runtime_version = ${report.runtime.version ?? null},
           models = ${report.runtime.models}::text[],
           client_version = ${report.clientVersion},
+          network = ${report.network},
           hello_at = ${now},
           last_seen_at = ${now}
         WHERE node_key = ${nodeKey}
       `;
     },
 
-    async recordHeartbeat(nodeKey, runtime, now) {
+    async recordHeartbeat(nodeKey, runtime, network, now) {
       await db`
         UPDATE rigs SET
           runtime = ${runtime.runtime},
           runtime_version = ${runtime.version ?? null},
           models = ${runtime.models}::text[],
+          network = ${network},
           last_seen_at = ${now}
         WHERE node_key = ${nodeKey}
       `;
+    },
+
+    async updateSentinel(nodeKey, patch) {
+      if (patch.standing !== undefined) {
+        await db`UPDATE rigs SET standing = ${patch.standing} WHERE node_key = ${nodeKey}`;
+      }
+      if (patch.canariesPassed !== undefined) {
+        await db`UPDATE rigs SET canaries_passed = ${patch.canariesPassed} WHERE node_key = ${nodeKey}`;
+      }
+      if (patch.quarantinedUntil !== undefined) {
+        await db`UPDATE rigs SET quarantined_until = ${patch.quarantinedUntil} WHERE node_key = ${nodeKey}`;
+      }
+      if (patch.speedSamples !== undefined) {
+        await db`UPDATE rigs SET speed_samples = ${patch.speedSamples}::float8[] WHERE node_key = ${nodeKey}`;
+      }
+      if (patch.nextCanaryAt !== undefined) {
+        await db`UPDATE rigs SET next_canary_at = ${patch.nextCanaryAt} WHERE node_key = ${nodeKey}`;
+      }
+    },
+
+    async standingCounts() {
+      const rows = await db<{ standing: RigStanding; count: string }[]>`
+        SELECT standing, count(*) AS count FROM rigs WHERE retired_at IS NULL GROUP BY standing
+      `;
+      const counts: Record<RigStanding, number> = { probation: 0, trusted: 0, quarantined: 0 };
+      for (const row of rows) counts[row.standing] = toSafeNumber(row.count);
+      return counts;
     },
 
     async recordCheck(nodeKey, passed, now) {

@@ -41,9 +41,9 @@ function input(overrides: Partial<PlanInput> = {}): PlanInput {
     fromEpoch: 0,
     toEpoch: 10,
     work: [
-      { nodeKey: address(0x1), operator: OPERATOR_A, units: 30n },
-      { nodeKey: address(0x2), operator: OPERATOR_A, units: 10n },
-      { nodeKey: address(0x3), operator: OPERATOR_B, units: 60n },
+      { nodeKey: address(0x1), operator: OPERATOR_A, verified: 30n, units: 30n },
+      { nodeKey: address(0x2), operator: OPERATOR_A, verified: 20n, units: 10n },
+      { nodeKey: address(0x3), operator: OPERATOR_B, verified: 60n, units: 60n },
     ],
     chainId: 46630,
     burnPool: POOL,
@@ -97,7 +97,7 @@ describe('planSettlement', () => {
       settlementCount: 1,
       timestamp: DEPLOYED + 2n * DAY,
     });
-    const work = [{ nodeKey: address(0x3), operator: OPERATOR_B, units: 1n }];
+    const work = [{ nodeKey: address(0x3), operator: OPERATOR_B, verified: 1n, units: 1n }];
     const plan = publish(planSettlement(input({ pool, base, fromEpoch: 11, toEpoch: 20, work })));
     assert.equal(plan.budget, 9n * ETH);
     const cumulative = new Map(plan.draft.entitlements.map((entry) => [entry.account, entry.cumulative]));
@@ -117,12 +117,12 @@ describe('planSettlement', () => {
     assert.equal(vetoed.kind, 'publish');
   });
 
-  it('skips with a reason when there is no budget or no verified work', () => {
+  it('skips with a reason when there is no budget or no paid work', () => {
     const empty = planSettlement(input({ pool: snapshot({ totalBurned: 0n }) }));
     assert.deepEqual(empty, { kind: 'skip', reason: 'the release budget is zero' });
     const idleNetwork = planSettlement(input({ work: [] }));
-    assert.deepEqual(idleNetwork, { kind: 'skip', reason: 'there is no verified work to settle' });
-    const idle: RigWork[] = [{ nodeKey: address(1), operator: OPERATOR_A, units: 0n }];
+    assert.deepEqual(idleNetwork, { kind: 'skip', reason: 'there is no paid work to settle' });
+    const idle: RigWork[] = [{ nodeKey: address(1), operator: OPERATOR_A, verified: 5n, units: 0n }];
     assert.equal(planSettlement(input({ work: idle })).kind, 'skip');
   });
 
@@ -152,11 +152,10 @@ describe('planSettlement', () => {
         releaseBpsPerDay: BigInt(1 + random.int(10_000)),
         timestamp: DEPLOYED + BigInt(random.int(40 * 86_400)),
       });
-      const work = Array.from({ length: 1 + random.int(20) }, (_, i) => ({
-        nodeKey: address(0x100 + i),
-        operator: address(1 + random.int(6)),
-        units: BigInt(random.int(5_000)),
-      }));
+      const work = Array.from({ length: 1 + random.int(20) }, (_, i) => {
+        const units = BigInt(random.int(5_000));
+        return { nodeKey: address(0x100 + i), operator: address(1 + random.int(6)), verified: units * 2n, units };
+      });
       const plan = planSettlement(input({ pool, work }));
       if (plan.kind === 'publish') {
         assert.ok(plan.draft.total <= pool.releasable);
