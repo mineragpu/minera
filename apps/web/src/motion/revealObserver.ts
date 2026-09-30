@@ -10,13 +10,15 @@ const SWEEP_MS = 500;
 
 const pending = new Set<Element>();
 const listeners = new Map<Element, Set<RevealListener>>();
-const inViewSince = new WeakMap<Element, number>();
+/** Pending elements seen in the viewport, and since when. */
+const inViewSince = new Map<Element, number>();
 let observer: IntersectionObserver | null = null;
 let sweepTimer = 0;
+/** Set by a scroll or resize; the sweep reads layout only after one, or while something waits in view. */
+let moved = true;
 
-function inViewport(element: Element): boolean {
-  const rect = element.getBoundingClientRect();
-  return (rect.width > 0 || rect.height > 0) && rect.bottom > 0 && rect.top < window.innerHeight;
+function markMoved(): void {
+  moved = true;
 }
 
 /**
@@ -25,6 +27,7 @@ function inViewport(element: Element): boolean {
  */
 function reveal(element: Element, how: 'play' | 'done', order = 0): void {
   if (!pending.delete(element)) return;
+  inViewSince.delete(element);
   observer?.unobserve(element);
   if (how === 'play' && order > 0 && (element instanceof HTMLElement || element instanceof SVGElement)) {
     element.style.setProperty('--reveal-order', String(Math.min(order, MAX_ORDER)));
@@ -48,10 +51,18 @@ function onEntries(entries: IntersectionObserverEntry[]): void {
 }
 
 function sweep(): void {
-  if (document.hidden) return;
+  if (document.hidden || (!moved && inViewSince.size === 0)) return;
+  moved = false;
   const now = performance.now();
   for (const element of pending) {
-    if (!inViewport(element)) {
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) continue;
+    // Content scrolled past, even so fast that no frame ever showed it, is shown at rest.
+    if (rect.bottom <= 0) {
+      reveal(element, 'done');
+      continue;
+    }
+    if (rect.top >= window.innerHeight) {
       inViewSince.delete(element);
       continue;
     }
@@ -62,12 +73,18 @@ function sweep(): void {
 }
 
 function startSweep(): void {
-  if (!sweepTimer) sweepTimer = window.setInterval(sweep, SWEEP_MS);
+  if (sweepTimer) return;
+  moved = true;
+  sweepTimer = window.setInterval(sweep, SWEEP_MS);
+  window.addEventListener('scroll', markMoved, { passive: true });
+  window.addEventListener('resize', markMoved, { passive: true });
 }
 
 function stopSweep(): void {
   window.clearInterval(sweepTimer);
   sweepTimer = 0;
+  window.removeEventListener('scroll', markMoved);
+  window.removeEventListener('resize', markMoved);
 }
 
 /** Creates the shared observer; false where IntersectionObserver is missing. */
@@ -102,12 +119,14 @@ export function observeReveal(element: Element, onReveal?: RevealListener): () =
   pending.add(element);
   observer.observe(element);
   startSweep();
+  moved = true;
   return () => {
     if (onReveal) {
       const set = listeners.get(element);
       set?.delete(onReveal);
       if (set?.size === 0) listeners.delete(element);
     }
+    inViewSince.delete(element);
     if (pending.delete(element)) observer?.unobserve(element);
     if (pending.size === 0) stopSweep();
   };
