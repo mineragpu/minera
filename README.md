@@ -2,14 +2,14 @@
 
 <img src="docs/assets/hero.png" alt="The landing page: a cluster of metal compute blocks with iridescent edges beside the headline Deploy a GPU like you would launch a token." width="100%">
 
-# DayaGPU
+# Minera
 
 **Deploy a GPU like you'd launch a token.**
 
 A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized stock,
 and mine from a pool that only fills.
 
-*Daya means power.*
+*Minera means mining.*
 
 [Website](https://web-production-360d4.up.railway.app) · [Docs](https://web-production-360d4.up.railway.app/docs) · [Run a node](https://web-production-360d4.up.railway.app/docs/quickstart) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
 
@@ -25,7 +25,7 @@ and mine from a pool that only fills.
 | **Pair with** | Choose the asset your rig's claims default to: ETH, or a tokenized stock listed on the network. The pair zap converts the ETH as you claim, and claiming in ETH always works. The operator can change the pair on the registry. |
 | **Mine** | Rigs earn by doing verified GPU work. Wall-clock uptime alone earns nothing. |
 | **Burn Pool** | Rewards come from a pool with no withdraw function. What goes in can only leave as mining rewards. |
-| **Campaigns** | Each campaign announces the share that is burned into the pool, and when. |
+| **Campaigns** | Rewards are added to the Burn Pool on a regular schedule, through buyback and burn and a distribution of about 10% of creator fees. Each campaign is announced with its schedule. |
 
 ## How it works
 
