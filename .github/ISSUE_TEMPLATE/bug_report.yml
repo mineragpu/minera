@@ -1,0 +1,92 @@
+name: Bug report
+description: Something in the site, coordinator, node client or contracts does not work as documented.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. If this could be a security issue, stop here and report it privately
+        through the Security tab instead, as described in SECURITY.md.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Site (apps/web)
+        - Coordinator API (apps/coordinator)
+        - Node client (packages/miner)
+        - Contracts (packages/contracts)
+        - Shared package (packages/shared)
+        - Docs
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including any error message.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What should have happened instead, with a link to the docs if they describe it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The smallest set of steps that shows the problem.
+      placeholder: |
+        1. Run `...`
+        2. Open `...`
+        3. See the error
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      description: The commit hash you ran, or the page and time you saw the problem on the live site.
+      placeholder: "Example: 1a2b3c4, or mineragpu.tech/launchpad at 14:05 UTC"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Node.js version, browser and wallet, or GPU and model runtime, as relevant.
+      placeholder: |
+        OS:
+        Node.js:
+        Browser:
+        GPU and runtime:
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output. It is formatted as code automatically. Remove keys, tokens and addresses you do not want public.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the open issues and this is not a duplicate.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true
+        - label: The report contains no private keys, node keys, tokens or other secrets.
+          required: true

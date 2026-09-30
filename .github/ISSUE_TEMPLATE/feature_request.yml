@@ -1,0 +1,68 @@
+name: Feature request
+description: Propose a change or a new capability.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem first. A clear problem makes it easier to agree on the right fix.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Site (apps/web)
+        - Coordinator API (apps/coordinator)
+        - Node client (packages/miner)
+        - Contracts (packages/contracts)
+        - Shared package (packages/shared)
+        - Docs
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you are trying to do, and what gets in the way today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change you have in mind, and how it would work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and trust impact
+      description: Would this change who can move funds, what the coordinator decides, or what a rig can claim about its own work? Write "None" if it does not.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, and why they fall short.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Links, sketches or examples.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the open issues and this has not been proposed.
+          required: true
