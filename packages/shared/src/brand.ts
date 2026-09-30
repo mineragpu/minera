@@ -5,18 +5,18 @@
  * changed here without touching anything else.
  */
 export const BRAND = {
-  name: 'DayaGPU',
-  symbol: 'DAYA',
-  pronunciation: 'DAH-yah G-P-U',
-  meaning: 'Daya means power.',
+  name: 'Minera',
+  symbol: 'MNRA',
+  pronunciation: 'mih-NEH-rah',
+  meaning: 'Minera means mining.',
   tagline: "Deploy a GPU like you'd launch a token.",
   oneLiner:
     'A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized ' +
     'stock, and mine from a pool that only fills.',
   links: {
     site: 'https://web-production-360d4.up.railway.app',
-    x: 'https://x.com/dayagpu',
-    github: 'https://github.com/dayagpu/dayagpu',
+    x: 'https://x.com/mineragpu',
+    github: 'https://github.com/mineragpu/minera',
   },
 } as const;
 
