@@ -13,6 +13,7 @@ import { Words } from '../components/Words.tsx';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
 import { formatAmount, formatCount, toFloat } from '../lib/amount.ts';
 import { revealRef } from '../motion/revealObserver.ts';
+import { useReveal } from '../motion/useReveal.ts';
 import { useVesselFill } from '../motion/useVesselFill.ts';
 import './burn-pool.css';
 
@@ -47,6 +48,8 @@ function level(value: bigint) {
 export function BurnPool({ index }: { index: string }) {
   const vesselRef = useRef<HTMLElement>(null);
   const { playing, onScreen } = useVesselFill(vesselRef);
+  const [readoutRef, readoutSeen] = useReveal<HTMLDivElement>();
+  const counting = playing && readoutSeen;
   const pool = usePoll(fetchPool, { key: 'pool', intervalMs: REFRESH_MS });
   const state = pool.data?.state ?? null;
   const figures = state ? figuresOf(state) : EMPTY;
@@ -84,30 +87,30 @@ export function BurnPool({ index }: { index: string }) {
           />
           <figcaption>
             <ul className="legend">
-              <li>
+              <li ref={revealRef} data-reveal="fade-up">
                 <span className="sw sw--fill" aria-hidden="true" />
                 <span>Not yet committed</span>
                 <span className="num">{eth(figures.uncommitted)}</span>
               </li>
-              <li>
+              <li ref={revealRef} data-reveal="fade-up">
                 <span className="sw sw--hatch" aria-hidden="true" />
                 <span>Committed to miners</span>
                 <span className="num">{eth(figures.committed)}</span>
               </li>
-              <li>
+              <li ref={revealRef} data-reveal="fade-up">
                 <span className="sw sw--line" aria-hidden="true" />
                 <span>All deposits</span>
                 <span className="num">{eth(figures.deposited)}</span>
               </li>
             </ul>
-            <p className="legend__foot">
+            <p className="legend__foot" ref={revealRef} data-reveal="fade">
               <span>One slab = {unitText} ETH.</span>
             </p>
           </figcaption>
         </figure>
 
         <div className="pool__body">
-          <p className="band">
+          <p className="band" ref={revealRef} data-reveal="fade-up">
             <span>
               <b>
                 Campaign {PREVIEW_CAMPAIGN.number} · {PREVIEW_CAMPAIGN.name}.
@@ -121,13 +124,13 @@ export function BurnPool({ index }: { index: string }) {
               <LoadError message={pool.error.message} onRetry={pool.retry} />
             </div>
           ) : (
-            <div className="readout" aria-busy={loading}>
+            <div className="readout" ref={readoutRef} data-reveal="readout" aria-busy={loading}>
               <p className="rlabel">Burned in, all time</p>
               <p className="big">
                 {loading ? (
                   <Skeleton width="4ch" />
                 ) : (
-                  <CountUp value={toFloat(figures.deposited)} text={formatAmount(figures.deposited)} run={playing} />
+                  <CountUp value={toFloat(figures.deposited)} text={formatAmount(figures.deposited)} run={counting} />
                 )}
                 <span className="unit">ETH</span>
               </p>
@@ -138,7 +141,7 @@ export function BurnPool({ index }: { index: string }) {
                     {loading ? (
                       <Skeleton width="4ch" />
                     ) : (
-                      <CountUp value={toFloat(figures.committed)} text={formatAmount(figures.committed)} run={playing} />
+                      <CountUp value={toFloat(figures.committed)} text={formatAmount(figures.committed)} run={counting} />
                     )}{' '}
                     <span className="unit">ETH</span>
                   </p>
@@ -149,7 +152,7 @@ export function BurnPool({ index }: { index: string }) {
                     {loading ? (
                       <Skeleton width="2ch" />
                     ) : (
-                      <CountUp value={figures.settlements} text={formatCount(figures.settlements)} run={playing} />
+                      <CountUp value={figures.settlements} text={formatCount(figures.settlements)} run={counting} />
                     )}
                   </p>
                 </div>
@@ -164,22 +167,22 @@ export function BurnPool({ index }: { index: string }) {
             </div>
           )}
 
-          <p className="oneway">
+          <p className="oneway" ref={revealRef} data-reveal="blur-in">
             No withdraw function. <span>Deposits leave only as mining rewards.</span>
           </p>
 
           <ul className="iface" aria-label="What the Burn Pool can do">
-            <li>
+            <li ref={revealRef} data-reveal="fade-up">
               <code>deposit</code>
               <span>From the project wallet, at any time</span>
               <span className="state state--open">Open</span>
             </li>
-            <li>
+            <li ref={revealRef} data-reveal="fade-up">
               <code>reward</code>
               <span>To rigs, for verified work, each block</span>
               <span className="state state--open">Open</span>
             </li>
-            <li className="is-none">
+            <li className="is-none" ref={revealRef} data-reveal="fade-up">
               <code>withdraw</code>
               <span>No such function</span>
               <span className="state state--none">None</span>

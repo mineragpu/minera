@@ -297,3 +297,34 @@
     grid-row: 2;
   }
 }
+
+/*
+ * Entrances: the readout rises and its rail draws down before its figures count up, and the
+ * interface rows arrive in turn, the missing withdraw stamping its None.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .readout::before {
+    transform-origin: 50% 0;
+  }
+
+  .motion-ok .readout:not([data-revealed]) {
+    opacity: 0;
+    translate: 0 var(--rise);
+  }
+
+  .motion-ok .readout:not([data-revealed])::before {
+    scale: 1 0;
+  }
+
+  .readout[data-revealed="play"] {
+    animation: reveal-fade-up var(--dur-4) var(--ease-out) var(--reveal-at) backwards;
+  }
+
+  .readout[data-revealed="play"]::before {
+    animation: reveal-draw-y var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 200ms) backwards;
+  }
+
+  .iface li[data-revealed="play"] .state {
+    animation: reveal-stamp var(--dur-3) var(--ease-back) calc(var(--reveal-at) + 360ms) backwards;
+  }
+}

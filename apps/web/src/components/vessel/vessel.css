@@ -104,3 +104,44 @@
     transform: translateX(420px);
   }
 }
+
+/*
+ * Deposits arriving: motes fall into the mouth and drift in toward the deposit line while the
+ * vessel is on screen. Phones show three.
+ */
+.mote {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vessel .mote {
+    animation: mote-fall var(--time, 3s) var(--ease-drop) var(--lag, 0s) infinite;
+  }
+
+  .vessel[data-idle] .mote {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 640px) {
+  .vessel .mote:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@keyframes mote-fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  14%,
+  78% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}

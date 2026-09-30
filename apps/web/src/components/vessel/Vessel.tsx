@@ -1,5 +1,6 @@
 import { at, points, project, segment, type Point3 } from './isometric.ts';
 import { spreadLabels } from './labels.ts';
+import { Motes } from './Motes.tsx';
 import { SCALE_SLABS, formatScale } from './scale.ts';
 import './vessel.css';
 
@@ -337,6 +338,7 @@ export function Vessel({ uncommitted, committed, deposited, unitEth, unitText }:
       <Drop x={0} y={-290} phase={0} fall={104} />
       <Drop x={0} y={-290} phase={1} fall={104} />
       <Drop x={0} y={-290} phase={2} fall={104} />
+      <Motes />
       <path d="M0 152V204" stroke="url(#vs-edge)" strokeOpacity=".7" strokeDasharray="2 4" />
       <Drop x={0} y={156} phase={0.5} fall={46} />
       <Drop x={0} y={156} phase={1.5} fall={46} />
