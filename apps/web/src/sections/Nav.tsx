@@ -1,5 +1,6 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
+import { pageProgressRef } from '../motion/pageProgress.ts';
 import { useSectionSpy } from '../motion/useSectionSpy.ts';
 import { PATHS, type Route } from '../router/routes.ts';
 import { useWallet } from '../wallet/useWallet.ts';
@@ -43,6 +44,7 @@ export function Nav({ route }: { route: Route }) {
         >
           Deploy GPU
         </ButtonLink>
+        <span className="topbar__progress" ref={pageProgressRef} aria-hidden="true" />
       </div>
     </header>
   );

@@ -117,3 +117,41 @@
     display: none !important;
   }
 }
+
+/* How far down the page the reader is: a brighter line filling along the bar's lower edge. */
+.topbar__progress {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--iri-line);
+  box-shadow: 0 0 10px rgba(140, 107, 255, 0.55);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .topbar__progress {
+    opacity: 1;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .motion-ok .topbar__progress {
+      animation: page-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+@keyframes page-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
