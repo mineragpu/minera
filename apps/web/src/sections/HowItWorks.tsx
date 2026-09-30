@@ -3,6 +3,7 @@ import { Kicker } from '../components/Kicker.tsx';
 import { Words } from '../components/Words.tsx';
 import { ChevronRightIcon } from '../components/icons.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
+import { scrubRef } from '../motion/scrub.ts';
 import './how-it-works.css';
 
 interface Step {
@@ -46,9 +47,10 @@ export function HowItWorks({ index }: { index: string }) {
         </div>
         <p className="lede">From a card on your desk to a claim in the asset you picked.</p>
       </div>
-      <ol className="steps">
+      <ol className="steps" ref={scrubRef} data-scrub>
         {STEPS.map((step, index) => (
-          <li key={step.title} className="step">
+          <li key={step.title} className="step" ref={revealRef} data-reveal="fade-up" style={{ '--step': index }}>
+            <span className="step__glow" aria-hidden="true" />
             <span className="step__node" aria-hidden="true">
               <CubeGlyph color={step.color} />
             </span>

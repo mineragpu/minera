@@ -143,3 +143,115 @@
     display: none;
   }
 }
+
+/*
+ * The steps light in turn as the list scrolls up the page. --how runs 0 → 4 with the scroll; each
+ * step's rail fills as it passes, a passed node lights, and the step being read glows inside an
+ * iridescent frame with its node lifted. At rest every rail is lit and nothing glows.
+ */
+.steps {
+  --scrub-from: 16%;
+  --scrub-to: 50%;
+}
+
+.step__glow {
+  position: absolute;
+  z-index: -1;
+  inset: -18px 12px -20px -16px;
+  border: 1px solid transparent;
+  border-image: conic-gradient(from 210deg, var(--iri-list)) 1;
+  background: radial-gradient(120% 90% at 0% 0%, rgba(140, 107, 255, 0.12), rgba(46, 230, 200, 0.04) 55%, rgba(11, 14, 20, 0) 80%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.step__node::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -38px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(140, 107, 255, 0.5), rgba(46, 230, 200, 0.18) 55%, rgba(11, 14, 20, 0));
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .steps {
+    --how: calc(var(--scrub, 1) * 4);
+  }
+
+  .motion-ok .step {
+    --d: calc(var(--how) - var(--step, 0));
+    --on: calc(clamp(0, var(--d) * 6, 1) * clamp(0, (1.25 - var(--d)) * 6, 1));
+    isolation: isolate;
+    background: linear-gradient(var(--seam-2) 0 0) 0 16px / 100% 1px no-repeat;
+  }
+
+  .motion-ok .step:last-child {
+    background-size: calc(100% - 28px) 1px;
+  }
+
+  .motion-ok .step::before {
+    opacity: 0.9;
+    transform: scaleX(clamp(0, var(--d), 1));
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok .step__node {
+    translate: 0 calc(var(--on) * -3px);
+  }
+
+  .motion-ok .step__node svg {
+    opacity: calc(0.45 + 0.55 * clamp(0, var(--d) * 4, 1));
+  }
+
+  .motion-ok .step__node::before {
+    opacity: var(--on);
+  }
+
+  .motion-ok .step__glow {
+    opacity: calc(var(--on) * 0.8);
+  }
+
+  .motion-ok .step__arrow {
+    opacity: calc(0.35 + 0.65 * clamp(0, (var(--d) - 0.9) * 10, 1));
+  }
+}
+
+@media (max-width: 1100px) {
+  .motion-ok .step:nth-child(2) {
+    background-size: calc(100% - 28px) 1px;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps {
+    --scrub-from: 12%;
+    --scrub-to: 56%;
+  }
+
+  .step__glow {
+    inset: -12px -10px 16px 36px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .motion-ok .step,
+    .motion-ok .step:nth-child(n) {
+      background: linear-gradient(var(--seam-2) 0 0) 15px 0 / 1px 100% no-repeat;
+    }
+
+    .motion-ok .step:last-child {
+      background-size: 1px 16px;
+    }
+
+    .motion-ok .step::before {
+      transform: scaleY(clamp(0, var(--d), 1));
+      transform-origin: 50% 0;
+    }
+  }
+}
