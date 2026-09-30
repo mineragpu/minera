@@ -1,12 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 28">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <defs>
-    <linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D2D9E2"/><stop offset="1" stop-color="#7D8797"/></linearGradient>
-    <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5E6778"/><stop offset="1" stop-color="#3A4250"/></linearGradient>
-    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#363D4A"/><stop offset="1" stop-color="#222832"/></linearGradient>
-    <linearGradient id="i" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2EE6C8"/><stop offset=".3" stop-color="#5A8DFF"/><stop offset=".52" stop-color="#8C6BFF"/><stop offset=".76" stop-color="#FF4FA3"/><stop offset="1" stop-color="#F5C451"/></linearGradient>
+    <linearGradient id="r-i-lit" gradientUnits="userSpaceOnUse" x1="0" y1="15" x2="0" y2="90"><stop offset="0" stop-color="#F4F7FA"/><stop offset="1" stop-color="#B3BDCA"/></linearGradient>
+    <linearGradient id="r-i-steel" gradientUnits="userSpaceOnUse" x1="0" y1="15" x2="0" y2="90"><stop offset="0" stop-color="#C9D1DC"/><stop offset="1" stop-color="#8391A3"/></linearGradient>
+    <linearGradient id="r-i-bit-l" gradientUnits="userSpaceOnUse" x1="0" y1="51" x2="0" y2="101.43"><stop offset="0" stop-color="#F4F7FA"/><stop offset="1" stop-color="#B3BDCA"/></linearGradient>
+    <linearGradient id="r-i-bit-r" gradientUnits="userSpaceOnUse" x1="0" y1="51" x2="0" y2="101.43"><stop offset="0" stop-color="#C9D1DC"/><stop offset="1" stop-color="#8391A3"/></linearGradient>
+    <linearGradient id="r-i-gold" gradientUnits="userSpaceOnUse" x1="0" y1="86.43" x2="0" y2="101.43"><stop offset="0" stop-color="#FFE8A6"/><stop offset="1" stop-color="#F5C451"/></linearGradient>
+    <clipPath id="r-i-bit"><path d="M37.5 51L60 78L82.5 51L82.5 74.43L60 101.43L37.5 74.43Z"/></clipPath>
   </defs>
-  <path d="M13 1.5 24.5 8 13 14.5 1.5 8Z" fill="url(#t)"/>
-  <path d="M1.5 8 13 14.5V27L1.5 20.5Z" fill="url(#l)"/>
-  <path d="M24.5 8 13 14.5V27L24.5 20.5Z" fill="url(#r)"/>
-  <path d="M13 1.5 24.5 8V20.5L13 27 1.5 20.5V8Z M1.5 8 13 14.5 24.5 8 M13 14.5V27" fill="none" stroke="url(#i)" stroke-width="1.2" stroke-linejoin="round"/>
+  <rect fill="#0B0E14" width="120" height="120" rx="22.5"/>
+  <path fill="#8C97A8" d="M7.5 97.5L51.84 97.5L58.09 105L7.5 105ZM112.5 105L61.91 105L68.16 97.5L112.5 97.5Z"/>
+  <path fill="url(#r-i-lit)" d="M7.5 15L30 42L30 90L7.5 90Z"/>
+  <path fill="url(#r-i-steel)" d="M112.5 90L90 90L90 42L112.5 15Z"/>
+  <path fill="url(#r-i-bit-l)" d="M37.5 51L60 78L60 101.43L37.5 74.43Z"/>
+  <path fill="url(#r-i-bit-r)" d="M60 78L82.5 51L82.5 74.43L60 101.43Z"/>
+  <rect fill="url(#r-i-gold)" clip-path="url(#r-i-bit)" x="0" y="86.43" width="120" height="15"/>
 </svg>
