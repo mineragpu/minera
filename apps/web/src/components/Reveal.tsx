@@ -11,6 +11,7 @@ export type RevealVariant =
   | 'stamp'
   | 'draw'
   | 'draw-y'
+  | 'wipe'
   | 'slide-l'
   | 'slide-r';
 

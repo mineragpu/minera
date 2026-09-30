@@ -312,7 +312,7 @@
   }
 
   .contract[data-revealed="play"] .contract__link--verified svg:first-child {
-    animation: check-draw var(--dur-3) var(--ease-out) calc(var(--reveal-at) + 700ms) backwards;
+    animation: reveal-wipe var(--dur-3) var(--ease-out) calc(var(--reveal-at) + 700ms) backwards;
   }
 }
 
@@ -320,11 +320,5 @@
   from {
     opacity: 0;
     translate: 0 -14px;
-  }
-}
-
-@keyframes check-draw {
-  from {
-    clip-path: inset(0 100% 0 0);
   }
 }
