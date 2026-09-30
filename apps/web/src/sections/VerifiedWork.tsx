@@ -16,8 +16,8 @@ const REFRESH_MS = 60_000;
 const EARNS_NOTHING: readonly { what: string; why: string }[] = [
   { what: 'Uptime', why: 'Being online is not work.' },
   { what: 'Unverified answers', why: 'Nobody compared them.' },
-  { what: 'Mismatched answers', why: 'Two rigs disagreed, so neither earns.' },
-  { what: 'The checks themselves', why: 'Their answers can be worked out without a GPU.' },
+  { what: 'The losing side', why: 'A third rig broke the tie against it.' },
+  { what: 'Checks and canaries', why: 'They decide standing, not pay.' },
 ];
 
 /** A check in the form the network sends: arithmetic with one numeric answer. */
