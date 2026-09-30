@@ -1,0 +1,31 @@
+/*
+ * Scroll-linked progress. `[data-scrub]` exposes `--scrub`, 0 → 1 as the element crosses its
+ * `--scrub-from` → `--scrub-to` range of a view timeline (cover). At rest it is 1, the finished
+ * state. Where view timelines are missing, `scrubRef` writes the same value from script.
+ */
+
+@property --scrub {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .motion-ok [data-scrub] {
+      animation: scrub linear both;
+      animation-timeline: view();
+      animation-range: cover var(--scrub-from, 0%) cover var(--scrub-to, 100%);
+    }
+  }
+}
+
+@keyframes scrub {
+  from {
+    --scrub: 0;
+  }
+
+  to {
+    --scrub: 1;
+  }
+}

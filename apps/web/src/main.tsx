@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/reveal.css';
+import './styles/scrub.css';
 import { App } from './App.tsx';
 import { startMotion } from './motion/startMotion.ts';
 
