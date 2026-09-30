@@ -1,6 +1,5 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
-import { LiveDot } from '../components/LiveDot.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { BlockCluster } from '../components/cluster/BlockCluster.tsx';
 import { PATHS } from '../router/routes.ts';
@@ -16,10 +15,6 @@ export function Hero() {
   return (
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero__copy">
-        <p className="eyebrow rise" style={rise(0.05)}>
-          <LiveDot />
-          Contracts live on testnet
-        </p>
         <h1 className="hero__title" id="hero-title" tabIndex={-1}>
           <span className="ln rise" style={rise(0.12)}>
             Deploy a GPU
@@ -32,8 +27,8 @@ export function Hero() {
           </span>
         </h1>
         <p className="hero__sub rise" style={rise(0.38)}>
-          Plug in your card, choose what your rewards pair with — ETH or a tokenized stock — and mine from a
-          pool that only fills.
+          Plug in your card, choose whether its rewards pair with ETH or a tokenized stock, and mine from
+          a pool that only fills.
         </p>
         <div className="hero__ctas rise" style={rise(0.48)}>
           <ButtonLink variant="primary" href={PATHS.deploy}>
