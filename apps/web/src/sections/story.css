@@ -123,24 +123,34 @@
   text-wrap: pretty;
 }
 
-/* The lit rail draws down as each beat scrolls in; without scroll timelines it is simply drawn. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .beat--now::before {
-      animation: beat-rail linear both;
-      animation-timeline: view();
-      animation-range: entry 30% cover 55%;
-    }
-  }
+/*
+ * Reading, linked to scroll: as a beat rises through the page its lit rail draws down, and its
+ * words brighten in order from a muted 0.62 opacity, which still meets AA, to full.
+ */
+.beat {
+  --scrub-from: 10%;
+  --scrub-to: 44%;
 }
 
-@keyframes beat-rail {
-  from {
-    transform: scaleY(0);
+@media screen and (prefers-reduced-motion: no-preference) {
+  .motion-ok .beat--now::before {
+    transform: scaleY(var(--scrub, 1));
   }
 
-  to {
-    transform: scaleY(1);
+  .motion-ok .beat__body .rw {
+    opacity: calc(0.62 + 0.38 * clamp(0, (var(--scrub, 1) * (var(--n) + 6) - var(--wi)) / 6, 1));
+  }
+
+  .story__close span::after {
+    transform-origin: 0 50%;
+  }
+
+  .motion-ok .story__close:not([data-revealed]) span::after {
+    scale: 0 1;
+  }
+
+  .story__close[data-revealed="play"] span::after {
+    animation: reveal-draw-x var(--dur-5) var(--ease-out) calc(var(--reveal-at) + 360ms) backwards;
   }
 }
 

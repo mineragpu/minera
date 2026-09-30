@@ -1,7 +1,10 @@
+import { Fragment } from 'react';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
+import { Reveal } from '../components/Reveal.tsx';
 import { Words } from '../components/Words.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
+import { scrubRef } from '../motion/scrub.ts';
 import './story.css';
 
 interface Beat {
@@ -36,6 +39,26 @@ const BEATS: readonly Beat[] = [
   },
 ];
 
+/**
+ * A beat's body as one span per word, in reading order. The words brighten from muted to full as the
+ * beat scrolls up through the page, the way a reader's eye moves along it.
+ */
+function ReadingBody({ text }: { text: string }) {
+  const words = text.split(' ');
+  return (
+    <p className="beat__body" ref={revealRef} data-reveal="fade-up" style={{ '--n': words.length }}>
+      {words.map((word, index) => (
+        <Fragment key={index}>
+          {index > 0 && ' '}
+          <span className="rw" style={{ '--wi': index }}>
+            {word}
+          </span>
+        </Fragment>
+      ))}
+    </p>
+  );
+}
+
 export function Story({ index }: { index: string }) {
   return (
     <section className="section shell" id="story" aria-labelledby="story-title">
@@ -45,19 +68,23 @@ export function Story({ index }: { index: string }) {
           <h2 className="h2 story__title" id="story-title">
             <Words>The rigs are back.</Words>
           </h2>
-          <p className="story__close">
+          <Reveal as="p" className="story__close" delay={480}>
             Same cards. <span>Useful work.</span>
-          </p>
+          </Reveal>
         </div>
         <ol className="beats">
           {BEATS.map((beat) => (
-            <li key={beat.label} className={`beat beat--${beat.tone}`}>
-              <span className="beat__node" aria-hidden="true">
+            <li key={beat.label} className={`beat beat--${beat.tone}`} ref={scrubRef} data-scrub>
+              <span className="beat__node" ref={revealRef} data-reveal="scale-in" aria-hidden="true">
                 <CubeGlyph color={beat.color} />
               </span>
-              <p className="beat__label">{beat.label}</p>
-              <h3 className="beat__title">{beat.title}</h3>
-              <p className="beat__body">{beat.body}</p>
+              <p className="beat__label" ref={revealRef} data-reveal="fade">
+                {beat.label}
+              </p>
+              <h3 className="beat__title" ref={revealRef} data-reveal="clip-up">
+                {beat.title}
+              </h3>
+              <ReadingBody text={beat.body} />
             </li>
           ))}
         </ol>
