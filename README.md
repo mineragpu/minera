@@ -68,10 +68,8 @@ apps/
 packages/
   shared/         brand, chain config, mining math, merkle, shared types
   miner/          the node client
-  sdk/            typed API client
   contracts/      Burn Pool, rig registry, pair swaps
 docs/             documentation
-marketing/        brand files, posters, videos, captions
 ops/              deployment configuration
 ```
 
