@@ -201,3 +201,17 @@
   }
 }
 
+/* An answer typing out: the invisible copy keeps the box at its final size while the text fills in. */
+.typed {
+  position: relative;
+  display: block;
+}
+
+.typed__room {
+  visibility: hidden;
+}
+
+.typed__shown {
+  position: absolute;
+  inset: 0;
+}

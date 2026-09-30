@@ -4,6 +4,7 @@ import { usePoll } from '../api/usePoll.ts';
 import { LoadError } from '../components/LoadError.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { rigPath } from '../router/routes.ts';
+import { TypedText } from './TypedText.tsx';
 
 const JOB_POLL_MS = 2_000;
 
@@ -29,7 +30,9 @@ interface JobResultProps {
 function Answer({ job }: { job: PlaygroundJob }) {
   return (
     <>
-      <div className="answer">{job.output ?? 'The rig returned no text.'}</div>
+      <div className="answer">
+        <TypedText text={job.output ?? 'The rig returned no text.'} />
+      </div>
       <dl className="job-facts">
         <div>
           <dt>Answered by</dt>
