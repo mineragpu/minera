@@ -11,7 +11,7 @@ and mine from a pool that only fills.
 
 *Minera means mining.*
 
-[Website](https://web-production-360d4.up.railway.app) · [Docs](https://web-production-360d4.up.railway.app/docs) · [Run a node](https://web-production-360d4.up.railway.app/docs/quickstart) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
+[Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [Testnet contracts](#testnet-contracts) · [License](LICENSE)
 
 </div>
 
