@@ -4,6 +4,7 @@ import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { Words } from '../components/Words.tsx';
+import { CheckIcon } from '../components/icons.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
 import './verified-work.css';
 
@@ -34,11 +35,14 @@ function ExampleCheck() {
 
 function CrossCheck() {
   return (
-    <div className="xcheck" aria-hidden="true">
+    <div className="xcheck" ref={revealRef} data-reveal="xcheck" aria-hidden="true">
       <span className="xcheck__rig">Rig · operator A</span>
       <span className="xcheck__rig">Rig · operator B</span>
       <span className="xcheck__join" />
-      <span className="xcheck__out">Same output</span>
+      <span className="xcheck__out">
+        <CheckIcon className="xcheck__check" />
+        Same output
+      </span>
     </div>
   );
 }
@@ -55,7 +59,7 @@ function RulesQuote() {
   }
   const rules = network.data?.rules ?? null;
   return (
-    <figure className="rules-quote" aria-busy={rules === null}>
+    <figure className="rules-quote" ref={revealRef} data-reveal="blur-in" aria-busy={rules === null}>
       <blockquote>
         {rules ? (
           <>
@@ -87,7 +91,7 @@ export function VerifiedWork({ index }: { index: string }) {
       </div>
 
       <div className="verdicts section-body">
-        <article className="verdict verdict--earns" aria-labelledby="verdict-earns">
+        <article className="verdict verdict--earns" ref={revealRef} data-reveal="fade-up" aria-labelledby="verdict-earns">
           <p className="verdict__tag">Earns</p>
           <h3 className="verdict__title" id="verdict-earns">
             Answers a second operator confirms
@@ -99,7 +103,7 @@ export function VerifiedWork({ index }: { index: string }) {
           <CrossCheck />
         </article>
 
-        <article className="verdict verdict--gates" aria-labelledby="verdict-gates">
+        <article className="verdict verdict--gates" ref={revealRef} data-reveal="fade-up" aria-labelledby="verdict-gates">
           <p className="verdict__tag">Gates</p>
           <h3 className="verdict__title" id="verdict-gates">
             Known-answer checks
@@ -112,7 +116,7 @@ export function VerifiedWork({ index }: { index: string }) {
           <ExampleCheck />
         </article>
 
-        <article className="verdict verdict--none" aria-labelledby="verdict-none">
+        <article className="verdict verdict--none" ref={revealRef} data-reveal="verdict-dim" aria-labelledby="verdict-none">
           <p className="verdict__tag">Earns nothing</p>
           <h3 className="verdict__title" id="verdict-none">
             Everything else
