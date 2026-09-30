@@ -3,6 +3,7 @@ import { Kicker } from '../components/Kicker.tsx';
 import { StatusTag, type StatusTone } from '../components/StatusTag.tsx';
 import { Words } from '../components/Words.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
+import { scrubRef } from '../motion/scrub.ts';
 import './roadmap.css';
 
 interface Phase {
@@ -66,9 +67,9 @@ export function Roadmap({ index }: { index: string }) {
         </div>
         <p className="lede">Each phase is marked with its real status. Planned means not built or not deployed yet.</p>
       </div>
-      <ol className="phases">
+      <ol className="phases" ref={scrubRef} data-scrub>
         {PHASES.map((phase, position) => (
-          <li key={phase.name} className={`phase phase--${phase.tone}`}>
+          <li key={phase.name} className={`phase phase--${phase.tone}`} ref={revealRef} data-reveal="fade-up">
             <span className="phase__node" aria-hidden="true">
               <CubeGlyph color={phase.tone === 'live' ? 'var(--teal)' : 'var(--muted)'} />
             </span>
