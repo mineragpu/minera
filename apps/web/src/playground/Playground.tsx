@@ -4,8 +4,10 @@ import { ApiError } from '../api/errors.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Button } from '../components/Button.tsx';
 import { formatCount } from '../lib/amount.ts';
+import { useReducedMotion } from '../motion/useReducedMotion.ts';
 import { HowChecked } from './HowChecked.tsx';
 import { JobResult } from './JobResult.tsx';
+import { PromptTypewriter } from './PromptTypewriter.tsx';
 import { useCooldown } from './useCooldown.ts';
 import '../components/form.css';
 import '../components/panel.css';
@@ -44,6 +46,10 @@ export function Playground({ initialJobId = null, onJob }: PlaygroundProps) {
   const [jobId, setJobId] = useState<string | null>(initialJobId);
   const [sending, setSending] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
+  const [engaged, setEngaged] = useState(false);
+  const reduced = useReducedMotion();
+  // Examples type over the field until the visitor first focuses it.
+  const typing = !reduced && !engaged && prompt === '';
   const network = usePoll(fetchNetwork, { key: 'network', intervalMs: NETWORK_REFRESH_MS });
   const wait = useCooldown(problem?.retryAt ?? null);
   const length = prompt.trim().length;
@@ -80,15 +86,20 @@ export function Playground({ initialJobId = null, onJob }: PlaygroundProps) {
           <label className="flabel" htmlFor="prompt">
             Prompt
           </label>
-          <textarea
-            className="input playground__input"
-            id="prompt"
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            maxLength={MAX_PROMPT_CHARS}
-            rows={4}
-            aria-describedby="prompt-warning prompt-count"
-          />
+          <div className="prompt-box">
+            <textarea
+              className={typing ? 'input playground__input playground__input--typing' : 'input playground__input'}
+              id="prompt"
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
+              onFocus={() => setEngaged(true)}
+              placeholder="Type a prompt, for example: What is 7 times 48?"
+              maxLength={MAX_PROMPT_CHARS}
+              rows={4}
+              aria-describedby="prompt-warning prompt-count"
+            />
+            {typing && <PromptTypewriter />}
+          </div>
         </div>
         <div className="playground__bar">
           <span className="hint" id="prompt-count">

@@ -150,3 +150,54 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/*
+ * The prompt field. While it is empty and has not had focus, example prompts type over it; its own
+ * placeholder, which carries an example for assistive tech, shows once the typing stops.
+ */
+.prompt-box {
+  position: relative;
+}
+
+.playground__input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.playground__input--typing::placeholder {
+  color: transparent;
+}
+
+.typewriter {
+  position: absolute;
+  top: 13px;
+  left: 15px;
+  right: 15px;
+  font: 500 var(--step-0) / 1.5 var(--font-body);
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.typewriter__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.18em;
+  background: var(--teal);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .typewriter__caret {
+    animation: caret-blink 1.05s steps(1) infinite;
+  }
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
