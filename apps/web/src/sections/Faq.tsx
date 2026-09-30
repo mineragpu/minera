@@ -63,8 +63,7 @@ const QUESTIONS: readonly Question[] = [
     question: 'What is the Burn Pool?',
     answer: (
       <p>
-        The contract that pays rewards. Anyone can deposit ETH into it, and each campaign announces the share the
-        project deposits. Deposits are one-way: they stay in the pool until they leave as rewards for verified work.
+        The contract that pays rewards. Anyone can deposit ETH into it. {BRAND.rewardAllocation} Deposits are one-way: they stay in the pool until they leave as rewards for verified work.
         Burn means one-way here; nothing is destroyed.
       </p>
     ),

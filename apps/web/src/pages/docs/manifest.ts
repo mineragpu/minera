@@ -56,7 +56,7 @@ export const DOC_GROUPS: readonly DocGroup[] = [
       {
         slug: 'campaigns',
         title: 'Campaigns',
-        summary: 'How each campaign sets the share of creator fees that goes into the pool.',
+        summary: 'How the pool is refilled, and how each campaign appears on chain.',
       },
     ],
   },

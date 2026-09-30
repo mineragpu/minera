@@ -1,11 +1,11 @@
 import { useRef } from 'react';
+import { BRAND } from '@minera/shared';
 import { fetchPool } from '../api/coordinator.ts';
 import type { PoolView } from '../api/schemas.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { CountUp } from '../components/CountUp.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { LoadError } from '../components/LoadError.tsx';
-import { PreviewTag } from '../components/PreviewTag.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { formatScale, slabUnit } from '../components/vessel/scale.ts';
 import { Vessel } from '../components/vessel/Vessel.tsx';
@@ -110,9 +110,8 @@ export function BurnPool({ index }: { index: string }) {
               <b>
                 Campaign {PREVIEW_CAMPAIGN.number} · {PREVIEW_CAMPAIGN.name}
               </b>{' '}
-              — {PREVIEW_CAMPAIGN.poolSharePercent}% of creator fees burned to the pool
+              — {BRAND.rewardAllocation} On testnet the project wallet burns into the pool directly.
             </span>
-            <PreviewTag />
           </p>
 
           {pool.status === 'error' && pool.error ? (
