@@ -67,14 +67,15 @@ flowchart LR
 | **5.&nbsp;Reputation** | Each rig holds a standing built from its record. New rigs start on probation and earn at half rate until they pass five canaries. Repeated strikes put a rig in quarantine: it gets no work, and its work in that epoch earns nothing. |
 
 Live counts per gate over the last 24 hours are public at
-[`https://api.mineragpu.tech/v1/sentinel`](https://api.mineragpu.tech/v1/sentinel).
+[`https://api.mineragpu.tech/v1/sentinel`](https://api.mineragpu.tech/v1/sentinel), and the
+[Sentinel docs](https://mineragpu.tech/docs/sentinel) give every rule and limit.
 
 ### On chain
 
 | Guarantee | What the contracts enforce |
 |---|---|
 | **No&nbsp;withdraw** | Anyone can deposit into the Burn Pool. There is no withdraw, sweep or recovery function and no admin key over funds: deposits leave only through claims against published settlements. |
-| **Bounded&nbsp;release** | A block root can never commit more than the pool has received, and each block's release is capped by the active campaign and the daily release limit. |
+| **Bounded&nbsp;release** | A block root can never commit more than the pool has received, and each block's release is capped by the daily release limit. |
 | **Published&nbsp;inputs** | Every block's inputs and claim table are published, and their digest is on chain, so anyone can recompute every entitlement. |
 | **Guardian&nbsp;veto** | A root becomes claimable only after a challenge delay. During it, a guardian can veto a bad root. The guardian can never move funds. |
 | **Not&nbsp;upgradeable** | The contracts cannot be upgraded. A change of rules means new contracts at new addresses. |
@@ -196,10 +197,10 @@ Set `TEST_DATABASE_URL` to also run the coordinator's store tests against Postgr
 
 | Start | Mining | Reference | Trust |
 |---|---|---|---|
-| [Overview](https://mineragpu.tech/docs/overview) | [Pairs and claims](https://mineragpu.tech/docs/pairs-and-claims) | [Contracts](https://mineragpu.tech/docs/contracts) | [Security and trust](https://mineragpu.tech/docs/security) |
-| [Quickstart: run a node](https://mineragpu.tech/docs/quickstart) | [Verification and rewards](https://mineragpu.tech/docs/verification-and-rewards) | [Coordinator API](https://mineragpu.tech/docs/api) | [FAQ](https://mineragpu.tech/docs/faq) |
-| [Deploy a rig](https://mineragpu.tech/docs/deploy-a-rig) | [Burn Pool](https://mineragpu.tech/docs/burn-pool) | [Node protocol](https://mineragpu.tech/docs/node-protocol) | [Glossary](https://mineragpu.tech/docs/glossary) |
-| | [Campaigns](https://mineragpu.tech/docs/campaigns) | | |
+| [Overview](https://mineragpu.tech/docs/overview) | [Pairs and claims](https://mineragpu.tech/docs/pairs-and-claims) | [Contracts](https://mineragpu.tech/docs/contracts) | [Sentinel](https://mineragpu.tech/docs/sentinel) |
+| [Quickstart: run a node](https://mineragpu.tech/docs/quickstart) | [Verification and rewards](https://mineragpu.tech/docs/verification-and-rewards) | [Coordinator API](https://mineragpu.tech/docs/api) | [Security and trust](https://mineragpu.tech/docs/security) |
+| [Deploy a rig](https://mineragpu.tech/docs/deploy-a-rig) | [Burn Pool](https://mineragpu.tech/docs/burn-pool) | [Node protocol](https://mineragpu.tech/docs/node-protocol) | [FAQ](https://mineragpu.tech/docs/faq) |
+| | [Campaigns](https://mineragpu.tech/docs/campaigns) | | [Glossary](https://mineragpu.tech/docs/glossary) |
 
 The coordinator API is served at `https://api.mineragpu.tech`. The same pages are in [`docs/`](docs).
 
