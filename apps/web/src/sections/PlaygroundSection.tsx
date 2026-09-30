@@ -1,4 +1,5 @@
 import { Kicker } from '../components/Kicker.tsx';
+import { Reveal } from '../components/Reveal.tsx';
 import { Words } from '../components/Words.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
 import { Playground } from '../playground/Playground.tsx';
@@ -18,9 +19,9 @@ export function PlaygroundSection({ index }: { index: string }) {
           rig.
         </p>
       </div>
-      <div className="section-body">
+      <Reveal className="section-body">
         <Playground />
-      </div>
+      </Reveal>
     </section>
   );
 }
