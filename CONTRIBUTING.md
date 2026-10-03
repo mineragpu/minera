@@ -120,6 +120,16 @@ Commit messages use the conventional commit format:
 
 Keep each commit to one logical change, and make sure every commit passes the checks on its own.
 
+**Sign your commits.** The `main` branch accepts only signed commits. Sign with an SSH or GPG key
+that is registered on your GitHub account as a signing key, so that GitHub shows each commit as
+Verified. With an SSH key, for example:
+
+```sh
+git config gpg.format ssh
+git config user.signingkey ~/.ssh/id_ed25519.pub
+git config commit.gpgsign true
+```
+
 ## Pull requests
 
 Before you open one:
