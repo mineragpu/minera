@@ -13,8 +13,12 @@ export const DEFAULT_RUNTIME_URL = 'http://127.0.0.1:11434';
 export const RUNTIME_INTERFACE = 'api-chat';
 
 const DETECT_TIMEOUT_MS = 3_000;
-const MAX_MODELS = 256;
 const MAX_NAME_LENGTH = 200;
+// The coordinator accepts at most 64 model names of these shapes, and a version as one token;
+// anything else is left out of the report rather than getting the whole hello refused.
+const MAX_MODELS = 64;
+const MODEL_NAME = /^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,127}$/;
+const VERSION = /^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$/;
 
 export interface ChatRequest {
   model: string;
@@ -70,7 +74,7 @@ export function modelNames(tags: unknown): string[] {
   const names = new Set<string>();
   for (const entry of entries) {
     const name = isRecord(entry) ? cleanName(entry['name'] ?? entry['model']) : null;
-    if (name !== null) names.add(name);
+    if (name !== null && MODEL_NAME.test(name)) names.add(name);
     if (names.size >= MAX_MODELS) break;
   }
   return [...names];
@@ -82,7 +86,9 @@ export async function detectRuntime(baseUrl: string): Promise<RuntimeInfo | null
   if (!isRecord(about)) return null;
   const models = modelNames(await getJson(endpoint(baseUrl, '/api/tags')));
   const version = cleanName(about['version']);
-  return version === null ? { runtime: RUNTIME_INTERFACE, models } : { runtime: RUNTIME_INTERFACE, version, models };
+  return version === null || !VERSION.test(version)
+    ? { runtime: RUNTIME_INTERFACE, models }
+    : { runtime: RUNTIME_INTERFACE, version, models };
 }
 
 async function refusal(response: Response): Promise<string> {
