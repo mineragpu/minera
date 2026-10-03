@@ -8,6 +8,11 @@ updates:
     commit-message:
       prefix: build
       include: scope
+    ignore:
+      # The types follow the Node.js major the services run on (see .nvmrc), not the newest one.
+      - dependency-name: '@types/node'
+        update-types:
+          - version-update:semver-major
     groups:
       npm-minor-and-patch:
         update-types:
@@ -25,3 +30,17 @@ updates:
       actions:
         patterns:
           - "*"
+
+  - package-ecosystem: docker
+    directories:
+      - /ops/web
+      - /ops/coordinator
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      base-images:
+        patterns:
+          - '*'
