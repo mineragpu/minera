@@ -1,3 +1,9 @@
+/**
+ * Every query is a tagged template: postgres.js sends each interpolated value to the server as a
+ * bind parameter ($1, $2, ...) of the extended query protocol, never as SQL text, so no value can
+ * change a statement. The only raw SQL is the migration files in this repository, run by
+ * `migrate.ts`; `sqlSafety.test.ts` fails the build if raw SQL appears anywhere else.
+ */
 import postgres from 'postgres';
 import type { Secret } from '../secret.ts';
 
