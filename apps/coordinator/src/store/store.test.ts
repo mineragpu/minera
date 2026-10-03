@@ -439,6 +439,41 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(await store.jobs.openCount('canary'), 0);
     });
 
+    it('stores hostile text as data, never as part of a statement', async () => {
+      const hostile = [
+        "'); DROP TABLE rigs; --",
+        "x' OR '1'='1",
+        'Robert"); DELETE FROM jobs WHERE ("1"="1',
+        '$1 $2 ${nodeKey} \\x00 ; COMMIT; DROP SCHEMA public CASCADE;',
+      ];
+      const [name = '', other = '', version = '', client = ''] = hostile;
+      await store.rigs.deploy({ nodeKey: RIG_4, operator: OPERATOR_C, pair: ETH, name, deployedAt: at(4), deployedBlock: 13n });
+      const runtime = { runtime: other, version, models: hostile };
+      const report = { clientVersion: client, gpu: { model: other, vramMb: 1 }, runtime, network: other };
+      await store.rigs.recordHello(RIG_4, report, at(5));
+      const messages = hostile.map((content) => ({ role: 'user' as const, content }));
+      const prompt = job({ messages, originNetwork: name });
+      await store.jobs.insert(prompt);
+
+      const stored = await store.rigs.get(RIG_4);
+      assert.deepEqual(
+        [stored?.name, stored?.runtime, stored?.runtimeVersion, stored?.models, stored?.clientVersion, stored?.network],
+        [name, other, version, hostile, client, other],
+      );
+      assert.deepEqual((await store.jobs.get(prompt.id))?.messages.map((message) => message.content), hostile);
+      const onlyHostile = await store.rigs.list({
+        sort: 'new',
+        pair: null,
+        operator: OPERATOR_C,
+        epoch: 0,
+        limit: 10,
+        offset: 0,
+      });
+      assert.deepEqual(onlyHostile.rigs.map((entry) => entry.name), [name]);
+      assert.deepEqual(await store.rigs.counts(at(0)), { total: 4, online: 4 });
+      assert.equal(await store.jobs.queuedCount('chat'), 1);
+    });
+
     it('carries a settlement from draft to publication and veto', async () => {
       const id = await store.settlements.createDraft(draft());
       assert.deepEqual((await store.settlements.open()).map((row) => [row.id, row.status]), [[id, 'sending']]);
