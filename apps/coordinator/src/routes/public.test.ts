@@ -60,7 +60,7 @@ describe('public routes', () => {
   it('reports health without touching the database', async () => {
     const response = await get('/health');
     assert.equal(response.statusCode, 200);
-    assert.deepEqual(response.json(), { status: 'ok', version: '0.0.0', network: 'testnet', chainId: 46630 });
+    assert.deepEqual(response.json(), { status: 'ok', version: '0.1.0', network: 'testnet', chainId: 46630 });
   });
 
   it('summarizes the network, with the pool once it has been read', async () => {

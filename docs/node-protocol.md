@@ -103,7 +103,7 @@ Sent once when the node starts, and at most once a minute.
 ```json
 {
   "protocol": {{protocol.version}},
-  "clientVersion": "0.0.0",
+  "clientVersion": "0.1.0",
   "gpu": { "model": "Example GPU", "vramMb": 24576, "driver": "550.54", "uuid": "GPU-00000000-0000-0000-0000-000000000000" },
   "runtime": { "runtime": "api-chat", "version": "0.5.7", "models": ["example-model:1b"] }
 }

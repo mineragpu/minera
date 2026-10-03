@@ -1,6 +1,6 @@
 {
   "name": "@minera/miner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -14,7 +14,7 @@
     "fixture:deploy-code": "node scripts/deploy-code-fixture.ts"
   },
   "dependencies": {
-    "@minera/shared": "0.0.0",
+    "@minera/shared": "0.1.0",
     "viem": "2.56.9"
   },
   "devDependencies": {

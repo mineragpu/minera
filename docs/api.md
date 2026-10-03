@@ -55,7 +55,7 @@ The signed node routes add their own codes; see [Node protocol](node-protocol.md
 Answers from memory, without touching the database or the chain.
 
 ```json
-{ "status": "ok", "version": "0.0.0", "network": "testnet", "chainId": {{testnet.chainId}} }
+{ "status": "ok", "version": "0.1.0", "network": "testnet", "chainId": {{testnet.chainId}} }
 ```
 
 ## GET /v1/network
