@@ -153,6 +153,28 @@ describe('canaries', () => {
     assert.equal((await rig(R4)).qualifiedAt, null);
   });
 
+  it('never lets a poisoned bank entry strike an honest rig', async () => {
+    // Two colluding rigs on separate networks agree on junk for a seed, so it enters the bank.
+    await bankOneCanary(later(5));
+    const poisoned = await store.sentinel.pickCanary(MODEL, R3, seededRandom(1));
+    assert.ok(poisoned);
+    assert.deepEqual(await store.work.verifiedByRig(0, 10_000_000), [], 'colluding on a seed earns nothing');
+
+    for (const [i, honest] of [R3, R4].entries()) {
+      const canary = await canaryFor(honest, later(10 + i * 10));
+      await submit(honest, canary.id, 'An honest answer from the real model.', later(11 + i * 10));
+      assert.equal(await store.sentinel.strikesSince(honest, T0), 0);
+      assert.equal((await rig(honest)).standing, 'probation');
+    }
+    assert.equal(await store.sentinel.getCanary(poisoned.id), null, 'retired after two disputes');
+    const gates = await store.sentinel.gateCounts(T0);
+    assert.deepEqual(
+      gates.filter((entry) => entry.gate === 'canary' || entry.gate === 'reputation').map((entry) => entry.blocked),
+      [0, 0],
+    );
+    assert.equal(await store.sentinel.pickCanary(MODEL, R1, seededRandom(1)), null, 'sources never get their own');
+  });
+
   it('judges by the start of the answer only', () => {
     assert.equal(passesCanary(`  ${ANSWER.slice(0, 70)}   drifted later`, ANSWER), true);
     assert.equal(passesCanary(ANSWER.slice(0, 40), ANSWER), false);
