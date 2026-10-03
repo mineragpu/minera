@@ -147,6 +147,13 @@ pull request.
 
 ## Pull requests
 
+Changes are proposed as pull requests against `main`:
+
+1. Fork the repository and create a branch from `main`.
+2. Make the change with its tests, in signed commits.
+3. Run the checks above, push the branch, and open a pull request.
+4. CI runs on the pull request, and a maintainer reviews it before it is merged.
+
 Before you open one:
 
 - [ ] Typecheck, tests and build pass locally.
