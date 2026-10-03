@@ -227,6 +227,31 @@ describe('node routes', () => {
     assert.equal((await send(rig, NODE_ROUTES.hello, badCard)).statusCode, 400);
   });
 
+  it('holds every reported name to the shape honest clients send', async () => {
+    const honest = {
+      ...hello,
+      clientVersion: '0.2.0-rc.1',
+      gpu: { model: 'Test Accelerator X1 (24 GB)', vramMb: 24_576, driver: '551.86' },
+      runtime: { runtime: 'api-chat', version: '0.12.3', models: ['hf.co/team/model-GGUF:Q4_K_M', MODEL] },
+    };
+    assert.equal((await send(rig, NODE_ROUTES.hello, honest)).statusCode, 200);
+
+    const refused = [
+      { ...honest, clientVersion: '0.2.0; rm -rf /' },
+      { ...honest, gpu: { ...honest.gpu, model: 'Card\u001b[2J' } },
+      { ...honest, gpu: { ...honest.gpu, driver: "551.86' OR '1'='1" } },
+      { ...honest, runtime: { ...honest.runtime, runtime: 'api chat' } },
+      { ...honest, runtime: { ...honest.runtime, version: '0.12.3\n' } },
+      { ...honest, runtime: { ...honest.runtime, models: ["x'); DROP TABLE rigs; --"] } },
+    ];
+    for (const [i, body] of refused.entries()) {
+      harness.clock.now = new Date(harness.clock.now.getTime() + 61_000);
+      const response = await send(rig, NODE_ROUTES.hello, body);
+      assert.equal(response.statusCode, 400, `case ${i}`);
+      assert.equal(response.json().error.code, 'invalid_request');
+    }
+  });
+
   it('rejects malformed job ids, unknown jobs and oversized output', async () => {
     assert.equal((await send(rig, NODE_ROUTES.result('not-a-job'), { output: 'x', reported })).statusCode, 400);
     const unknown = NODE_ROUTES.result('00000000-0000-4000-8000-00000000ffff');

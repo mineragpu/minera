@@ -22,24 +22,30 @@ import type { RouteContext } from './context.ts';
 import { ApiError } from './errors.ts';
 import { jobIdSchema, parse } from './validate.ts';
 
+// What a node reports is stored and shown on the board, so every field is held to the narrowest
+// shape honest clients produce: names and versions are single tokens, and no field carries control
+// characters.
+const VERSION = /^[0-9A-Za-z][0-9A-Za-z.+_-]*$/;
+const RUNTIME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const MODEL = /^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$/;
+const CARD_ID = /^[0-9A-Za-z][0-9A-Za-z:._-]{3,127}$/;
+const PRINTABLE = /^[^\p{Cc}]+$/u;
+
 const runtimeSchema = z.object({
-  runtime: z.string().min(1).max(64),
-  version: z.string().max(64).optional(),
-  models: z.array(z.string().min(1).max(128)).max(64),
+  runtime: z.string().min(1).max(64).regex(RUNTIME, 'must be the runtime interface name'),
+  version: z.string().max(64).regex(VERSION, 'must be a version').optional(),
+  models: z.array(z.string().min(1).max(128).regex(MODEL, 'must be a model name')).max(64),
 });
 
 const helloSchema = z.object({
   protocol: z.literal(PROTOCOL_VERSION, `Only protocol version ${PROTOCOL_VERSION} is supported.`),
-  clientVersion: z.string().min(1).max(64),
+  clientVersion: z.string().min(1).max(64).regex(VERSION, 'must be a version'),
   gpu: z
     .object({
-      model: z.string().min(1).max(128),
+      model: z.string().min(1).max(128).regex(PRINTABLE, 'must not contain control characters'),
       vramMb: z.number().int().min(0).max(10_000_000),
-      driver: z.string().max(64).optional(),
-      uuid: z
-        .string()
-        .regex(/^[0-9A-Za-z][0-9A-Za-z:._-]{3,127}$/, 'must be the driver id of the card')
-        .optional(),
+      driver: z.string().max(64).regex(VERSION, 'must be a driver version').optional(),
+      uuid: z.string().regex(CARD_ID, 'must be the driver id of the card').optional(),
     })
     .nullable(),
   runtime: runtimeSchema,
