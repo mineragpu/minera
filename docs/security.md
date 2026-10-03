@@ -83,6 +83,19 @@ it was built with. It sends a transaction only when you press the deploy or a cl
 your wallet asks you to confirm each one. Compare the addresses your wallet shows with
 [Contracts](contracts.md).
 
+## How the coordinator handles input
+
+- **Every request is validated at the boundary.** Bodies, parameters and queries are checked
+  against strict schemas before anything reads them. Names and versions a node reports must be
+  single tokens of the characters those values use, and no reported field may carry control
+  characters.
+- **Every database query is parameterized.** Queries are written as tagged templates, and each value
+  travels to Postgres as a bind parameter, never as SQL text. The only raw SQL the coordinator runs
+  is the migration files in the repository. A test fails the build if raw SQL or a query built from
+  a string appears anywhere else, and the store tests keep injection-style text as plain data.
+- **Secrets never reach the logs.** The database URL and the publisher key are held in a wrapper
+  that prints as `[redacted]`, and request logs redact the signing headers.
+
 ## Known limitations
 
 - **Open jobs come from one place.** Today every open job is a playground prompt, and all use one
