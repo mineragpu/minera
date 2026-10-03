@@ -1,4 +1,4 @@
-FROM node:24-alpine AS build
+FROM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS build
 WORKDIR /repo
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
@@ -18,6 +18,6 @@ ENV VITE_NETWORK=$VITE_NETWORK \
     VITE_API_BASE=$VITE_API_BASE
 RUN npm run build --workspace @minera/web
 
-FROM caddy:2-alpine
+FROM caddy:2-alpine@sha256:881bbc60f9986d5ab8e7cfd6cf7e4ef3c9c0439fef2429d035d065577882f028
 COPY ops/web/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /repo/apps/web/dist /srv
