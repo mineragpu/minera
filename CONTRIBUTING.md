@@ -130,6 +130,21 @@ git config user.signingkey ~/.ssh/id_ed25519.pub
 git config commit.gpgsign true
 ```
 
+## Testing policy
+
+Tests are part of every change, not a follow-up:
+
+- **New functionality comes with tests** in the automated suite of the workspace it touches: unit
+  and integration tests with `node --test`, property tests with fast-check for logic that handles
+  money, identities or untrusted input, and Foundry tests for contracts.
+- **A fix comes with a test that fails without it.**
+- **Security rules are tested, not only documented.** Input validation, query safety and every
+  Sentinel gate have tests that would fail if the rule were removed.
+- **Store changes are tested on both stores,** in memory and in Postgres.
+
+Reviewers do not merge a change that lowers this bar, and CI runs every suite on every push and
+pull request.
+
 ## Pull requests
 
 Before you open one:
