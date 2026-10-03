@@ -14,6 +14,7 @@ and mine from a pool that only fills.
 <a href="https://github.com/mineragpu/minera/actions/workflows/ci.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
 <a href="https://github.com/mineragpu/minera/actions/workflows/codeql.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" height="20"></a>
 <a href="https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera"><img src="https://api.scorecard.dev/projects/github.com/mineragpu/minera/badge" alt="OpenSSF Scorecard" height="20"></a>
+<a href="https://www.bestpractices.dev/projects/15188"><img src="https://www.bestpractices.dev/projects/15188/badge" alt="OpenSSF Best Practices: passing" height="20"></a>
 <a href="#sentinel"><img src="docs/assets/badges/security.svg" alt="Security: Sentinel" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
@@ -95,6 +96,7 @@ Every claim above can be checked without trusting us.
 | **Dependencies** | `npm audit` reports nothing. Actions and base images are pinned by digest and kept current by Dependabot. |
 | **Code scanning** | CodeQL's security-extended queries run on every push and weekly. |
 | **Independent score** | The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera) is computed and published by a workflow on every push. |
+| **Best practices** | The project meets every criterion of the [OpenSSF Best Practices passing level](https://www.bestpractices.dev/projects/15188), each with its justification and evidence. |
 
 Found a vulnerability? Report it privately through
 [a security advisory](https://github.com/mineragpu/minera/security/advisories/new), not in a public
