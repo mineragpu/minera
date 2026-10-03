@@ -13,6 +13,7 @@ and mine from a pool that only fills.
 
 <a href="https://github.com/mineragpu/minera/actions/workflows/ci.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
 <a href="https://github.com/mineragpu/minera/actions/workflows/codeql.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" height="20"></a>
+<a href="https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera"><img src="https://api.scorecard.dev/projects/github.com/mineragpu/minera/badge" alt="OpenSSF Scorecard" height="20"></a>
 <a href="#sentinel"><img src="docs/assets/badges/security.svg" alt="Security: Sentinel" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
@@ -79,6 +80,21 @@ Live counts per gate over the last 24 hours are public at
 | **Published&nbsp;inputs** | Every block's inputs and claim table are published, and their digest is on chain, so anyone can recompute every entitlement. |
 | **Guardian&nbsp;veto** | A root becomes claimable only after a challenge delay. During it, a guardian can veto a bad root. The guardian can never move funds. |
 | **Not&nbsp;upgradeable** | The contracts cannot be upgraded. A change of rules means new contracts at new addresses. |
+
+### Proof
+
+Every claim above can be checked without trusting us.
+
+| Claim | Where to check it |
+|---|---|
+| **Signed history** | Since October 2026, every commit to `main` is signed with the maintainer's registered key and shows as Verified, and branch protection refuses unsigned pushes. |
+| **Parameterized SQL** | Every query is a tagged template whose values travel as bind parameters. [`sqlSafety.test.ts`](https://github.com/mineragpu/minera/blob/main/apps/coordinator/src/db/sqlSafety.test.ts) fails the build if raw SQL appears outside the migration runner, and the [store tests](https://github.com/mineragpu/minera/blob/main/apps/coordinator/src/store/store.test.ts) keep injection-style text as data, in memory and in Postgres. |
+| **Validated input** | Every node request is checked against a strict schema in [`routes/node.ts`](https://github.com/mineragpu/minera/blob/main/apps/coordinator/src/routes/node.ts), and the [route tests](https://github.com/mineragpu/minera/blob/main/apps/coordinator/src/routes/node.test.ts) refuse control characters and SQL-like names. |
+| **Sentinel holds** | [`sentinel.test.ts`](https://github.com/mineragpu/minera/blob/main/apps/coordinator/src/sentinel/sentinel.test.ts) covers canaries, a poisoned canary bank, tiebreaks, the speed floor and quarantine. |
+| **Contracts** | Source-verified on the explorer (see below), with Foundry tests and a formatting check in CI. |
+| **Dependencies** | `npm audit` reports nothing. Actions and base images are pinned by digest and kept current by Dependabot. |
+| **Code scanning** | CodeQL's security-extended queries run on every push and weekly. |
+| **Independent score** | The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera) is computed and published by a workflow on every push. |
 
 Found a vulnerability? Report it privately through
 [a security advisory](https://github.com/mineragpu/minera/security/advisories/new), not in a public
