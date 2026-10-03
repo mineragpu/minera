@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@minera/shared": "0.0.0",
     "@fastify/cors": "11.3.0",
     "@fastify/rate-limit": "11.2.0",
+    "@minera/shared": "0.0.0",
     "fastify": "5.12.5",
     "postgres": "3.4.9",
     "viem": "2.56.9",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "24.19.0",
+    "fast-check": "4.10.2",
     "typescript": "7.0.2"
   }
 }

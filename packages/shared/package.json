@@ -19,6 +19,7 @@
     "@openzeppelin/merkle-tree": "1.0.8"
   },
   "devDependencies": {
-    "@types/node": "24.19.0"
+    "@types/node": "24.19.0",
+    "fast-check": "4.10.2"
   }
 }
