@@ -1,4 +1,4 @@
-import type { Address } from '@minera/shared';
+import { BRAND, type Address } from '@minera/shared';
 import { fetchRig } from '../../api/coordinator.ts';
 import { usePoll } from '../../api/usePoll.ts';
 import { CommandBlock } from '../../components/CommandBlock.tsx';
@@ -7,7 +7,7 @@ import { API_BASE } from '../../config/api.ts';
 import { rigPath } from '../../router/routes.ts';
 
 const INDEX_POLL_MS = 10_000;
-const START = `node packages/miner/src/cli.ts start --coordinator ${API_BASE ?? '<coordinator URL>'}`;
+const START = `${BRAND.nodeClient.command} start --coordinator ${API_BASE ?? '<coordinator URL>'}`;
 
 interface DeployedNoteProps {
   nodeKey: Address;
@@ -41,7 +41,7 @@ export function DeployedNote({ nodeKey, name }: DeployedNoteProps) {
           Open the rig page
         </a>
       </p>
-      <p>Now start the node on the GPU machine, from the same directory:</p>
+      <p>Now start the node on the GPU machine:</p>
       <CommandBlock label="the start command" lines={[START]} />
     </div>
   );

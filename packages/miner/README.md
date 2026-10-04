@@ -2,7 +2,7 @@
 
 `rig` runs on a GPU owner's machine. It holds the rig's node key, produces the deploy code that
 binds the rig to the operator's wallet, and runs inference jobs from the coordinator on a local
-model runtime.
+model runtime. It is published to npm as [`@minera-gpu/miner`](https://www.npmjs.com/package/@minera-gpu/miner).
 
 **Status:** the testnet is open. Start against the testnet coordinator at
 `https://api.mineragpu.tech`. Its `GET /v1/network` reports the model open
@@ -16,23 +16,29 @@ jobs use as `jobs.model`; load that model into your runtime before you start.
   model, VRAM and driver version from it. Without the tool, the node reports no GPU and still runs.
 - **A local model runtime** compatible with the `/api/chat` interface on port 11434, running, with
   at least one model downloaded. The client never downloads models itself.
-- **Node.js 22.18 or later.** The client runs its TypeScript sources directly.
-- **Git and npm** to install, and **a wallet on the network** to deploy the rig from. This wallet
-  is the rig's operator.
+- **Node.js 22 or later**, with npm, and **a wallet on the network** to deploy the rig from. This
+  wallet is the rig's operator.
 - **A synchronized system clock.** The coordinator rejects requests stamped more than 120 seconds
   away from its own time.
 
 ## Install
 
-From a clone of this repository:
-
 ```sh
-npm ci
+npm install --global @minera-gpu/miner
+rig --version
 ```
 
-The examples below write `rig` for `node packages/miner/src/cli.ts`, run from the repository root.
-After `npm ci`, `npx --no rig` runs the same file. The `--no` flag stops npx from fetching an
-unrelated package of the same name if the local link is missing.
+This installs the `rig` command. To update, run the install again. To run from source instead,
+clone [the repository](https://github.com/mineragpu/minera), run `npm ci` with Node.js 22.18 or
+later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`.
+
+### Versions
+
+- Each version on npm matches a signed tag and a release in the repository, with its notes in the
+  [changelog](https://github.com/mineragpu/minera/blob/main/CHANGELOG.md).
+- `0.x` versions are for testnet. The first mainnet version will be `1.0.0`.
+- The `latest` tag is the version to run. Release candidates for the next network go out under the
+  `next` tag first, so `npm install --global @minera-gpu/miner` never picks one up.
 
 ## Run
 

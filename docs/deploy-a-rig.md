@@ -29,14 +29,15 @@ On the GPU machine, install the node client and create the node key, passing the
 wallet's address. Once your wallet is connected, the page fills its address into the commands.
 
 ```sh
-node packages/miner/src/cli.ts init --operator 0xYourWalletAddress
+npm install --global {{brand.nodePackage}}
+rig init --operator 0xYourWalletAddress
 ```
 
 [Quickstart: run a node](quickstart.md) covers the requirements and the install. If the machine
 already has a node key, print its deploy code for this wallet instead:
 
 ```sh
-node packages/miner/src/cli.ts code --operator 0xYourWalletAddress
+rig code --operator 0xYourWalletAddress
 ```
 
 ## 3. Paste the node address and the deploy code
@@ -81,10 +82,10 @@ deploy(address nodeKey, address pair, string name, bytes authorization)
 a link to its rig page, and waits for the coordinator to index it. That takes about a minute. The
 coordinator indexes registry events once they are 10 blocks deep.
 
-Then start the node on the GPU machine, from the repository root:
+Then start the node on the GPU machine:
 
 ```sh
-node packages/miner/src/cli.ts start --coordinator {{coordinator.url}}
+rig start --coordinator {{coordinator.url}}
 ```
 
 ## What the registry checks

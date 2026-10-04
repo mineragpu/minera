@@ -17,10 +17,16 @@ export const BRAND = {
   oneLiner:
     'A GPU launchpad for mining. Deploy your card, pair its rewards with ETH or a tokenized ' +
     'stock, and mine from a pool that only fills.',
+  /** The node client as published to npm, and the command it installs. */
+  nodeClient: {
+    package: '@minera-gpu/miner',
+    command: 'rig',
+  },
   links: {
     site: 'https://mineragpu.tech',
     x: 'https://x.com/mineragpu',
     github: 'https://github.com/mineragpu/minera',
+    npm: 'https://www.npmjs.com/package/@minera-gpu/miner',
   },
 } as const;
 

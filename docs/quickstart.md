@@ -11,7 +11,7 @@ the node key, deploy the rig from your wallet, then start the node.
 - **A local model runtime** compatible with the `/api/chat` interface, running on this machine
   (`http://127.0.0.1:11434` by default), with at least one model downloaded. The node client never
   downloads models itself.
-- **Node.js 22.18 or later**, plus Git and npm.
+- **Node.js 22 or later**, with npm.
 - **A browser wallet on {{testnet.chainName}}** with a little test ETH for the network fee. This
   wallet becomes the rig's operator: it deploys the rig and receives its rewards.
 - **A synchronized system clock.** The coordinator rejects requests stamped more than
@@ -26,20 +26,19 @@ the node key, deploy the rig from your wallet, then start the node.
 ## 1. Install the node client
 
 ```sh
-git clone {{brand.repository}}
-cd {{brand.repoDirectory}}
-npm ci
+npm install --global {{brand.nodePackage}}
 ```
 
-Every command below runs from the repository root. `node packages/miner/src/cli.ts help` lists the
-commands and options.
+This installs the `rig` command. `rig help` lists the commands and options, and `rig --version`
+prints the installed version. To run from source instead, clone {{brand.repository}}, run `npm ci`
+with Node.js 22.18 or later, and use `node packages/miner/src/cli.ts` wherever this page writes `rig`.
 
 ## 2. Create the node key
 
 Pass the address of the wallet that will operate the rig:
 
 ```sh
-node packages/miner/src/cli.ts init --operator 0xYourWalletAddress
+rig init --operator 0xYourWalletAddress
 ```
 
 `init` creates the node key, stores it in the node's folder and prints three things:
@@ -53,7 +52,7 @@ The deploy code cannot move funds and is not a secret. To print it again, for th
 wallet, run `code`:
 
 ```sh
-node packages/miner/src/cli.ts code --operator 0xYourWalletAddress
+rig code --operator 0xYourWalletAddress
 ```
 
 `init` targets testnet by default. Mainnet is planned; until its registry is deployed,
@@ -68,7 +67,7 @@ through each step.
 ## 4. Check the machine
 
 ```sh
-node packages/miner/src/cli.ts status
+rig status
 ```
 
 `status` prints the node address, the network, the config folder, the detected GPU, the runtime
@@ -78,7 +77,7 @@ runtime.
 ## 5. Start the node
 
 ```sh
-node packages/miner/src/cli.ts start --coordinator {{coordinator.url}}
+rig start --coordinator {{coordinator.url}}
 ```
 
 The coordinator URL must use https unless it points at this machine. It is remembered per

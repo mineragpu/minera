@@ -82,6 +82,7 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
     'brand.repository': BRAND.links.github,
     'brand.repoDirectory': BRAND.links.github.split('/').pop() ?? '',
     'brand.configDirectory': BRAND.name.toLowerCase(),
+    'brand.nodePackage': BRAND.nodeClient.package,
 
     'testnet.chainName': chain.name,
     'testnet.chainId': chain.id,

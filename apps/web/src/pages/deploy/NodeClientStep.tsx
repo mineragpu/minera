@@ -1,9 +1,7 @@
 import { BRAND, type Address } from '@minera/shared';
 import { CommandBlock } from '../../components/CommandBlock.tsx';
 
-/** The directory `git clone` creates. */
-const REPO_DIRECTORY = BRAND.links.github.split('/').pop() ?? '';
-const CLI = 'node packages/miner/src/cli.ts';
+const { package: PACKAGE, command: CLI } = BRAND.nodeClient;
 const PLACEHOLDER = '0xYourWalletAddress';
 
 export function NodeClientStep({ operator }: { operator: Address | null }) {
@@ -11,12 +9,12 @@ export function NodeClientStep({ operator }: { operator: Address | null }) {
   return (
     <>
       <p className="flow-step__text">
-        On the machine with the GPU, get the node client and create the rig’s key. It needs Node.js 22.18 or later,
+        On the machine with the GPU, install the node client and create the rig’s key. It needs Node.js 22 or later,
         the GPU driver, and a local model runtime with at least one model downloaded.
       </p>
       <CommandBlock
         label="the install commands"
-        lines={[`git clone ${BRAND.links.github}`, `cd ${REPO_DIRECTORY}`, 'npm ci', `${CLI} init --operator ${wallet}`]}
+        lines={[`npm install --global ${PACKAGE}`, `${CLI} init --operator ${wallet}`]}
       />
       <p className="flow-step__text">
         It prints the node address and the deploy code. If this machine already has a node key, print the code for

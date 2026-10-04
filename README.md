@@ -15,6 +15,7 @@ and mine from a pool that only fills.
 <a href="https://github.com/mineragpu/minera/actions/workflows/codeql.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" height="20"></a>
 <a href="https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera"><img src="https://api.scorecard.dev/projects/github.com/mineragpu/minera/badge" alt="OpenSSF Scorecard" height="20"></a>
 <a href="https://www.bestpractices.dev/projects/15188"><img src="https://www.bestpractices.dev/projects/15188/badge" alt="OpenSSF Best Practices: passing" height="20"></a>
+<a href="https://www.npmjs.com/package/@minera-gpu/miner"><img src="https://img.shields.io/npm/v/%40minera-gpu%2Fminer?label=node%20client&color=2ee6c8" alt="Node client on npm" height="20"></a>
 <a href="#sentinel"><img src="docs/assets/badges/security.svg" alt="Security: Sentinel" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
 <a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
@@ -144,6 +145,17 @@ flowchart LR
    pair: a stock token is bought with the ETH through the pair zap as the claim is paid. Claiming
    in ETH always works, and the contracts do not enforce the pair.
 
+### Run a node
+
+```sh
+npm install --global @minera-gpu/miner
+rig init --operator 0xYourWalletAddress
+```
+
+Deploy the rig from that wallet on the [Deploy page](https://mineragpu.tech/deploy), then run
+`rig start --coordinator https://api.mineragpu.tech`. The [quickstart](https://mineragpu.tech/docs/quickstart)
+covers the requirements: a GPU, its driver, a local model runtime and Node.js 22 or later.
+
 ## Testnet contracts
 
 <img src="docs/assets/testnet.png" alt="The What's live panel on the site: network figures read from the coordinator, and the three contracts with their addresses, each marked source verified." width="100%">
@@ -198,7 +210,7 @@ Requires Node.js 24 (see `.nvmrc`) and, for the contracts, Foundry.
 ```sh
 npm ci
 npm run typecheck
-npm test -w @minera/shared -w @minera/coordinator -w @minera/miner
+npm test -w @minera/shared -w @minera/coordinator -w @minera-gpu/miner
 npm run build -w @minera/web
 
 cd packages/contracts
