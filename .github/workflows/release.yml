@@ -1,0 +1,66 @@
+name: Release
+
+# Publishes the node client to npm from a signed release tag. npm trusts this workflow through
+# OpenID Connect, so no token is stored anywhere, and every version carries a provenance statement
+# linking it to the commit and the run that built it.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  npm:
+    name: Publish the node client
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Check npm supports trusted publishing
+        run: node -e "const [a,b,c]=process.argv[1].split('.').map(Number); if (a<11||(a===11&&(b<5||(b===5&&c<1)))) { console.error('npm '+process.argv[1]+' is older than 11.5.1'); process.exit(1) }" "$(npm --version)"
+
+      - name: Check the tag matches the package version
+        run: |
+          version="$(node -p "require('./packages/miner/package.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match the package version $version." >&2
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Test
+        run: npm test --workspace @minera/shared --workspace @minera-gpu/miner
+
+      - name: Build
+        run: npm run build --workspace @minera-gpu/miner
+
+      - name: Publish
+        working-directory: packages/miner/dist
+        run: |
+          if npm view "@minera-gpu/miner@$VERSION" version > /dev/null 2>&1; then
+            echo "::notice::@minera-gpu/miner@$VERSION is already on npm. Nothing to publish."
+            exit 0
+          fi
+          # Release candidates (x.y.z-rc.n) go to the next tag; only full releases become latest.
+          case "$VERSION" in
+            *-*) tag=next ;;
+            *) tag=latest ;;
+          esac
+          npm publish --provenance --access public --tag "$tag"

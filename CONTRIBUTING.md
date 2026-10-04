@@ -23,7 +23,7 @@ The repository is one npm workspace:
 |---|---|---|
 | `apps/web` | `@minera/web` | The site: launchpad, deploy, claim, docs |
 | `apps/coordinator` | `@minera/coordinator` | The API: node authentication, jobs, verification, settlement |
-| `packages/miner` | `@minera/miner` | The node client, `rig` |
+| `packages/miner` | `@minera-gpu/miner` | The node client, `rig`, published to npm |
 | `packages/shared` | `@minera/shared` | Types, chain config and settlement math shared by the others |
 | `packages/contracts` | `@minera/contracts` | The Solidity contracts, built with Foundry |
 
@@ -55,7 +55,7 @@ Every pull request must pass these. CI runs the same commands.
 npm run typecheck
 
 # Unit and integration tests
-npm test -w @minera/shared -w @minera/coordinator -w @minera/miner
+npm test -w @minera/shared -w @minera/coordinator -w @minera-gpu/miner
 
 # Production build of the site
 npm run build -w @minera/web
@@ -164,6 +164,29 @@ Before you open one:
 
 Keep pull requests focused. A reviewer should be able to read the whole diff in one sitting.
 Describe what changed, why, and how you tested it. The pull request template lists the rest.
+
+## Releases
+
+One version number covers the whole repository, and each release is cut the same way:
+
+1. **One commit on `main`** sets the version in every `package.json` and moves the `Unreleased`
+   notes in `CHANGELOG.md` under the new version.
+2. **A signed tag** `vX.Y.Z` on that commit, once CI is green on it.
+3. **A GitHub release** for the tag, with the source archive, `SHA256SUMS` and their signatures
+   ([SECURITY.md](SECURITY.md) shows how to verify them).
+4. **The node client on npm** as `@minera-gpu/miner@X.Y.Z`. The
+   [release workflow](.github/workflows/release.yml) builds and publishes it from the tag, with a
+   provenance statement, through npm's trusted publishing; no npm token is stored. Version 0.1.1,
+   the first on npm, was published by the maintainer before the workflow could be trusted.
+
+Versions:
+
+- **`0.x` is testnet.** A minor version adds features or changes the node protocol; a patch fixes.
+- **`1.0.0` is the mainnet launch.** From then on, a breaking change to the node protocol or to the
+  `rig` command line is a major version.
+- **Release candidates** (`X.Y.Z-rc.N`) are published under the npm tag `next`. The `latest` tag
+  only ever points at a full release, so `npm install --global @minera-gpu/miner` never installs a
+  candidate.
 
 ## Reporting bugs and proposing features
 
