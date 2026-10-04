@@ -1,14 +1,19 @@
 {
-  "name": "@minera/miner",
+  "name": "@minera-gpu/miner",
   "version": "0.1.0",
+  "description": "The Minera node client: run a GPU as a rig on the Minera network.",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
     "rig": "./src/cli.ts"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node src/cli.ts",
+    "build": "node scripts/build-package.ts",
     "test": "node --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "fixture:deploy-code": "node scripts/deploy-code-fixture.ts"
@@ -19,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "24.19.0",
+    "rolldown": "1.2.12",
     "typescript": "7.0.2"
   }
 }

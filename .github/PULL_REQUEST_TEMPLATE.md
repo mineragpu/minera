@@ -9,7 +9,7 @@
 ## Checks
 
 - [ ] `npm run typecheck` passes
-- [ ] `npm test -w @minera/shared -w @minera/coordinator -w @minera/miner` passes
+- [ ] `npm test -w @minera/shared -w @minera/coordinator -w @minera-gpu/miner` passes
 - [ ] `npm run build -w @minera/web` passes
 - [ ] `forge build`, `forge test` and `forge fmt --check` pass in `packages/contracts` (contract changes only)
 - [ ] New behavior has tests, and a fix has a test that fails without it

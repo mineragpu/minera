@@ -53,10 +53,18 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm test --workspace @minera/shared --workspace @minera/coordinator --workspace @minera/miner
+        run: npm test --workspace @minera/shared --workspace @minera/coordinator --workspace @minera-gpu/miner
 
       - name: Build
         run: npm run build --workspace @minera/web
+
+      - name: Build and smoke-test the node client package
+        run: |
+          npm run build --workspace @minera-gpu/miner
+          cd packages/miner/dist
+          npm pack --dry-run
+          node bin/rig.js --version
+          node bin/rig.js help
 
   contracts:
     name: Contracts
