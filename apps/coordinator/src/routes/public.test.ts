@@ -2,6 +2,7 @@ import { strict as assert } from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { keccak256, toBytes } from 'viem';
 import type { Address, Hex } from '@minera/shared';
+import packageJson from '../../package.json' with { type: 'json' };
 import type { PoolSnapshot } from '../chain/pool.ts';
 import { epochOf } from '../epoch.ts';
 import { planSettlement } from '../settlement/plan.ts';
@@ -60,7 +61,7 @@ describe('public routes', () => {
   it('reports health without touching the database', async () => {
     const response = await get('/health');
     assert.equal(response.statusCode, 200);
-    assert.deepEqual(response.json(), { status: 'ok', version: '0.1.0', network: 'testnet', chainId: 46630 });
+    assert.deepEqual(response.json(), { status: 'ok', version: packageJson.version, network: 'testnet', chainId: 46630 });
   });
 
   it('summarizes the network, with the pool once it has been read', async () => {

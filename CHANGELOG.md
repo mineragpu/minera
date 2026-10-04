@@ -5,18 +5,41 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-04
+
+The node client is on npm. Nothing changes on chain or in the node protocol.
+
 ### Added
 
+- **The node client on npm** as `@minera-gpu/miner`. `npm install --global @minera-gpu/miner`
+  installs the `rig` command, built as one JavaScript file that runs on Node.js 22 or later.
+- **A release workflow** that publishes the node client from each signed release tag through npm's
+  trusted publishing, with a provenance statement and no stored token. Release candidates go to the
+  `next` tag; `latest` only ever points at a full release. CONTRIBUTING.md describes the steps.
 - **Audit guide** for the contracts, in `packages/contracts/AUDIT.md`: the scope, the roles, the
   properties that must hold with the test that checks each one, the behavior already known, and a
   triage of the static analysis.
 - **Contract tests** for every revert path that had none, a reentrancy test against a claimant that
   calls back, and an invariant that the head settlement is never a vetoed one. Coverage of the
   contracts is now 100% of lines, statements, branches and functions.
+- **Code owners:** pull requests request the maintainer's review, and branch protection requires
+  it.
+
+### Changed
+
+- The quickstart, the deploy guide and the Deploy page install the node client from npm and run
+  `rig`. Running from a clone still works.
+- The node client's workspace is now named `@minera-gpu/miner`, like the published package.
 
 ### Removed
 
 - The best practices autofill file. The badge is earned, and its answers live on the badge service.
+
+### Upgrade notes
+
+- **Node operators** can switch to the npm package with `npm install --global @minera-gpu/miner`
+  and run `rig` instead of `node packages/miner/src/cli.ts`. The node key and settings stay in the
+  same per-user directory, so nothing needs to be set up again.
 
 ## [0.1.0] - 2026-10-03
 
@@ -62,4 +85,6 @@ take work, get cross-checked, settle and claim. Mainnet has not launched.
 - **Anyone checking settlements:** settlement inputs are now version 2, in which each rig lists its
   verified units and the units it is paid for.
 
+[Unreleased]: https://github.com/mineragpu/minera/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/mineragpu/minera/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mineragpu/minera/releases/tag/v0.1.0
