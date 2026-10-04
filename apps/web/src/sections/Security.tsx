@@ -152,8 +152,8 @@ export function Security({ index }: { index: string }) {
       </div>
 
       <p className="trust__audit" ref={revealRef} data-reveal="fade-up">
-        <b>Not audited yet</b> The contracts have not had an external audit. Their source is verified against the
-        deployed code.{' '}
+        <b>Audit before mainnet</b> On testnet, the contracts’ source is verified against the deployed code and their
+        tests cover every line and branch. An external audit of the exact code to deploy comes before mainnet.{' '}
         <a className="text-link" href={docPath('security')}>
           Read the security notes
         </a>

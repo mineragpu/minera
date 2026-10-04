@@ -128,8 +128,9 @@ const QUESTIONS: readonly Question[] = [
     question: 'Is it audited?',
     answer: (
       <p>
-        Not yet. The contracts have not had an external audit. Their source is verified as an exact match for the
-        deployed code, and what they enforce and what depends on trust is listed under{' '}
+        An external audit of the exact code to deploy comes before mainnet. On testnet, the contracts’ source is
+        verified as an exact match for the deployed code and their tests cover every line and branch. What they
+        enforce and what depends on trust is listed under{' '}
         <a className="text-link" href={sectionPath('security')}>
           security and trust
         </a>
