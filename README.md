@@ -33,9 +33,9 @@ contract. Both halves are built to be checked, not trusted: nodes are untrusted 
 work, every value that determines payment is derived on the server, and the contracts bound what
 any key can do with the pool.
 
-> [!IMPORTANT]
-> The contracts have not been audited yet. The network runs on testnet only, with test assets.
-> Trust assumptions and known limitations are published in [docs/security.md](docs/security.md).
+> [!NOTE]
+> Minera runs on testnet, with test assets. Mainnet is planned. Trust assumptions are published in
+> [docs/security.md](docs/security.md).
 
 ### Sentinel
 
