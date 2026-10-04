@@ -125,6 +125,13 @@ contract BurnPoolInvariantTest is Test {
         assertLe(pool.releasable(), pool.totalBurned());
     }
 
+    function invariant_HeadIsNeverVetoed() public view {
+        uint256 head = pool.head();
+        if (head == 0) return;
+        (,,,, bool vetoed,) = pool.settlements(head);
+        assertFalse(vetoed);
+    }
+
     function invariant_ClaimantsReceivedExactlyWhatTheyClaimed() public view {
         assertEq(alice.balance + bob.balance, pool.totalClaimed());
     }

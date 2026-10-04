@@ -160,6 +160,31 @@ contract RigRegistryTest is Test {
         registry.listPair(stranger);
     }
 
+    function test_RevertWhen_ConstructedWithoutGuardian() public {
+        vm.expectRevert(RigRegistry.ZeroAddress.selector);
+        new RigRegistry(address(0), LISTING_DELAY);
+    }
+
+    function test_RevertWhen_ChangingAnUnknownRig() public {
+        vm.prank(operator);
+        vm.expectRevert(abi.encodeWithSelector(RigRegistry.UnknownRig.selector, nodeKey));
+        registry.setPair(nodeKey, address(0));
+    }
+
+    function test_RevertWhen_ChangingToAnUnlistedPair() public {
+        _deploy(address(0));
+        vm.prank(operator);
+        vm.expectRevert(abi.encodeWithSelector(RigRegistry.PairNotListed.selector, stock));
+        registry.setPair(nodeKey, stock);
+    }
+
+    function test_RevertWhen_NonGuardianDelistsPair() public {
+        _listStock();
+        vm.prank(stranger);
+        vm.expectRevert(RigRegistry.NotGuardian.selector);
+        registry.delistPair(stock);
+    }
+
     function test_DigestBindsChainRegistryAndOperator() public {
         bytes32 forOperator = registry.deployDigest(operator);
         assertTrue(forOperator != registry.deployDigest(stranger));

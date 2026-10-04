@@ -334,6 +334,114 @@ contract BurnPoolRotationTest is PoolFixture {
     }
 }
 
+/// Refuses every ETH transfer, like a contract wallet without a receive function.
+contract RefusingAccount {
+    receive() external payable {
+        revert("no ETH");
+    }
+}
+
+/// Tries to claim again from inside the payment, and records why that failed.
+contract ReenteringAccount {
+    BurnPool internal immutable pool;
+    bytes public reentryError;
+
+    constructor(BurnPool pool_) {
+        pool = pool_;
+    }
+
+    receive() external payable {
+        try pool.claim(1, address(this), msg.value, new bytes32[](0)) {}
+        catch (bytes memory reason) {
+            reentryError = reason;
+        }
+    }
+}
+
+contract BurnPoolGuardTest is PoolFixture {
+    function test_RevertWhen_ConstructedWithoutGuardianOrPublisher() public {
+        vm.expectRevert(BurnPool.ZeroAddress.selector);
+        new BurnPool(address(0), publisher, CHALLENGE, ROTATION, RELEASE_BPS);
+        vm.expectRevert(BurnPool.ZeroAddress.selector);
+        new BurnPool(guardian, address(0), CHALLENGE, ROTATION, RELEASE_BPS);
+    }
+
+    function test_RevertWhen_RateIsZeroOrAboveWhole() public {
+        vm.expectRevert(BurnPool.InvalidRate.selector);
+        new BurnPool(guardian, publisher, CHALLENGE, ROTATION, 0);
+        vm.expectRevert(BurnPool.InvalidRate.selector);
+        new BurnPool(guardian, publisher, CHALLENGE, ROTATION, 10_001);
+    }
+
+    function test_RevertWhen_RootIsEmpty() public {
+        _burn(1 ether);
+        vm.prank(publisher);
+        vm.expectRevert(BurnPool.EmptyRoot.selector);
+        pool.publish(bytes32(0), 0, bytes32(0));
+    }
+
+    function test_RevertWhen_VetoingAnUnknownSettlement() public {
+        vm.prank(guardian);
+        vm.expectRevert(abi.encodeWithSelector(BurnPool.UnknownSettlement.selector, 1));
+        pool.veto(1);
+    }
+
+    function test_RevertWhen_VetoingTwice() public {
+        _burn(10 ether);
+        vm.warp(block.timestamp + 1 days);
+        _publish(_leaf(alice, 0.1 ether), 0.1 ether);
+        vm.startPrank(guardian);
+        pool.veto(1);
+        vm.expectRevert(abi.encodeWithSelector(BurnPool.Vetoed.selector, 1));
+        pool.veto(1);
+        vm.stopPrank();
+    }
+
+    function test_RevertWhen_ClaimingForAnUnknownSettlement() public {
+        vm.expectRevert(abi.encodeWithSelector(BurnPool.UnknownSettlement.selector, 1));
+        pool.claim(1, alice, 1 ether, new bytes32[](0));
+    }
+
+    function test_RevertWhen_ClaimingForTheZeroAddress() public {
+        vm.expectRevert(BurnPool.ZeroAddress.selector);
+        pool.claim(1, address(0), 1 ether, new bytes32[](0));
+    }
+
+    function test_RevertWhen_ProposingTheZeroAddress() public {
+        vm.prank(guardian);
+        vm.expectRevert(BurnPool.ZeroAddress.selector);
+        pool.proposePublisher(address(0));
+    }
+
+    function test_RefusedPaymentRevertsAndStaysClaimable() public {
+        address account = address(new RefusingAccount());
+        _settleFor(account, 0.1 ether);
+
+        vm.expectRevert(BurnPool.TransferFailed.selector);
+        pool.claim(1, account, 0.1 ether, new bytes32[](0));
+        assertEq(pool.claimed(account), 0);
+        assertEq(pool.totalClaimed(), 0);
+    }
+
+    function test_ClaimCannotBeReentered() public {
+        ReenteringAccount account = new ReenteringAccount(pool);
+        _settleFor(address(account), 0.1 ether);
+
+        pool.claim(1, address(account), 0.1 ether, new bytes32[](0));
+        assertEq(account.reentryError(), abi.encodeWithSelector(BurnPool.Reentrancy.selector));
+        assertEq(address(account).balance, 0.1 ether);
+        assertEq(pool.totalClaimed(), 0.1 ether);
+    }
+
+    /// Publishes a one-leaf settlement for `account` and waits out its challenge delay.
+    function _settleFor(address account, uint256 amount) internal {
+        _burn(10 ether);
+        vm.warp(block.timestamp + 1 days);
+        _publish(_leaf(account, amount), amount);
+        vm.warp(block.timestamp + CHALLENGE);
+    }
+}
+
 contract BurnPoolFuzzTest is PoolFixture {
     function testFuzz_ReleasableNeverExceedsWhatWasBurned(uint96 deposit, uint32 elapsed) public {
         vm.assume(deposit > 0);

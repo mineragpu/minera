@@ -81,6 +81,31 @@ contract PairZapTest is Test {
         new PairZap(address(router), address(registry), routes);
     }
 
+    function test_RevertWhen_ConstructedWithoutRouterOrRegistry() public {
+        PairZap.Route[] memory none = new PairZap.Route[](0);
+        vm.expectRevert(PairZap.ZeroAddress.selector);
+        new PairZap(address(0), address(registry), none);
+        vm.expectRevert(PairZap.ZeroAddress.selector);
+        new PairZap(address(router), address(0), none);
+    }
+
+    function test_RevertWhen_ARouteHasNoAsset() public {
+        PairZap.Route[] memory routes = new PairZap.Route[](1);
+        routes[0] = PairZap.Route({asset: address(0), fee: 100, tickSpacing: 1});
+        vm.expectRevert(PairZap.ZeroAddress.selector);
+        new PairZap(address(router), address(registry), routes);
+    }
+
+    function test_RevertWhen_MinimumDoesNotFitTheSwap() public {
+        uint256 tooLarge = uint256(type(uint128).max) + 1;
+        vm.expectRevert(PairZap.AmountTooLarge.selector);
+        zap.deliver{value: 1 ether}(miner, _data(address(stock), tooLarge));
+
+        vm.deal(address(this), tooLarge);
+        vm.expectRevert(PairZap.AmountTooLarge.selector);
+        zap.deliver{value: tooLarge}(miner, _data(address(stock), 0));
+    }
+
     function test_ExposesItsFixedRoutes() public view {
         PairZap.Route memory route = zap.routeOf(address(stock));
         assertEq(route.asset, address(stock));
