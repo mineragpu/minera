@@ -75,6 +75,23 @@ Out of scope:
 - Findings from automated scanners with no demonstrated impact, and reports about missing best
   practice headers or settings that have no exploit.
 
+## Verify commits and releases
+
+Commits since October 2026 and every release are signed with the maintainer's SSH key, published in
+[`.github/allowed_signers`](.github/allowed_signers) and registered on GitHub as a signing key.
+
+```sh
+# A commit or a release tag
+git config gpg.ssh.allowedSignersFile .github/allowed_signers
+git verify-commit HEAD
+git verify-tag v0.1.0
+
+# A release download, with its checksum file and signatures from the release page
+ssh-keygen -Y verify -f .github/allowed_signers -I admin@mineragpu.tech -n file \
+  -s SHA256SUMS.sig < SHA256SUMS
+sha256sum -c SHA256SUMS
+```
+
 ## Safe harbor
 
 We will not pursue or support legal action against research that is done in good faith and within
