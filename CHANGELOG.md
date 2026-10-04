@@ -3,6 +3,21 @@
 Every release is listed here with what it adds, changes and fixes, and what operators need to do to
 upgrade. Versions follow semantic versioning, and each release is a signed git tag.
 
+## [Unreleased]
+
+### Added
+
+- **Audit guide** for the contracts, in `packages/contracts/AUDIT.md`: the scope, the roles, the
+  properties that must hold with the test that checks each one, the behavior already known, and a
+  triage of the static analysis.
+- **Contract tests** for every revert path that had none, a reentrancy test against a claimant that
+  calls back, and an invariant that the head settlement is never a vetoed one. Coverage of the
+  contracts is now 100% of lines, statements, branches and functions.
+
+### Removed
+
+- The best practices autofill file. The badge is earned, and its answers live on the badge service.
+
 ## [0.1.0] - 2026-10-03
 
 The first release. The whole network runs end to end on the testnet (chain ID 46630): deploy a rig,
