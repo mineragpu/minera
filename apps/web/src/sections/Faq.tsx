@@ -128,9 +128,13 @@ const QUESTIONS: readonly Question[] = [
     question: 'Is it audited?',
     answer: (
       <p>
-        An external audit of the exact code to deploy comes before mainnet. On testnet, the contracts’ source is
-        verified as an exact match for the deployed code and their tests cover every line and branch. What they
-        enforce and what depends on trust is listed under{' '}
+        By the maintainers, in the open, with every report{' '}
+        <a className="text-link" href={BRAND.links.audits} target="_blank" rel="noreferrer">
+          published in full
+        </a>
+        . Round 1 found no critical or high issues, and the code on chain matches the source byte for byte. The final
+        round covers the exact code to deploy, before mainnet. What the contracts enforce and what depends on trust is
+        listed under{' '}
         <a className="text-link" href={sectionPath('security')}>
           security and trust
         </a>

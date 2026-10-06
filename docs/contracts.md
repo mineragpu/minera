@@ -2,8 +2,8 @@
 
 Three contracts make up the network on chain: the Burn Pool, the rig registry and the pair zap.
 They are deployed on {{testnet.chainName}} (chain ID {{testnet.chainId}}). They cannot be upgraded.
-The mainnet deployment is planned, after an external audit whose scope is set out in the
-[audit guide](https://github.com/mineragpu/minera/blob/main/packages/contracts/AUDIT.md).
+The maintainers audit them in rounds and publish every report in [audits](https://github.com/mineragpu/minera/tree/main/audits);
+the final round covers the exact code to deploy on mainnet.
 
 ## Addresses
 

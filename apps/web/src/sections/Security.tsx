@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
+import { BRAND } from '@minera/shared';
 import { fetchPool } from '../api/coordinator.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
 import { Skeleton } from '../components/Skeleton.tsx';
 import { Words } from '../components/Words.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
-import { docPath } from '../pages/docs/manifest.ts';
 import './security.css';
 
 const REFRESH_MS = 120_000;
@@ -152,10 +152,11 @@ export function Security({ index }: { index: string }) {
       </div>
 
       <p className="trust__audit" ref={revealRef} data-reveal="fade-up">
-        <b>Audit before mainnet</b> On testnet, the contracts’ source is verified against the deployed code and their
-        tests cover every line and branch. An external audit of the exact code to deploy comes before mainnet.{' '}
-        <a className="text-link" href={docPath('security')}>
-          Read the security notes
+        <b>Audited in the open</b> The maintainers audit the contracts and publish every report in full. Round 1 found
+        no critical or high issues, and the code on chain matches the source byte for byte. The final round, on the
+        exact code to deploy, comes before mainnet.{' '}
+        <a className="text-link" href={BRAND.links.audits} target="_blank" rel="noreferrer">
+          Read the audit reports
         </a>
       </p>
     </section>

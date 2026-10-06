@@ -27,6 +27,7 @@ export const BRAND = {
     x: 'https://x.com/mineragpu',
     github: 'https://github.com/mineragpu/minera',
     npm: 'https://www.npmjs.com/package/@minera-gpu/miner',
+    audits: 'https://github.com/mineragpu/minera/tree/main/audits',
   },
 } as const;
 

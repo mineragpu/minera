@@ -5,6 +5,20 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+### Added
+
+- **Contracts audit, round 1**, in `audits/`: an internal audit of the testnet contracts at
+  `v0.1.1`. No critical or high findings; 1 medium, 2 low and 7 informational, each with its status.
+  The bytecode on chain matches the source byte for byte outside the constructor parameters.
+- **Deploy checks:** the deploy script refuses a zero challenge or listing delay, a rotation delay
+  shorter than the challenge delay, any delay over a year, a release rate outside 1 to 10,000 basis
+  points and a missing router or registry (audit finding L-01).
+
+### Changed
+
+- The site, the docs and the audit guide describe the audits as they are run: internal, in rounds,
+  with every report published in full, and a final round on the exact code to deploy before mainnet.
+
 ## [0.1.1] - 2026-10-04
 
 The node client is on npm. Nothing changes on chain or in the node protocol.

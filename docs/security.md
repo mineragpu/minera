@@ -7,8 +7,12 @@ coordinator's source.
 ## Status
 
 - The network runs on testnet only, with test assets. Mainnet is planned.
-- An external audit of the exact commit to be deployed comes before mainnet. The
-  [audit guide](https://github.com/mineragpu/minera/blob/main/packages/contracts/AUDIT.md) sets out its scope, and the contracts' tests cover every line and branch.
+- The maintainers audit the contracts in rounds and publish every report in full in
+  [audits](https://github.com/mineragpu/minera/tree/main/audits). [Round 1](https://github.com/mineragpu/minera/blob/main/audits/2026-10-06-contracts-round-1.md) found no critical or high
+  issues and confirmed that the code on chain matches the source. The final round covers the exact
+  commit to be deployed and comes before mainnet. The audits are internal; the
+  [audit guide](https://github.com/mineragpu/minera/blob/main/packages/contracts/AUDIT.md) lets anyone review the same code.
+- The contracts' tests cover every line and branch.
 - The contracts cannot be upgraded. A change of rules means new contracts at new addresses.
 
 ## What the contracts enforce

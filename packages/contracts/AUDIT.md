@@ -1,12 +1,13 @@
 # Audit guide
 
-This page is for anyone reviewing the Minera contracts, from an audit firm to an independent
-reader. It sets the scope, the roles, the properties that must hold and the behavior we already
-know about, so a review can start from the questions that matter.
+This page is for anyone reviewing the Minera contracts, from the maintainers' own audit rounds to
+an independent reader. It sets the scope, the roles, the properties that must hold and the behavior
+we already know about, so a review can start from the questions that matter.
 
-**Status:** no external audit has been completed yet. The contracts run on testnet only, with test
-assets, and an audit of the exact commit to be deployed comes before mainnet. Reports will be
-published in this repository, unedited.
+**Status:** the maintainers audit the contracts in rounds and publish every report, unedited, in
+[`audits/`](../../audits). [Round 1](../../audits/2026-10-06-contracts-round-1.md), on the testnet
+code, found no critical or high issues. The final round covers the exact commit to be deployed on
+mainnet and comes before launch. The audits are internal; independent review is welcome.
 
 ## Scope
 
@@ -64,7 +65,7 @@ publications, vetoes, claims and waits; fuzz tests run 2,048 cases.
 
 | Property | Checked by |
 |---|---|
-| The pool's balance equals everything burned minus everything claimed. | `invariant_BalanceIsBurnedMinusClaimed` |
+| The pool's balance is everything burned minus everything claimed, plus any ETH forced in without a call (audit I-01). | `invariant_BalanceIsBurnedMinusClaimed` |
 | Claims never exceed the committed total, and claimants receive exactly what they claimed. | `invariant_ClaimsNeverExceedCommitted`, `invariant_ClaimantsReceivedExactlyWhatTheyClaimed` |
 | The committed total and the release limit never exceed what was burned. | `invariant_CommittedNeverExceedsBurned`, `invariant_ReleasableNeverExceedsBurned`, `testFuzz_ReleasableNeverExceedsWhatWasBurned` |
 | The head settlement is never a vetoed one. | `invariant_HeadIsNeverVetoed` |
@@ -120,6 +121,8 @@ Found in our own review. None of it is a bug in our reading, but each deserves a
     [`deploy/`](deploy) and are part of the review; see the checklist below.
 12. **Node keys cannot be reused or transferred.** A retired rig's key can never be deployed again,
     and a rig cannot move to another operator.
+13. **ETH forced into the pool is not counted.** ETH sent by `selfdestruct` or as a block reward
+    skips `_burn`, so it never joins `totalBurned` and stays in the pool for good.
 
 ## Static analysis
 
@@ -147,14 +150,15 @@ forge coverage --no-match-coverage "(test|script|dependencies)" --no-match-contr
 forge lint src
 ```
 
-On 2026-10-04: 71 tests pass, and coverage of `src/` is 100% of lines, statements, branches and
+On 2026-10-06: 78 tests pass, and coverage of `src/` is 100% of lines, statements, branches and
 functions. `test/PairZap.fork.t.sol` runs the zap against the live testnet router when a testnet RPC
 URL is set, and is skipped otherwise. CI runs the formatting check, the build and every test on each
 push and pull request.
 
 ## Deployment
 
-The testnet deployment matches tag [`v0.1.0`](https://github.com/mineragpu/minera/releases/tag/v0.1.0),
+The testnet deployment matches tag [`v0.1.1`](https://github.com/mineragpu/minera/releases/tag/v0.1.1)
+byte for byte outside the constructor parameters (audit round 1),
 with the parameters in [`deploy/testnet.json`](deploy/testnet.json):
 
 | Parameter | Testnet value |
@@ -168,7 +172,12 @@ Addresses are in [`deployments/46630.json`](deployments/46630.json) and
 [docs/contracts.md](../../docs/contracts.md). Each contract is verified on the explorer with an
 exact source match.
 
-Before mainnet, together with the audit:
+`Deploy.check` in [`script/Deploy.s.sol`](script/Deploy.s.sol) refuses unsafe parameters before
+anything is deployed: a zero challenge or listing delay, a rotation delay shorter than the challenge
+delay, any delay over a year, a release rate outside 1 to 10,000 basis points, or a missing router
+or registry.
+
+Before mainnet, together with the final audit round:
 
 - [ ] The audited commit is the deployed commit, and every contract is source-verified.
 - [ ] The guardian is a multisig wallet; the publisher is a separate key held by the coordinator.
