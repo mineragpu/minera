@@ -22,12 +22,17 @@ contract Deploy is Script {
         address stockRegistry;
     }
 
+    uint64 private constant MAX_DELAY = 365 days;
+    uint256 private constant BPS = 10_000;
+
     error WrongChain(uint256 expected, uint256 actual);
+    error UnsafeConfig(string reason);
 
     function run() external {
         string memory network = vm.envString("NETWORK");
         string memory json = vm.readFile(string.concat("deploy/", network, ".json"));
-        Config memory config = _config(json);
+        Config memory config = configFrom(json);
+        check(config);
         if (block.chainid != config.chainId) revert WrongChain(config.chainId, block.chainid);
         PairZap.Route[] memory routes = abi.decode(vm.parseJson(json, ".routes"), (PairZap.Route[]));
 
@@ -59,7 +64,30 @@ contract Deploy is Script {
         vm.writeJson(out, string.concat("deployments/", vm.toString(block.chainid), ".json"));
     }
 
-    function _config(string memory json) private pure returns (Config memory config) {
+    /// @notice Refuses parameters the contracts accept but that would make them unsafe or stuck. The
+    /// constructors leave the delays unbounded, so this is where they are held to sane values.
+    function check(Config memory config) public pure {
+        if (config.challengeDelay == 0) {
+            revert UnsafeConfig("challengeDelay is zero, so no settlement could be vetoed");
+        }
+        if (config.rotationDelay < config.challengeDelay) {
+            revert UnsafeConfig("rotationDelay is shorter than challengeDelay");
+        }
+        if (config.listingDelay == 0) {
+            revert UnsafeConfig("listingDelay is zero, so a new pair would be usable at once");
+        }
+        if (config.challengeDelay > MAX_DELAY || config.rotationDelay > MAX_DELAY || config.listingDelay > MAX_DELAY) {
+            revert UnsafeConfig("a delay is longer than a year");
+        }
+        if (config.releaseBpsPerDay == 0 || config.releaseBpsPerDay > BPS) {
+            revert UnsafeConfig("releaseBpsPerDay is outside 1 to 10000");
+        }
+        if (config.router == address(0) || config.stockRegistry == address(0)) {
+            revert UnsafeConfig("router or stockRegistry is the zero address");
+        }
+    }
+
+    function configFrom(string memory json) public pure returns (Config memory config) {
         config.chainId = vm.parseJsonUint(json, ".chainId");
         config.challengeDelay = uint64(vm.parseJsonUint(json, ".challengeDelay"));
         config.rotationDelay = uint64(vm.parseJsonUint(json, ".rotationDelay"));
