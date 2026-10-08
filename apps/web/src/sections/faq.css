@@ -80,6 +80,10 @@
   color: var(--teal);
 }
 
+.faq__answer .token-ca {
+  justify-self: start;
+}
+
 .faq__answer {
   display: grid;
   gap: 12px;

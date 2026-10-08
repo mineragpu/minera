@@ -79,9 +79,14 @@ information.
 
 ## Is there a token?
 
-A token is planned, and its utility is not decided yet. Rewards today are committed in ETH, and you
-claim them in ETH or in the stock token your rigs pair with.
+Yes, ${{token.symbol}}, launched on {{token.launchedOn}}. Its contract address is
+`{{token.address}}`; the site shows it in the footer with a copy button. Any other address
+presented as {{brand.name}}'s is not ours.
+
+{{brand.rewardAllocation}} What else the token is for is not decided yet. Rewards today are
+committed in ETH, and you claim them in ETH or in the stock token your rigs pair with.
 
 ## Is mainnet live?
 
-No. The network runs on testnet, with test assets. Mainnet is planned.
+Not for mining yet. The network runs on testnet, with test assets, and its mainnet launch is
+planned. The ${{token.symbol}} token already trades on mainnet.

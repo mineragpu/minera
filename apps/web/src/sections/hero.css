@@ -64,6 +64,10 @@
   margin-top: 34px;
 }
 
+.hero__token {
+  margin-top: 18px;
+}
+
 .spec {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

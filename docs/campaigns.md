@@ -4,9 +4,9 @@ A campaign is an announced period of burns into the Burn Pool. {{brand.rewardAll
 
 ## Where the funds come from
 
-- Creator fees are the fees the project earns from its own token. The token is planned, so there
-  are no creator fees, buybacks or burns from them yet.
-- Until then, burns come from the project wallet.
+- Creator fees are the fees the project earns from its own token, ${{token.symbol}}, launched on
+  {{token.launchedOn}}. They are paid on mainnet, where the Burn Pool is not deployed yet.
+- On testnet, burns come from the project wallet.
 - Whatever the source, burned ETH can leave the pool only as mining rewards. See
   [Burn Pool](burn-pool.md).
 

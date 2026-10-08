@@ -1,0 +1,72 @@
+/* The token's contract address: ticker, address, a copy button and outbound links on one line. */
+.token-ca {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  max-width: 100%;
+  padding: 7px 8px 7px 12px;
+  border: 1px solid var(--seam-2);
+  border-radius: var(--r-input);
+  background: rgba(21, 26, 36, 0.72);
+  font-size: var(--step--1);
+  color: var(--silver);
+}
+
+.token-ca__ticker {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.token-ca__label {
+  font: 500 var(--step--2) / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.token-ca__address {
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--bright);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.token-ca__copy,
+.token-ca__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--seam-2);
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+  font: 500 var(--step--1) / 1 inherit;
+  color: var(--silver);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.token-ca__copy svg,
+.token-ca__link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.token-ca__copy:hover,
+.token-ca__copy:focus-visible,
+.token-ca__link:hover,
+.token-ca__link:focus-visible {
+  color: var(--bright);
+  border-color: var(--seam-hover);
+}
+
+.token-ca__copy:focus-visible,
+.token-ca__link:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}

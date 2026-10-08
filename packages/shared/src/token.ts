@@ -14,11 +14,14 @@ export interface TokenInfo {
   marketUrl: string | null;
   /** The address on a block explorer, or null. */
   explorerUrl: string | null;
+  /** The launch date, YYYY-MM-DD, or null before it launches. */
+  launchedOn: string | null;
 }
 
 export const TOKEN: TokenInfo = {
   symbol: BRAND.symbol,
-  address: null,
-  marketUrl: null,
-  explorerUrl: null,
+  address: '0x811e6953bcdee5277de0f194e6e2fb1018ce33b4',
+  marketUrl: 'https://ponsfamily.com/launchpad/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4',
+  explorerUrl: 'https://robin.etherscan.io/token/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4',
+  launchedOn: '2026-10-08',
 };

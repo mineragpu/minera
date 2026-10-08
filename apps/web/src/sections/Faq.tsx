@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { BRAND, TOKEN } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
 import { Reveal } from '../components/Reveal.tsx';
+import { TokenAddress } from '../components/TokenAddress.tsx';
 import { Words } from '../components/Words.tsx';
 import { useMergedRef } from '../lib/useMergedRef.ts';
 import { detailsMotionRef } from '../motion/detailsMotion.ts';
@@ -13,6 +14,16 @@ import './faq.css';
 interface Question {
   question: string;
   answer: ReactNode;
+}
+
+/** A YYYY-MM-DD date as words, read as UTC so it never shifts a day. */
+function launchDate(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 const QUESTIONS: readonly Question[] = [
@@ -110,28 +121,22 @@ const QUESTIONS: readonly Question[] = [
     question: 'Is this mainnet?',
     answer: (
       <p>
-        No. Everything runs on testnet today, and test ETH has no value. Mainnet is planned. When the network moves
-        there it gets new contracts, and testnet balances stay on testnet.
+        Not for mining yet. The network runs on testnet today, and test ETH has no value; only the ${TOKEN.symbol}{' '}
+        token is on mainnet. When the network moves there it gets new contracts, and testnet balances stay on testnet.
       </p>
     ),
   },
   {
     question: 'Is there a token yet?',
     answer: TOKEN.address ? (
-      <p>
-        Yes, ${TOKEN.symbol}. Its contract address is <code className="token-address">{TOKEN.address}</code>
-        {TOKEN.explorerUrl && (
-          <>
-            {' '}
-            (
-            <a className="text-link" href={TOKEN.explorerUrl} target="_blank" rel="noreferrer">
-              on the explorer
-            </a>
-            )
-          </>
-        )}
-        . This site is the reference: any other address presented as {BRAND.name}’s is not ours.
-      </p>
+      <>
+        <p>
+          Yes, ${TOKEN.symbol}
+          {TOKEN.launchedOn && <>, launched on {launchDate(TOKEN.launchedOn)}</>}. This is its contract address, and
+          this site is the reference: any other address presented as {BRAND.name}’s is not ours.
+        </p>
+        <TokenAddress />
+      </>
     ) : (
       <p>
         No. A token is planned, and its contract address will be published on this site. Until then, any token presented

@@ -21,11 +21,28 @@ and mine from a pool that only fills.
 <a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
 <a href="LICENSE"><img src="docs/assets/badges/license.svg" alt="License: Apache-2.0" height="20"></a>
 
-[Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [API](https://mineragpu.tech/docs/api) · [Security policy](SECURITY.md)
+[Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [API](https://mineragpu.tech/docs/api) · [Security policy](SECURITY.md)<br>
+[X](https://x.com/mineragpu) · [Telegram](https://t.me/mineraofficial) · [GitHub](https://github.com/mineragpu/minera) · [$MNRA on Pons](https://ponsfamily.com/launchpad/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4)
 
 </div>
 
 <br>
+
+## $MNRA
+
+| | |
+|---|---|
+| **Ticker** | $MNRA |
+| **Contract address** | `0x811e6953bcdee5277de0f194e6e2fb1018ce33b4` |
+| **Launched** | October 8, 2026, on mainnet |
+| **Trade** | [Pons](https://ponsfamily.com/launchpad/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4) |
+| **Explorer** | [The token on the block explorer](https://robin.etherscan.io/token/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4) |
+
+Rewards are added to the Burn Pool on a regular schedule, through buyback and burn and a
+distribution of about 10% of creator fees. The mining network itself runs on testnet today.
+
+This README and [mineragpu.tech](https://mineragpu.tech) are the reference for the address. Any other
+address presented as Minera's is not ours.
 
 ## Security first
 

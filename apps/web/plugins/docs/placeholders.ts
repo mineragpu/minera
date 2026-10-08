@@ -10,6 +10,7 @@ import {
   NODE_HEADERS,
   NODE_ROUTES,
   PROTOCOL_VERSION,
+  TOKEN,
   deploymentFor,
   pairListingFor,
 } from '@minera/shared';
@@ -71,6 +72,13 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
   if (!deployment) throw new Error('no testnet deployment is recorded in the shared package');
   if (testnetConfig.chainId !== chain.id) throw new Error('the testnet deployment configuration is for another chain');
   const quoter = pairListingFor(chain.id).quoter;
+  if (!TOKEN.address || !TOKEN.launchedOn) throw new Error('the docs name the token, but its address or launch date is not set');
+  const launched = new Date(`${TOKEN.launchedOn}T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
   if (!quoter) throw new Error('the testnet pair listing has no quoter');
   const rpc = chain.rpcUrls[0];
   if (!rpc) throw new Error('the testnet has no RPC URL');
@@ -83,6 +91,10 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
     'brand.repoDirectory': BRAND.links.github.split('/').pop() ?? '',
     'brand.configDirectory': BRAND.name.toLowerCase(),
     'brand.nodePackage': BRAND.nodeClient.package,
+
+    'token.symbol': TOKEN.symbol,
+    'token.address': TOKEN.address,
+    'token.launchedOn': launched,
 
     'testnet.chainName': chain.name,
     'testnet.chainId': chain.id,

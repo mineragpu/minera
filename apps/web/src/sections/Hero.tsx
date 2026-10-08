@@ -1,5 +1,6 @@
 import { ButtonLink } from '../components/Button.tsx';
 import { CubeGlyph } from '../components/CubeGlyph.tsx';
+import { TokenAddress } from '../components/TokenAddress.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { BlockCluster } from '../components/cluster/BlockCluster.tsx';
 import { PATHS } from '../router/routes.ts';
@@ -38,6 +39,9 @@ export function Hero() {
           <ButtonLink variant="ghost" href="#burn-pool">
             See the Burn Pool
           </ButtonLink>
+        </div>
+        <div className="hero__token rise" style={rise(0.53)}>
+          <TokenAddress />
         </div>
         <NetworkFigures style={rise(0.58)} />
       </div>

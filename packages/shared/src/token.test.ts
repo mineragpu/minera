@@ -15,6 +15,19 @@ describe('TOKEN', () => {
     if (TOKEN.address !== null) assert.match(TOKEN.address, ADDRESS);
   });
 
+  it('points every link at the same address', () => {
+    if (TOKEN.address === null) return;
+    for (const url of [TOKEN.marketUrl, TOKEN.explorerUrl]) {
+      if (url !== null) assert.ok(url.toLowerCase().includes(TOKEN.address.toLowerCase()), url);
+    }
+  });
+
+  it('dates the launch only once there is an address', () => {
+    if (TOKEN.launchedOn === null) return;
+    assert.notEqual(TOKEN.address, null);
+    assert.match(TOKEN.launchedOn, /^\d{4}-\d{2}-\d{2}$/);
+  });
+
   it('links only over https, and only once there is an address to link', () => {
     for (const url of [TOKEN.marketUrl, TOKEN.explorerUrl]) {
       if (url === null) continue;

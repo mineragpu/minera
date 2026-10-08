@@ -1,5 +1,6 @@
-import { BRAND, TOKEN } from '@minera/shared';
+import { BRAND } from '@minera/shared';
 import { PreviewTag } from '../components/PreviewTag.tsx';
+import { TokenAddress } from '../components/TokenAddress.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
 import { FOOTER_GROUPS } from './navLinks.ts';
@@ -21,26 +22,28 @@ export function Footer() {
               <ul>
                 {group.links.map((link) => (
                   <li key={link.href}>
-                    <a href={link.href}>{link.label}</a>
+                    {link.href.startsWith('http') ? (
+                      <a href={link.href} target="_blank" rel="noreferrer">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <a href={link.href}>{link.label}</a>
+                    )}
                   </li>
                 ))}
               </ul>
             </div>
           ))}
         </nav>
-        <p className="foot__note" ref={revealRef} data-reveal="fade">
+        <div className="foot__note" ref={revealRef} data-reveal="fade">
           <span className="foot__legend">
             <PreviewTag /> marks a figure that is still illustrative. Every other figure is read from the network.
           </span>
-          {TOKEN.address && (
-            <span className="foot__token">
-              ${TOKEN.symbol} <code className="token-address">{TOKEN.address}</code>
-            </span>
-          )}
+          <TokenAddress explorer className="foot__token" />
           <span className="copy">
             © {new Date().getFullYear()} <span className="brand">{BRAND.name}</span>
           </span>
-        </p>
+        </div>
       </div>
     </footer>
   );
