@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { BRAND } from '@minera/shared';
+import { BRAND, TOKEN } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
 import { Reveal } from '../components/Reveal.tsx';
 import { Words } from '../components/Words.tsx';
@@ -117,7 +117,22 @@ const QUESTIONS: readonly Question[] = [
   },
   {
     question: 'Is there a token yet?',
-    answer: (
+    answer: TOKEN.address ? (
+      <p>
+        Yes, ${TOKEN.symbol}. Its contract address is <code className="token-address">{TOKEN.address}</code>
+        {TOKEN.explorerUrl && (
+          <>
+            {' '}
+            (
+            <a className="text-link" href={TOKEN.explorerUrl} target="_blank" rel="noreferrer">
+              on the explorer
+            </a>
+            )
+          </>
+        )}
+        . This site is the reference: any other address presented as {BRAND.name}’s is not ours.
+      </p>
+    ) : (
       <p>
         No. A token is planned, and its contract address will be published on this site. Until then, any token presented
         as {BRAND.name}’s is not ours.

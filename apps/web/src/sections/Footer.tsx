@@ -1,4 +1,4 @@
-import { BRAND } from '@minera/shared';
+import { BRAND, TOKEN } from '@minera/shared';
 import { PreviewTag } from '../components/PreviewTag.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
 import { revealRef } from '../motion/revealObserver.ts';
@@ -32,6 +32,11 @@ export function Footer() {
           <span className="foot__legend">
             <PreviewTag /> marks a figure that is still illustrative. Every other figure is read from the network.
           </span>
+          {TOKEN.address && (
+            <span className="foot__token">
+              ${TOKEN.symbol} <code className="token-address">{TOKEN.address}</code>
+            </span>
+          )}
           <span className="copy">
             © {new Date().getFullYear()} <span className="brand">{BRAND.name}</span>
           </span>

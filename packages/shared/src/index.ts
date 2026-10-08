@@ -18,6 +18,8 @@ export { DEPLOYMENTS, deploymentFor } from './deployments.ts';
 export type { Deployment } from './deployments.ts';
 export { SENTINEL_GATES, SENTINEL_ROUTE } from './sentinel.ts';
 export type { RigStanding, SentinelGate, SentinelGateStats, SentinelStats } from './sentinel.ts';
+export { TOKEN } from './token.ts';
+export type { TokenInfo } from './token.ts';
 export { ETH_PAIR, PAIR_LISTINGS, findPair, pairListingFor } from './pairs.ts';
 export type { PairAsset, PairKind, PairListing } from './pairs.ts';
 export {

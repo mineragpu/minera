@@ -15,6 +15,8 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
   points and a missing router or registry (audit finding L-01).
 - **Mainnet role checks:** the deploy script refuses a guardian that is also the publisher, and on
   mainnet a guardian without contract code or a challenge delay under an hour (audit finding M-01).
+- **Token address on the site:** once the token contract address is set in the shared package, the
+  FAQ and the footer publish it, so there is one reference to check an address against.
 
 ### Changed
 

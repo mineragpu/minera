@@ -91,6 +91,18 @@
   margin-left: auto;
 }
 
+/* The token address, published once it exists: copied whole with one click, wrapped on small screens. */
+.foot__token {
+  color: var(--silver);
+}
+
+.token-address {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 @media (max-width: 920px) {
   .foot__inner {
     grid-template-columns: minmax(0, 1fr);
