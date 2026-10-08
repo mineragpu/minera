@@ -1,0 +1,33 @@
+.social {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+}
+
+.social a {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-btn);
+  color: var(--silver);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.social svg {
+  width: 16px;
+  height: 16px;
+}
+
+.social a:hover,
+.social a:focus-visible {
+  color: var(--bright);
+  background: var(--surface-2);
+}
+
+.social a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}

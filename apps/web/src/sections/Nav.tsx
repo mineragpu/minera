@@ -1,4 +1,5 @@
 import { ButtonLink } from '../components/Button.tsx';
+import { SocialLinks } from '../components/SocialLinks.tsx';
 import { Wordmark } from '../components/Wordmark.tsx';
 import { pageProgressRef } from '../motion/pageProgress.ts';
 import { useSectionSpy } from '../motion/useSectionSpy.ts';
@@ -34,6 +35,7 @@ export function Nav({ route }: { route: Route }) {
             })}
           </ul>
         </nav>
+        <SocialLinks className="topbar__social" />
         <WalletButton />
         <ButtonLink
           variant="primary"

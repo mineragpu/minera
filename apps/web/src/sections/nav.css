@@ -79,6 +79,14 @@
   transform: scaleX(1);
 }
 
+/* The community icons sit beside the wallet button. Between the wide bar and the wrapped phone bar
+   there is no room for them, and the footer lists them too. */
+@media (min-width: 761px) and (max-width: 1080px) {
+  .topbar__social {
+    display: none;
+  }
+}
+
 @media (max-width: 760px) {
   .topbar {
     padding-top: 8px;
@@ -111,6 +119,26 @@
 
   .topbar .btn {
     margin-left: auto;
+  }
+
+  .topbar__social {
+    margin-left: auto;
+  }
+
+  .topbar__social ~ .btn {
+    margin-left: 0;
+  }
+
+  .topbar__social a {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* On the narrowest phones GitHub drops out of the bar; it stays in the footer. */
+@media (max-width: 420px) {
+  .topbar__social li:nth-child(3) {
+    display: none;
   }
 }
 

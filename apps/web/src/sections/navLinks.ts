@@ -1,3 +1,4 @@
+import { BRAND, TOKEN } from '@minera/shared';
 import { DOC_GROUPS, docPath } from '../pages/docs/manifest.ts';
 import { PATHS, sectionPath, type RouteName } from '../router/routes.ts';
 
@@ -58,6 +59,15 @@ export const FOOTER_GROUPS: readonly FooterGroup[] = [
       { label: 'Campaigns', href: sectionPath('campaigns') },
       { label: 'Live contracts', href: sectionPath('whats-live') },
       { label: 'Roadmap', href: sectionPath('roadmap') },
+    ],
+  },
+  {
+    title: 'Community',
+    links: [
+      { label: 'X', href: BRAND.links.x },
+      { label: 'Telegram', href: BRAND.links.telegram },
+      { label: 'GitHub', href: BRAND.links.github },
+      ...(TOKEN.marketUrl ? [{ label: `$${TOKEN.symbol} on Pons`, href: TOKEN.marketUrl }] : []),
     ],
   },
 ];
