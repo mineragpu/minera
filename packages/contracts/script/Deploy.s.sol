@@ -40,6 +40,7 @@ contract Deploy is Script {
         address deployer = vm.addr(deployerKey);
         address guardian = vm.envAddress("GUARDIAN_ADDRESS");
         address publisher = vm.envAddress("PUBLISHER_ADDRESS");
+        checkRoles(network, config, guardian, publisher);
 
         vm.startBroadcast(deployerKey);
         BurnPool pool =
@@ -84,6 +85,20 @@ contract Deploy is Script {
         }
         if (config.router == address(0) || config.stockRegistry == address(0)) {
             revert UnsafeConfig("router or stockRegistry is the zero address");
+        }
+    }
+
+    /// @notice Holds the roles to the mainnet checklist in the audit guide. The guardian and the publisher
+    /// are always different keys. On mainnet the guardian must have contract code, so a plain key cannot
+    /// be the guardian (it is meant to be a multisig wallet; audit finding M-01), and settlements wait at
+    /// least an hour.
+    function checkRoles(string memory network, Config memory config, address guardian, address publisher) public view {
+        if (guardian == address(0) || publisher == address(0)) revert UnsafeConfig("guardian or publisher is missing");
+        if (guardian == publisher) revert UnsafeConfig("the guardian and the publisher are the same key");
+        if (keccak256(bytes(network)) != keccak256("mainnet")) return;
+        if (guardian.code.length == 0) revert UnsafeConfig("on mainnet the guardian must be a multisig contract");
+        if (config.challengeDelay < 1 hours) {
+            revert UnsafeConfig("on mainnet the challenge delay must be at least an hour");
         }
     }
 

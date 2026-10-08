@@ -13,6 +13,8 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 - **Deploy checks:** the deploy script refuses a zero challenge or listing delay, a rotation delay
   shorter than the challenge delay, any delay over a year, a release rate outside 1 to 10,000 basis
   points and a missing router or registry (audit finding L-01).
+- **Mainnet role checks:** the deploy script refuses a guardian that is also the publisher, and on
+  mainnet a guardian without contract code or a challenge delay under an hour (audit finding M-01).
 
 ### Changed
 

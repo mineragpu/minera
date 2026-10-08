@@ -175,12 +175,15 @@ exact source match.
 `Deploy.check` in [`script/Deploy.s.sol`](script/Deploy.s.sol) refuses unsafe parameters before
 anything is deployed: a zero challenge or listing delay, a rotation delay shorter than the challenge
 delay, any delay over a year, a release rate outside 1 to 10,000 basis points, or a missing router
-or registry.
+or registry. `Deploy.checkRoles` refuses a guardian that is also the publisher, and on mainnet a
+guardian that is not a contract or a challenge delay under an hour.
 
 Before mainnet, together with the final audit round:
 
 - [ ] The audited commit is the deployed commit, and every contract is source-verified.
 - [ ] The guardian is a multisig wallet; the publisher is a separate key held by the coordinator.
+      On mainnet the deploy script refuses a guardian without contract code, or one that is also
+      the publisher.
 - [ ] The challenge delay gives the guardian time to react (hours, not minutes).
 - [ ] The rotation delay is longer than the challenge delay.
 - [ ] The release limit and listing delay are set in `deploy/mainnet.json` and reviewed.
