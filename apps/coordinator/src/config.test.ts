@@ -41,8 +41,12 @@ describe('loadConfig', () => {
     assert.throws(() => loadConfig({}), /DATABASE_URL/);
   });
 
-  it('refuses a network without a recorded deployment', () => {
-    assert.throws(() => loadConfig({ DATABASE_URL, NETWORK: 'mainnet' }), /no contract deployment/);
+  it('loads each network with its own recorded deployment', () => {
+    for (const network of ['testnet', 'mainnet'] as const) {
+      const config = loadConfig({ DATABASE_URL, NETWORK: network });
+      assert.equal(config.chain.network, network);
+      assert.equal(config.deployment.chainId, config.chain.id);
+    }
   });
 
   it('never prints a secret, even in a validation error', () => {
