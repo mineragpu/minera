@@ -197,11 +197,14 @@ contract BurnPool {
         emit ZapScheduled(zap, enabledAt);
     }
 
+    /// @notice Stop a zap at once. Claims already delivered through it are unaffected.
     function disallowZap(address zap) external onlyGuardian {
         delete zapEnabledAt[zap];
         emit ZapDisabled(zap);
     }
 
+    /// @notice Propose a new publisher. It can act only after `rotationDelay`, through `applyPublisher`;
+    /// proposing again replaces the pending proposal and restarts the delay.
     function proposePublisher(address next) external onlyGuardian {
         if (next == address(0)) revert ZeroAddress();
         uint64 effectiveAt = uint64(block.timestamp) + rotationDelay;

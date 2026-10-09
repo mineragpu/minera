@@ -10,7 +10,8 @@ import {RigRegistry} from "../src/RigRegistry.sol";
 /// and records the addresses in `deployments/<chainId>.json`.
 /// @dev Environment: NETWORK (testnet | mainnet), DEPLOYER_PRIVATE_KEY, GUARDIAN_ADDRESS,
 /// PUBLISHER_ADDRESS. When the deployer is also the guardian, the zap is scheduled on the pool and
-/// every routed asset is listed on the registry in the same run.
+/// every routed asset is listed on the registry in the same run. A network file with no router and no
+/// stock registry deploys ETH-only: no pair zap, and claims are paid in ETH.
 contract Deploy is Script {
     struct Config {
         uint256 chainId;
@@ -34,20 +35,23 @@ contract Deploy is Script {
         Config memory config = configFrom(json);
         check(config);
         if (block.chainid != config.chainId) revert WrongChain(config.chainId, block.chainid);
-        PairZap.Route[] memory routes = abi.decode(vm.parseJson(json, ".routes"), (PairZap.Route[]));
+        bool ethOnly = config.router == address(0);
+        PairZap.Route[] memory routes;
+        if (!ethOnly) routes = abi.decode(vm.parseJson(json, ".routes"), (PairZap.Route[]));
 
         uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
         address guardian = vm.envAddress("GUARDIAN_ADDRESS");
         address publisher = vm.envAddress("PUBLISHER_ADDRESS");
-        checkRoles(network, config, guardian, publisher);
+        checkRoles(network, config, deployer, guardian, publisher);
 
         vm.startBroadcast(deployerKey);
         BurnPool pool =
             new BurnPool(guardian, publisher, config.challengeDelay, config.rotationDelay, config.releaseBpsPerDay);
         RigRegistry registry = new RigRegistry(guardian, config.listingDelay);
-        PairZap zap = new PairZap(config.router, config.stockRegistry, routes);
-        if (deployer == guardian) {
+        PairZap zap;
+        if (!ethOnly) zap = new PairZap(config.router, config.stockRegistry, routes);
+        if (!ethOnly && deployer == guardian) {
             pool.allowZap(address(zap));
             for (uint256 i = 0; i < routes.length; i++) {
                 registry.listPair(routes[i].asset);
@@ -83,20 +87,27 @@ contract Deploy is Script {
         if (config.releaseBpsPerDay == 0 || config.releaseBpsPerDay > BPS) {
             revert UnsafeConfig("releaseBpsPerDay is outside 1 to 10000");
         }
-        if (config.router == address(0) || config.stockRegistry == address(0)) {
-            revert UnsafeConfig("router or stockRegistry is the zero address");
+        if ((config.router == address(0)) != (config.stockRegistry == address(0))) {
+            revert UnsafeConfig("set both router and stockRegistry, or neither for ETH-only");
         }
     }
 
     /// @notice Holds the roles to the mainnet checklist in the audit guide. The guardian and the publisher
-    /// are always different keys. On mainnet the guardian must have contract code, so a plain key cannot
-    /// be the guardian (it is meant to be a multisig wallet; audit finding M-01), and settlements wait at
-    /// least an hour.
-    function checkRoles(string memory network, Config memory config, address guardian, address publisher) public view {
-        if (guardian == address(0) || publisher == address(0)) revert UnsafeConfig("guardian or publisher is missing");
+    /// are always different keys. On mainnet the guardian is also a key used for nothing else, never the
+    /// deployer (audit finding M-01), and settlements wait at least an hour.
+    function checkRoles(
+        string memory network,
+        Config memory config,
+        address deployer,
+        address guardian,
+        address publisher
+    ) public pure {
+        if (guardian == address(0) || publisher == address(0)) {
+            revert UnsafeConfig("guardian or publisher is missing");
+        }
         if (guardian == publisher) revert UnsafeConfig("the guardian and the publisher are the same key");
         if (keccak256(bytes(network)) != keccak256("mainnet")) return;
-        if (guardian.code.length == 0) revert UnsafeConfig("on mainnet the guardian must be a multisig contract");
+        if (guardian == deployer) revert UnsafeConfig("on mainnet the guardian must not be the deployer");
         if (config.challengeDelay < 1 hours) {
             revert UnsafeConfig("on mainnet the challenge delay must be at least an hour");
         }

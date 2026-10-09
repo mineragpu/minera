@@ -1,0 +1,10 @@
+{
+  "chainId": 4663,
+  "challengeDelay": 21600,
+  "rotationDelay": 172800,
+  "releaseBpsPerDay": 1000,
+  "listingDelay": 86400,
+  "router": "0x0000000000000000000000000000000000000000",
+  "stockRegistry": "0x0000000000000000000000000000000000000000",
+  "routes": []
+}

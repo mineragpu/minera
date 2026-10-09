@@ -97,7 +97,7 @@ contract RigRegistry {
         emit PairScheduled(asset, listedAt);
     }
 
-    /// @notice Stop new deployments and changes to an asset. Rigs already paired keep it until
+    /// @notice Stop new deployments and changes to an asset, at once. Rigs already paired keep it until
     /// their operator changes it.
     function delistPair(address asset) external {
         if (msg.sender != guardian) revert NotGuardian();
@@ -105,6 +105,8 @@ contract RigRegistry {
         emit PairDelisted(asset);
     }
 
+    /// @notice Whether rigs can pair with `asset` now: always for ETH (address zero), otherwise once its
+    /// listing delay has passed.
     function isPairListed(address asset) public view returns (bool) {
         if (asset == address(0)) return true;
         uint64 listedAt = pairListedAt[asset];

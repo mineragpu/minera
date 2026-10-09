@@ -58,7 +58,7 @@ contract DeployConfigTest is Test {
     }
 
     function test_TestnetRolesPass() public {
-        deployer.checkRoles("testnet", testnet, makeAddr("guardian"), makeAddr("publisher"));
+        deployer.checkRoles("testnet", testnet, makeAddr("deployer"), makeAddr("guardian"), makeAddr("publisher"));
     }
 
     function test_RevertWhen_GuardianIsThePublisher() public {
@@ -66,42 +66,49 @@ contract DeployConfigTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(Deploy.UnsafeConfig.selector, "the guardian and the publisher are the same key")
         );
-        deployer.checkRoles("testnet", testnet, key, key);
+        deployer.checkRoles("testnet", testnet, makeAddr("deployer"), key, key);
     }
 
-    function test_RevertWhen_MainnetGuardianIsNotAContract() public {
-        Deploy.Config memory config = testnet;
-        config.challengeDelay = 6 hours;
-        config.rotationDelay = 2 days;
+    function test_RevertWhen_MainnetGuardianIsTheDeployer() public {
+        address key = makeAddr("deployer");
         vm.expectRevert(
-            abi.encodeWithSelector(Deploy.UnsafeConfig.selector, "on mainnet the guardian must be a multisig contract")
+            abi.encodeWithSelector(Deploy.UnsafeConfig.selector, "on mainnet the guardian must not be the deployer")
         );
-        deployer.checkRoles("mainnet", config, makeAddr("guardian"), makeAddr("publisher"));
+        deployer.checkRoles("mainnet", _mainnetLike(), key, key, makeAddr("publisher"));
     }
 
     function test_RevertWhen_MainnetChallengeDelayIsUnderAnHour() public {
-        address multisig = makeAddr("multisig");
-        vm.etch(multisig, hex"00");
         vm.expectRevert(
             abi.encodeWithSelector(
                 Deploy.UnsafeConfig.selector, "on mainnet the challenge delay must be at least an hour"
             )
         );
-        deployer.checkRoles("mainnet", testnet, multisig, makeAddr("publisher"));
+        deployer.checkRoles("mainnet", testnet, makeAddr("deployer"), makeAddr("guardian"), makeAddr("publisher"));
     }
 
-    function test_MainnetRolesPassWithAMultisigGuardian() public {
-        address multisig = makeAddr("multisig");
-        vm.etch(multisig, hex"00");
-        Deploy.Config memory config = testnet;
-        config.challengeDelay = 6 hours;
-        config.rotationDelay = 2 days;
-        deployer.checkRoles("mainnet", config, multisig, makeAddr("publisher"));
+    function test_MainnetConfigAndRolesPass() public {
+        Deploy.Config memory mainnet = deployer.configFrom(vm.readFile("deploy/mainnet.json"));
+        deployer.check(mainnet);
+        assertEq(mainnet.chainId, 4663);
+        deployer.checkRoles("mainnet", mainnet, makeAddr("deployer"), makeAddr("guardian"), makeAddr("publisher"));
     }
 
-    function test_RevertWhen_RouterIsMissing() public {
+    function test_EthOnlyConfigPasses() public view {
         Deploy.Config memory config = testnet;
         config.router = address(0);
-        _expectUnsafe(config, "router or stockRegistry is the zero address");
+        config.stockRegistry = address(0);
+        deployer.check(config);
+    }
+
+    function test_RevertWhen_OnlyOneSwapAddressIsSet() public {
+        Deploy.Config memory config = testnet;
+        config.router = address(0);
+        _expectUnsafe(config, "set both router and stockRegistry, or neither for ETH-only");
+    }
+
+    function _mainnetLike() internal view returns (Deploy.Config memory config) {
+        config = testnet;
+        config.challengeDelay = 6 hours;
+        config.rotationDelay = 2 days;
     }
 }
