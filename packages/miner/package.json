@@ -1,6 +1,6 @@
 {
   "name": "@minera-gpu/miner",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "The Minera node client: run a GPU as a rig on the Minera network.",
   "private": true,
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
     "fixture:deploy-code": "node scripts/deploy-code-fixture.ts"
   },
   "dependencies": {
-    "@minera/shared": "0.1.1",
+    "@minera/shared": "1.0.0",
     "viem": "2.56.9"
   },
   "devDependencies": {

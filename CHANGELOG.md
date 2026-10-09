@@ -5,31 +5,49 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-09
+
+Minera runs on mainnet (chain ID 4663). Rigs deploy and mine there, and claims pay in ETH; claims in
+a tokenized stock come later. The testnet keeps running for testing.
+
 ### Added
 
 - **Mainnet contracts:** the Burn Pool (0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8) and the rig registry
-  (0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) are deployed on mainnet (chain ID 4663), ETH-only, and
-  verified on Sourcify. Mining stays on testnet until the mainnet coordinator opens.
-- **Mainnet preparation:** `deploy/mainnet.json` (6-hour challenge delay, 48-hour rotation delay, 10%
-  daily release limit, 24-hour listing delay, ETH-only), ETH-only deploys in the deploy script, and
-  the final audit round on the code to deploy: no critical or high findings.
-- **Contracts audit, round 1**, in `audits/`: an internal audit of the testnet contracts at
-  `v0.1.1`. No critical or high findings; 1 medium, 2 low and 7 informational, each with its status.
-  The bytecode on chain matches the source byte for byte outside the constructor parameters.
-- **Deploy checks:** the deploy script refuses a zero challenge or listing delay, a rotation delay
-  shorter than the challenge delay, any delay over a year, a release rate outside 1 to 10,000 basis
-  points and a missing router or registry (audit finding L-01).
-- **Mainnet role checks:** the deploy script refuses a guardian that is also the publisher, and on
-  mainnet a guardian without contract code or a challenge delay under an hour (audit finding M-01).
+  (0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1), deployed from the audited code, ETH-only, and verified on
+  Sourcify. Parameters: a 6-hour challenge delay, a 48-hour rotation delay, a 10% daily release
+  limit and a 24-hour listing delay. The first burn, 0.001 ETH on campaign 1, opened the pool.
+- **The mainnet coordinator**, which indexes the chain through free endpoints: a quiet deployment
+  starts at the head, a refused log request shrinks the range down to ten blocks, and RPC URLs may
+  carry credentials sent as basic auth. The index and pool intervals and the log range are settings.
+- **The node client knows mainnet:** `rig init --network mainnet` deploys against the mainnet registry.
+- **Contracts audit, round 1 and final round**, in `audits/`: internal audits, no critical or high
+  findings. The bytecode on chain matches the source byte for byte outside the constructor parameters.
+- **Deploy checks:** the deploy script refuses unsafe delays, release rates and missing addresses
+  (audit L-01), a guardian that is the publisher, and on mainnet a guardian that is the deployer or a
+  challenge delay under an hour (audit M-01). ETH-only deploys skip the pair zap.
 - **$MNRA on the site:** the token launched on 2026-10-08. Its contract address, with a copy button
   and links to where it trades and to the explorer, is in the hero, the FAQ and the footer, and the
-  README lists it. The docs FAQ and the campaigns page name it too.
+  README lists it.
 - **Community links:** X, Telegram and GitHub in the top bar, and a Community column in the footer.
 
 ### Changed
 
+- The site serves mainnet. Every network-specific line follows the built network, the Deploy page
+  adds `--network mainnet` to its commands, and the Claim page speaks of ETH only while no stock
+  token is listed.
+- The docs read the built network's figures; the Contracts page lists mainnet and testnet side by
+  side.
 - The site, the docs and the audit guide describe the audits as they are run: internal, in rounds,
-  with every report published in full, and a final round on the exact code to deploy before mainnet.
+  with every report published in full.
+
+### Upgrade notes
+
+- **Node operators** install 1.0.0 with `npm install --global @minera-gpu/miner`. On a new machine,
+  run `rig init --operator 0xYourWallet --network mainnet`. A machine that already has a testnet
+  node key keeps it: print its mainnet deploy code with `rig code --operator 0xYourWallet --network
+  mainnet`. Deploy on the site, then start with `rig start --network mainnet --coordinator
+  https://coordinator-mainnet-production.up.railway.app`; the coordinator URL is remembered per
+  network.
 
 ## [0.1.1] - 2026-10-04
 
@@ -111,6 +129,7 @@ take work, get cross-checked, settle and claim. Mainnet has not launched.
 - **Anyone checking settlements:** settlement inputs are now version 2, in which each rig lists its
   verified units and the units it is paid for.
 
-[Unreleased]: https://github.com/mineragpu/minera/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/mineragpu/minera/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/mineragpu/minera/releases/tag/v1.0.0
 [0.1.1]: https://github.com/mineragpu/minera/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mineragpu/minera/releases/tag/v0.1.0
