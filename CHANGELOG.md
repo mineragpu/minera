@@ -7,6 +7,9 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Mainnet contracts:** the Burn Pool (0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8) and the rig registry
+  (0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) are deployed on mainnet (chain ID 4663), ETH-only, and
+  verified on Sourcify. Mining stays on testnet until the mainnet coordinator opens.
 - **Mainnet preparation:** `deploy/mainnet.json` (6-hour challenge delay, 48-hour rotation delay, 10%
   daily release limit, 24-hour listing delay, ETH-only), ETH-only deploys in the deploy script, and
   the final audit round on the code to deploy: no critical or high findings.

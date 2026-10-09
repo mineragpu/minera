@@ -49,8 +49,8 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
    ```
 
    This prints the node address, the network and registry, the deploy code, and the next step.
-   Add `--network mainnet` to target mainnet once its registry is deployed. The default is
-   testnet.
+   The default is testnet. The mainnet registry is deployed, but mainnet mining opens only when
+   the mainnet coordinator launches; until then, deploy on testnet.
 
 2. **Deploy the rig.** Open the Deploy page, connect the operator wallet you passed to `init`,
    paste the deploy code and send the deploy transaction from that wallet.

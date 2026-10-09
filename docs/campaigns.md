@@ -27,7 +27,7 @@ figures are read live on the home page and from the API, in test ETH.
 
 ## Allocation
 
-{{brand.rewardAllocation}} This applies once the token has launched; mainnet is planned. Each
+{{brand.rewardAllocation}} Burns into the mainnet Burn Pool start when mainnet mining opens. Each
 campaign is announced with its schedule before it opens.
 
 ## What a campaign does not change

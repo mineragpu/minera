@@ -1,11 +1,30 @@
 # Contracts
 
 Three contracts make up the network on chain: the Burn Pool, the rig registry and the pair zap.
-They are deployed on {{testnet.chainName}} (chain ID {{testnet.chainId}}). They cannot be upgraded.
+They are deployed on {{testnet.chainName}} (chain ID {{testnet.chainId}}), and the Burn Pool and the
+rig registry on mainnet (chain ID 4663). They cannot be upgraded.
 The maintainers audit them in rounds and publish every report in [audits](https://github.com/mineragpu/minera/tree/main/audits);
 the final round covers the exact code to deploy on mainnet.
 
-## Addresses
+## Mainnet addresses
+
+Deployed on 2026-10-09, ETH-only: there is no pair zap on mainnet yet, so claims pay in ETH. Both
+contracts are verified with an exact source match on Sourcify.
+
+| Contract | Address |
+|---|---|
+| Burn Pool | [`0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8`](https://robinhoodchain.blockscout.com/address/0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8) |
+| Rig registry | [`0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1`](https://robinhoodchain.blockscout.com/address/0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) |
+| Guardian | [`0x90F4B2B88C3459555977B153ebA6BACB4420EADA`](https://robinhoodchain.blockscout.com/address/0x90F4B2B88C3459555977B153ebA6BACB4420EADA) |
+| Publisher | [`0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A`](https://robinhoodchain.blockscout.com/address/0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A) |
+
+Mainnet parameters: a 6-hour challenge delay, a 48-hour publisher rotation delay, a release limit
+of 10% of the uncommitted pool per day and a 24-hour pair listing delay. The guardian is a key used
+for nothing else ([final audit round](https://github.com/mineragpu/minera/blob/main/audits/2026-10-09-contracts-final-round.md)).
+The same deployer created the testnet contracts, so two mainnet addresses repeat testnet addresses
+that belong to different contracts there: check the chain ID before you send anything.
+
+## Testnet addresses
 
 | Contract | Address |
 |---|---|

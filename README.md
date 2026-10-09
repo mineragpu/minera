@@ -52,8 +52,8 @@ work, every value that determines payment is derived on the server, and the cont
 any key can do with the pool.
 
 > [!NOTE]
-> Minera runs on testnet, with test assets. Mainnet is planned. Trust assumptions are published in
-> [docs/security.md](docs/security.md).
+> The contracts are live on mainnet. Mining runs on testnet, with test assets, until the mainnet
+> coordinator opens. Trust assumptions are published in [docs/security.md](docs/security.md).
 
 ### Sentinel
 
@@ -172,6 +172,29 @@ rig init --operator 0xYourWalletAddress
 Deploy the rig from that wallet on the [Deploy page](https://mineragpu.tech/deploy), then run
 `rig start --coordinator https://api.mineragpu.tech`. The [quickstart](https://mineragpu.tech/docs/quickstart)
 covers the requirements: a GPU, its driver, a local model runtime and Node.js 22 or later.
+
+## Mainnet contracts
+
+Deployed on mainnet (chain ID 4663) on 2026-10-09 from the code in the
+[final audit round](audits/2026-10-09-contracts-final-round.md), and verified with an exact source match on
+Sourcify. Mainnet starts ETH-only, with no pair zap yet.
+
+| Contract | Address |
+|---|---|
+| Burn Pool | [`0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8`](https://robinhoodchain.blockscout.com/address/0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8) |
+| Rig registry | [`0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1`](https://robinhoodchain.blockscout.com/address/0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) |
+| Guardian | [`0x90F4B2B88C3459555977B153ebA6BACB4420EADA`](https://robinhoodchain.blockscout.com/address/0x90F4B2B88C3459555977B153ebA6BACB4420EADA) |
+| Publisher | [`0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A`](https://robinhoodchain.blockscout.com/address/0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A) |
+
+| Parameter | Mainnet value |
+|---|---|
+| Challenge delay before a settlement is claimable | 6 hours |
+| Share of the uncommitted pool releasable per day | 10% |
+| Publisher rotation delay | 48 hours |
+| Delay before a new pair can be used | 24 hours |
+
+The same deployer created the testnet contracts, so two mainnet addresses repeat testnet addresses
+that belong to different contracts there. Always check the chain ID before you send anything.
 
 ## Testnet contracts
 

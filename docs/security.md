@@ -6,7 +6,8 @@ coordinator's source.
 
 ## Status
 
-- The network runs on testnet only, with test assets. Mainnet is planned.
+- The contracts are deployed on mainnet, ETH-only. Mining runs on testnet, with test assets, until
+  the mainnet coordinator opens. On mainnet the guardian is a dedicated key, not a multisig.
 - The maintainers audit the contracts in rounds and publish every report in full in
   [audits](https://github.com/mineragpu/minera/tree/main/audits). [Round 1](https://github.com/mineragpu/minera/blob/main/audits/2026-10-06-contracts-round-1.md) found no critical or high
   issues and confirmed that the code on chain matches the source. The final round covers the exact

@@ -15,6 +15,7 @@ export interface Deployment {
   publisher: Address;
   burnPool: Address;
   rigRegistry: Address;
+  /** Address zero when the deployment is ETH-only and has no pair zap. */
   pairZap: Address;
 }
 
@@ -27,6 +28,15 @@ export const DEPLOYMENTS: Readonly<Record<number, Deployment>> = {
     burnPool: '0xcc31Debc633c9F482E37213B975D3671Fd05a1f9',
     rigRegistry: '0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8',
     pairZap: '0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1',
+  },
+  4663: {
+    chainId: 4663,
+    startBlock: 83_742_580,
+    guardian: '0x90F4B2B88C3459555977B153ebA6BACB4420EADA',
+    publisher: '0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A',
+    burnPool: '0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8',
+    rigRegistry: '0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1',
+    pairZap: '0x0000000000000000000000000000000000000000',
   },
 };
 

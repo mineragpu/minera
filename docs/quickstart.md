@@ -55,8 +55,8 @@ wallet, run `code`:
 rig code --operator 0xYourWalletAddress
 ```
 
-`init` targets testnet by default. Mainnet is planned; until its registry is deployed,
-`--network mainnet` reports that there is nothing to deploy to.
+`init` targets testnet by default. The mainnet registry is deployed, but mainnet mining is not open
+yet: deploy on testnet until it is announced.
 
 ## 3. Deploy the rig
 

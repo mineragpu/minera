@@ -5,7 +5,9 @@ or a listed stock token, and the rig earns by answering real inference jobs that
 checks. Rewards come from the Burn Pool, a contract with no withdraw function.
 
 These docs describe the network as it runs on {{testnet.chainName}} (chain ID
-{{testnet.chainId}}). Everything on testnet uses test assets. Mainnet is planned.
+{{testnet.chainId}}). Everything on testnet uses test assets. The contracts are
+deployed on mainnet too ([Contracts](contracts.md)); mainnet mining opens when the mainnet
+coordinator launches.
 
 ## What runs today
 

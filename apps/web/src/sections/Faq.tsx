@@ -121,8 +121,8 @@ const QUESTIONS: readonly Question[] = [
     question: 'Is this mainnet?',
     answer: (
       <p>
-        Not for mining yet. The network runs on testnet today, and test ETH has no value; only the ${TOKEN.symbol}{' '}
-        token is on mainnet. When the network moves there it gets new contracts, and testnet balances stay on testnet.
+        Not for mining yet. The contracts and the ${TOKEN.symbol} token are on mainnet, but mining runs on testnet
+        until the mainnet coordinator opens, and test ETH has no value. Testnet balances stay on testnet.
       </p>
     ),
   },

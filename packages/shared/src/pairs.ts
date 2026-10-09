@@ -37,6 +37,8 @@ export const PAIR_LISTINGS: Readonly<Record<number, PairListing>> = {
     ],
     quoter: '0x8Dc178eFB8111BB0973Dd9d722ebeFF267c98F94',
   },
+  // Mainnet starts ETH-only: no pair zap is deployed yet.
+  4663: { assets: [ETH], quoter: null },
 };
 
 /** A chain with nothing listed yet still pairs with ETH. */

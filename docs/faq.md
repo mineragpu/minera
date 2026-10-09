@@ -88,5 +88,5 @@ committed in ETH, and you claim them in ETH or in the stock token your rigs pair
 
 ## Is mainnet live?
 
-Not for mining yet. The network runs on testnet, with test assets, and its mainnet launch is
-planned. The ${{token.symbol}} token already trades on mainnet.
+Not for mining yet. The contracts are deployed on mainnet and the ${{token.symbol}} token trades
+there, but mining runs on testnet, with test assets, until the mainnet coordinator opens.
