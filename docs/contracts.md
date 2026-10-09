@@ -45,20 +45,32 @@ in `packages/contracts/src` of the repository.
 
 ## Parameters
 
-Every parameter is immutable, set at deployment from `packages/contracts/deploy/testnet.json`.
+Every parameter is immutable, set at deployment from `packages/contracts/deploy/<network>.json`.
 
-| Parameter | Contract | Testnet value |
-|---|---|---|
-| `challengeDelay` | Burn Pool | {{testnet.challengeDelay}} ({{testnet.challengeDelaySeconds}} seconds): before a settlement is claimable, and before a new zap is usable |
-| `releaseBpsPerDay` | Burn Pool | {{testnet.releaseBpsPerDay}} basis points: {{testnet.releasePercentPerDay}} of the uncommitted balance per day |
-| `rotationDelay` | Burn Pool | {{testnet.rotationDelay}} ({{testnet.rotationDelaySeconds}} seconds) before a proposed publisher can take over |
-| `listingDelay` | Rig registry | {{testnet.listingDelay}} ({{testnet.listingDelaySeconds}} seconds) before a listed pair can be used |
+| Parameter | Contract | Mainnet value | Testnet value |
+|---|---|---|---|
+| `challengeDelay` | Burn Pool | {{mainnet.challengeDelay}} | {{testnet.challengeDelay}} |
+| `releaseBpsPerDay` | Burn Pool | {{mainnet.releaseBpsPerDay}} basis points: {{mainnet.releasePercentPerDay}} | {{testnet.releaseBpsPerDay}} basis points: {{testnet.releasePercentPerDay}} |
+| `rotationDelay` | Burn Pool | {{mainnet.rotationDelay}} | {{testnet.rotationDelay}} |
+| `listingDelay` | Rig registry | {{mainnet.listingDelay}} | {{testnet.listingDelay}} |
+
+The challenge delay comes before a settlement is claimable and before a new zap is usable. The
+release limit is a share of the uncommitted balance per day. The rotation delay comes before a
+proposed publisher can take over, and the listing delay before a listed pair can be used.
 
 ## Listed pairs
+
+On mainnet, ETH only for now:
+
+{{mainnet.pairTable}}
+
+On testnet:
 
 {{testnet.pairTable}}
 
 ## Contracts they call
+
+On testnet; mainnet has no pair zap yet, so it calls none of them.
 
 | Contract | Address | Used for |
 |---|---|---|

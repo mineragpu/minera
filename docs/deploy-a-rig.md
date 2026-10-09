@@ -12,16 +12,16 @@ registry checks.
 The site lists the browser wallets installed in your browser. The wallet you connect becomes the
 rig's operator: it sends the deploy transaction and receives the rig's rewards.
 
-The site asks the wallet to switch to {{testnet.chainName}}, and offers the network's settings
+The site asks the wallet to switch to {{network.chainName}}, and offers the network's settings
 first if the wallet does not know it yet. To add the network by hand:
 
 | Setting | Value |
 |---|---|
-| Network name | {{testnet.chainName}} |
-| RPC URL | `{{testnet.rpc}}` |
-| Chain ID | `{{testnet.chainId}}` |
-| Currency symbol | {{testnet.currency}} |
-| Block explorer | {{testnet.explorer}} |
+| Network name | {{network.chainName}} |
+| RPC URL | `{{network.rpc}}` |
+| Chain ID | `{{network.chainId}}` |
+| Currency symbol | {{network.currency}} |
+| Block explorer | {{network.explorer}} |
 
 ## 2. Install and run the node client
 
@@ -30,14 +30,14 @@ wallet's address. Once your wallet is connected, the page fills its address into
 
 ```sh
 npm install --global {{brand.nodePackage}}
-rig init --operator 0xYourWalletAddress
+rig init --operator 0xYourWalletAddress{{network.rigFlag}}
 ```
 
 [Quickstart: run a node](quickstart.md) covers the requirements and the install. If the machine
 already has a node key, print its deploy code for this wallet instead:
 
 ```sh
-rig code --operator 0xYourWalletAddress
+rig code --operator 0xYourWalletAddress{{network.rigFlag}}
 ```
 
 ## 3. Paste the node address and the deploy code

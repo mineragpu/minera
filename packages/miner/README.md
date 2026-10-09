@@ -4,8 +4,9 @@
 binds the rig to the operator's wallet, and runs inference jobs from the coordinator on a local
 model runtime. It is published to npm as [`@minera-gpu/miner`](https://www.npmjs.com/package/@minera-gpu/miner).
 
-**Status:** the testnet is open. Start against the testnet coordinator at
-`https://api.mineragpu.tech`. Its `GET /v1/network` reports the model open
+**Status:** mainnet is open. Start against the mainnet coordinator at
+`https://coordinator-mainnet-production.up.railway.app`. The testnet coordinator at `https://api.mineragpu.tech` keeps running
+for testing. Its `GET /v1/network` reports the model open
 jobs use as `jobs.model`; load that model into your runtime before you start.
 
 ## Requirements
@@ -36,7 +37,7 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 
 - Each version on npm matches a signed tag and a release in the repository, with its notes in the
   [changelog](https://github.com/mineragpu/minera/blob/main/CHANGELOG.md).
-- `0.x` versions are for testnet. The first mainnet version will be `1.0.0`.
+- `0.x` versions were for testnet. `1.0.0` is the first mainnet version.
 - The `latest` tag is the version to run. Release candidates for the next network go out under the
   `next` tag first, so `npm install --global @minera-gpu/miner` never picks one up.
 
@@ -45,12 +46,12 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 1. **Create the node key and get the deploy code.**
 
    ```sh
-   rig init --operator 0xYourWalletAddress
+   rig init --operator 0xYourWalletAddress --network mainnet
    ```
 
    This prints the node address, the network and registry, the deploy code, and the next step.
-   The default is testnet. The mainnet registry is deployed, but mainnet mining opens only when
-   the mainnet coordinator launches; until then, deploy on testnet.
+   `--network mainnet` targets mainnet; without it, `init` targets testnet. The node remembers
+   the network, so later commands need no flag.
 
 2. **Deploy the rig.** Open the Deploy page, connect the operator wallet you passed to `init`,
    paste the deploy code and send the deploy transaction from that wallet.
@@ -67,7 +68,7 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 4. **Start the node.**
 
    ```sh
-   rig start --coordinator https://coordinator.example
+   rig start --coordinator https://coordinator-mainnet-production.up.railway.app
    ```
 
    The node says hello, runs a benchmark job, then sends heartbeats and runs the jobs they carry.

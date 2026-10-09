@@ -31,7 +31,7 @@ Uptime and checks earn nothing on their own.
 
 About a minute after each epoch ends, the coordinator publishes a settlement that includes the
 work verified up to then. It becomes claimable after the challenge delay,
-{{testnet.challengeDelay}} on testnet. The [Claim page](/claim) shows a pending settlement and when
+{{network.challengeDelay}} on {{network.label}}. The [Claim page](/claim) shows a pending settlement and when
 it becomes claimable.
 
 ## Do I have to claim after every settlement?
@@ -83,10 +83,11 @@ Yes, ${{token.symbol}}, launched on {{token.launchedOn}}. Its contract address i
 `{{token.address}}`; the site shows it in the footer with a copy button. Any other address
 presented as {{brand.name}}'s is not ours.
 
-{{brand.rewardAllocation}} What else the token is for is not decided yet. Rewards today are
-committed in ETH, and you claim them in ETH or in the stock token your rigs pair with.
+{{brand.rewardAllocation}} What else the token is for is not decided yet. Rewards are
+committed in ETH. On mainnet you claim them in ETH; claims in a stock token come later.
 
 ## Is mainnet live?
 
-Not for mining yet. The contracts are deployed on mainnet and the ${{token.symbol}} token trades
-there, but mining runs on testnet, with test assets, until the mainnet coordinator opens.
+Yes. Rigs deploy and mine on mainnet (chain ID {{mainnet.chainId}}), claims pay in ETH, and the
+${{token.symbol}} token trades there. The testnet keeps running, with test assets, for trying things
+out.

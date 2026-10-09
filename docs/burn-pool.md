@@ -31,7 +31,7 @@ releasable  = committed + min(grow, uncommitted)
 ```
 
 - `committed` is the total of the head settlement, or 0 before the first.
-- `releaseBpsPerDay` is {{testnet.releaseBpsPerDay}} on testnet: {{testnet.releasePercentPerDay}} of
+- `releaseBpsPerDay` is {{network.releaseBpsPerDay}} on {{network.label}}: {{network.releasePercentPerDay}} of
   the uncommitted balance per day.
 - `elapsed` is the seconds since the head settlement was published, or since the pool was deployed
   when there is none.
@@ -40,11 +40,11 @@ releasable  = committed + min(grow, uncommitted)
 A new settlement's total must be at least `committed` and at most `releasable`, or `publish`
 reverts with `TotalDecreased` or `TotalAboveRelease`.
 
-**Example.** With 1 ETH uncommitted and one hour since the last settlement, the testnet rate lets a
-new settlement add at most {{testnet.hourlyReleaseOfOneEth}} ETH.
+**Example.** With 1 ETH uncommitted and one hour since the last settlement, the {{network.label}} rate lets a
+new settlement add at most {{network.hourlyReleaseOfOneEth}} ETH.
 
 The limit grows linearly with the time since the last settlement. If no settlement is published
-for {{testnet.fullReleaseDays}} days at the testnet rate, the whole uncommitted balance becomes
+for {{network.fullReleaseDays}} days at the {{network.label}} rate, the whole uncommitted balance becomes
 releasable at once.
 
 ## Settlements and the challenge delay
@@ -54,7 +54,7 @@ releasable at once.
 - Only one settlement can be pending. A new one can be published only once the latest one is past
   its challenge delay, or vetoed.
 - A settlement becomes claimable at its publish time plus the challenge delay,
-  {{testnet.challengeDelay}} on testnet.
+  {{network.challengeDelay}} on {{network.label}}.
 - Claims under a settlement can never add up past its total. A claim that would take the pool's
   total claimed above the settlement's total reverts with `AboveSettlementTotal`.
 - Each account's claimed amount is recorded, so a cumulative entitlement pays out once.
@@ -76,7 +76,7 @@ The publisher is the key the coordinator publishes settlements with. Replacing i
 steps:
 
 1. The guardian calls `proposePublisher(next)`. The change becomes possible after the rotation
-   delay, {{testnet.rotationDelay}} on testnet. A newer proposal replaces an older one and restarts
+   delay, {{network.rotationDelay}} on {{network.label}}. A newer proposal replaces an older one and restarts
    the delay.
 2. Anyone calls `applyPublisher()` once the delay has passed.
 

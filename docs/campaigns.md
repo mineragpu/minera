@@ -6,7 +6,7 @@ A campaign is an announced period of burns into the Burn Pool. {{brand.rewardAll
 
 - Creator fees are the fees the project earns from its own token, ${{token.symbol}}, launched on
   {{token.launchedOn}}. They are paid on mainnet, where the Burn Pool is not deployed yet.
-- On testnet, burns come from the project wallet.
+- Until the scheduled refills start, burns come from the project wallet.
 - Whatever the source, burned ETH can leave the pool only as mining rewards. See
   [Burn Pool](burn-pool.md).
 
@@ -20,15 +20,16 @@ A campaign is an announced period of burns into the Burn Pool. {{brand.rewardAll
   times, and the memo as text when it is printable. `GET /v1/network` and `GET /v1/pool` both
   include it.
 
-## Testnet campaign 1
+## Campaign 1
 
-Campaign 1 exists on testnet: the first burn into the testnet Burn Pool carried campaign id 1. Its
-figures are read live on the home page and from the API, in test ETH.
+Campaign 1 opened on mainnet with the first burn into the mainnet Burn Pool: 0.001 ETH from the
+project wallet on October 9, 2026, with the memo "mainnet genesis". On testnet, campaign 1 was the
+first burn into the testnet Burn Pool, in test ETH. The figures of the network the site runs on are
+read live on the home page and from the API.
 
 ## Allocation
 
-{{brand.rewardAllocation}} Burns into the mainnet Burn Pool start when mainnet mining opens. Each
-campaign is announced with its schedule before it opens.
+{{brand.rewardAllocation}} Each campaign is announced with its schedule before it opens.
 
 ## What a campaign does not change
 

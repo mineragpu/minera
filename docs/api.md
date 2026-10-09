@@ -4,7 +4,7 @@ The coordinator assigns jobs, checks results, measures verified work and publish
 public API serves the site: network figures, the launchpad board, rig pages, the Burn Pool, claims
 and the playground. Everything it reports about the chain is read from the chain.
 
-The testnet base URL is `{{coordinator.url}}`.
+The {{network.label}} base URL is `{{coordinator.url}}`.
 
 ```sh
 curl {{coordinator.url}}/v1/network
@@ -55,7 +55,7 @@ The signed node routes add their own codes; see [Node protocol](node-protocol.md
 Answers from memory, without touching the database or the chain.
 
 ```json
-{ "status": "ok", "version": "0.1.0", "network": "testnet", "chainId": {{testnet.chainId}} }
+{ "status": "ok", "version": "0.1.0", "network": "{{network.label}}", "chainId": {{network.chainId}} }
 ```
 
 ## GET /v1/network
@@ -65,8 +65,8 @@ campaign, the current epoch, the model and output limit of open jobs, and the wo
 
 ```json
 {
-  "network": "testnet",
-  "chainId": {{testnet.chainId}},
+  "network": "{{network.label}}",
+  "chainId": {{network.chainId}},
   "rigs": { "online": 3, "total": 5 },
   "last24h": {
     "verifiedUnits": "1840",
@@ -193,8 +193,8 @@ The Burn Pool's state, the current campaign, and the 20 most recent burns and se
     "committed": "300000000000000",
     "releasable": "340000000000000",
     "asOf": { "block": "126100000", "time": "2026-09-29T12:00:05.000Z" },
-    "releaseBpsPerDay": "{{testnet.releaseBpsPerDay}}",
-    "challengeDelaySeconds": "{{testnet.challengeDelaySeconds}}",
+    "releaseBpsPerDay": "{{network.releaseBpsPerDay}}",
+    "challengeDelaySeconds": "{{network.challengeDelaySeconds}}",
     "deployedAt": "2026-09-29T07:00:00.000Z",
     "settlementCount": 1,
     "head": 1,
@@ -258,10 +258,10 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
   "claimableAt": "2026-09-29T11:31:00.000Z",
   "epochs": { "from": 497408, "to": 497410 },
   "inputsDigest": "0xdddd…",
-  "inputsJson": "{\"version\":2,\"chainId\":{{testnet.chainId}},…}",
+  "inputsJson": "{\"version\":2,\"chainId\":{{network.chainId}},…}",
   "inputs": {
     "version": 2,
-    "chainId": {{testnet.chainId}},
+    "chainId": {{network.chainId}},
     "burnPool": "0x…",
     "previousIndex": 0,
     "fromEpoch": 497408,

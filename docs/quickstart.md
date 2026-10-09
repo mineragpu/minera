@@ -1,6 +1,6 @@
 # Quickstart: run a node
 
-This page takes a GPU machine to a rig that takes jobs on testnet: install the node client, create
+This page takes a GPU machine to a rig that takes jobs on {{network.label}}: install the node client, create
 the node key, deploy the rig from your wallet, then start the node.
 
 ## Requirements
@@ -12,7 +12,7 @@ the node key, deploy the rig from your wallet, then start the node.
   (`http://127.0.0.1:11434` by default), with at least one model downloaded. The node client never
   downloads models itself.
 - **Node.js 22 or later**, with npm.
-- **A browser wallet on {{testnet.chainName}}** with a little test ETH for the network fee. This
+- **A browser wallet on {{network.chainName}}** with a little ETH for the network fee. This
   wallet becomes the rig's operator: it deploys the rig and receives its rewards.
 - **A synchronized system clock.** The coordinator rejects requests stamped more than
   {{protocol.skewSeconds}} seconds away from its own time.
@@ -38,7 +38,7 @@ with Node.js 22.18 or later, and use `node packages/miner/src/cli.ts` wherever t
 Pass the address of the wallet that will operate the rig:
 
 ```sh
-rig init --operator 0xYourWalletAddress
+rig init --operator 0xYourWalletAddress{{network.rigFlag}}
 ```
 
 `init` creates the node key, stores it in the node's folder and prints three things:
@@ -52,11 +52,11 @@ The deploy code cannot move funds and is not a secret. To print it again, for th
 wallet, run `code`:
 
 ```sh
-rig code --operator 0xYourWalletAddress
+rig code --operator 0xYourWalletAddress{{network.rigFlag}}
 ```
 
-`init` targets testnet by default. The mainnet registry is deployed, but mainnet mining is not open
-yet: deploy on testnet until it is announced.
+`init` targets testnet by default, and `--network mainnet` targets mainnet. The node remembers
+the network, so later commands need no flag.
 
 ## 3. Deploy the rig
 

@@ -17,8 +17,8 @@ and mine from a pool that only fills.
 <a href="https://www.bestpractices.dev/projects/15188"><img src="https://www.bestpractices.dev/projects/15188/badge" alt="OpenSSF Best Practices: passing" height="20"></a>
 <a href="https://www.npmjs.com/package/@minera-gpu/miner"><img src="https://img.shields.io/npm/v/%40minera-gpu%2Fminer?label=node%20client&color=2ee6c8" alt="Node client on npm" height="20"></a>
 <a href="#sentinel"><img src="docs/assets/badges/security.svg" alt="Security: Sentinel" height="20"></a>
-<a href="#testnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
-<a href="#testnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: testnet, chain ID 46630" height="20"></a>
+<a href="#mainnet-contracts"><img src="docs/assets/badges/contracts.svg" alt="Contracts: source verified" height="20"></a>
+<a href="#mainnet-contracts"><img src="docs/assets/badges/network.svg" alt="Network: mainnet, chain ID 4663" height="20"></a>
 <a href="LICENSE"><img src="docs/assets/badges/license.svg" alt="License: Apache-2.0" height="20"></a>
 
 [Website](https://mineragpu.tech) · [Docs](https://mineragpu.tech/docs) · [Run a node](https://mineragpu.tech/docs/quickstart) · [API](https://mineragpu.tech/docs/api) · [Security policy](SECURITY.md)<br>
@@ -39,7 +39,7 @@ and mine from a pool that only fills.
 | **Explorer** | [The token on the block explorer](https://robin.etherscan.io/token/0x811e6953bcdee5277de0f194e6e2fb1018ce33b4) |
 
 Rewards are added to the Burn Pool on a regular schedule, through buyback and burn and a
-distribution of about 10% of creator fees. The mining network itself runs on testnet today.
+distribution of about 10% of creator fees. The mining network runs on mainnet, and claims pay in ETH.
 
 This README and [mineragpu.tech](https://mineragpu.tech) are the reference for the address. Any other
 address presented as Minera's is not ours.
@@ -52,8 +52,8 @@ work, every value that determines payment is derived on the server, and the cont
 any key can do with the pool.
 
 > [!NOTE]
-> The contracts are live on mainnet. Mining runs on testnet, with test assets, until the mainnet
-> coordinator opens. Trust assumptions are published in [docs/security.md](docs/security.md).
+> Minera runs on mainnet. Claims pay in ETH for now; claims in a tokenized stock come later. The
+> testnet keeps running with test assets, for trying things out. Trust assumptions are published in [docs/security.md](docs/security.md).
 
 ### Sentinel
 
@@ -166,11 +166,11 @@ flowchart LR
 
 ```sh
 npm install --global @minera-gpu/miner
-rig init --operator 0xYourWalletAddress
+rig init --operator 0xYourWalletAddress --network mainnet
 ```
 
 Deploy the rig from that wallet on the [Deploy page](https://mineragpu.tech/deploy), then run
-`rig start --coordinator https://api.mineragpu.tech`. The [quickstart](https://mineragpu.tech/docs/quickstart)
+`rig start --coordinator https://coordinator-mainnet-production.up.railway.app`. The [quickstart](https://mineragpu.tech/docs/quickstart)
 covers the requirements: a GPU, its driver, a local model runtime and Node.js 22 or later.
 
 ## Mainnet contracts
@@ -222,8 +222,10 @@ Roles, functions, events and errors are listed in [Contracts](https://mineragpu.
 | Phase | Scope | State |
 |---|---|---|
 | 0&nbsp;·&nbsp;Identity | Brand, design system, site | In progress |
-| 1&nbsp;·&nbsp;Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | In progress: contracts live |
-| 2&nbsp;·&nbsp;Mainnet | Contracts on mainnet, the first burn, Campaign 01, claims in the rigs' pair or in ETH | Planned |
+| 1&nbsp;·&nbsp;Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | Running, for testing |
+| 2&nbsp;·&nbsp;Token | $MNRA, launched on October 8, 2026 | Live |
+| 3&nbsp;·&nbsp;Mainnet | Contracts on mainnet, the first burn, Campaign 01, rigs mining, claims in ETH | Live |
+| 4&nbsp;·&nbsp;Pairs on mainnet | The pair zap, so mainnet claims can pay in a tokenized stock | Planned |
 
 ## Repository
 

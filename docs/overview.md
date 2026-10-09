@@ -4,24 +4,23 @@
 or a listed stock token, and the rig earns by answering real inference jobs that the network
 checks. Rewards come from the Burn Pool, a contract with no withdraw function.
 
-These docs describe the network as it runs on {{testnet.chainName}} (chain ID
-{{testnet.chainId}}). Everything on testnet uses test assets. The contracts are
-deployed on mainnet too ([Contracts](contracts.md)); mainnet mining opens when the mainnet
-coordinator launches.
+These docs describe the network as it runs on {{network.chainName}} (chain ID
+{{network.chainId}}). The testnet keeps running with test assets, for trying things out; its
+addresses are on [Contracts](contracts.md).
 
 ## What runs today
 
 | Part | What it does | Status |
 |---|---|---|
-| Node client | Holds the rig's node key and runs jobs on a local model runtime | Live on testnet |
-| Rig registry | Records each rig, the wallet that operates it and its pair | Live on testnet |
-| Coordinator | Hands out jobs, checks results, measures verified work and publishes settlements | Live on testnet |
-| Burn Pool | Holds the ETH that pays rewards and releases it only through claims | Live on testnet |
-| Pair zap | Swaps a claim's ETH into a listed stock token | Live on testnet |
-| Site | Deploy flow, launchpad board, rig pages, playground, claims and these docs | Live on testnet |
-| Token | The project's own token. Its utility is not decided yet | Planned |
+| Node client | Holds the rig's node key and runs jobs on a local model runtime | Live on {{network.label}} |
+| Rig registry | Records each rig, the wallet that operates it and its pair | Live on {{network.label}} |
+| Coordinator | Hands out jobs, checks results, measures verified work and publishes settlements | Live on {{network.label}} |
+| Burn Pool | Holds the ETH that pays rewards and releases it only through claims | Live on {{network.label}} |
+| Pair zap | Swaps a claim's ETH into a listed stock token | {{network.pairZapStatus}} |
+| Site | Deploy flow, launchpad board, rig pages, playground, claims and these docs | Live on {{network.label}} |
+| Token | ${{token.symbol}}, launched on {{token.launchedOn}} | Live |
 | Rig backing | Bonding tokens behind a rig | Planned |
-| Mainnet | The contracts on mainnet, the first burn and real rewards | Planned |
+| Mainnet | The contracts on mainnet, the first burn and rewards in ETH | Live |
 
 ## How it works
 

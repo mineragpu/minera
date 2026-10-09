@@ -6,8 +6,8 @@ coordinator's source.
 
 ## Status
 
-- The contracts are deployed on mainnet, ETH-only. Mining runs on testnet, with test assets, until
-  the mainnet coordinator opens. On mainnet the guardian is a dedicated key, not a multisig.
+- The network runs on mainnet, ETH-only for now: there is no pair zap on mainnet yet. The testnet
+  keeps running with test assets. On mainnet the guardian is a dedicated key, not a multisig.
 - The maintainers audit the contracts in rounds and publish every report in full in
   [audits](https://github.com/mineragpu/minera/tree/main/audits). [Round 1](https://github.com/mineragpu/minera/blob/main/audits/2026-10-06-contracts-round-1.md) found no critical or high
   issues and confirmed that the code on chain matches the source. The final round covers the exact
@@ -21,8 +21,8 @@ coordinator's source.
 - Burned ETH leaves the Burn Pool only through claims against published settlements. There is no
   withdraw, sweep or recovery function, and no owner.
 - A settlement's total never decreases and never exceeds the release limit:
-  {{testnet.releasePercentPerDay}} of the uncommitted balance per day on testnet.
-- A settlement is claimable only after its challenge delay, {{testnet.challengeDelay}} on testnet,
+  {{network.releasePercentPerDay}} of the uncommitted balance per day on {{network.label}}.
+- A settlement is claimable only after its challenge delay, {{network.challengeDelay}} on {{network.label}},
   and only if the guardian did not veto it.
 - Claims need a valid Merkle proof, pay each cumulative amount once, and never add up past a
   settlement's total.
@@ -53,24 +53,23 @@ One service, run by the project, decides which answers are verified, measures wo
 
 The coordinator publishes settlements with this key. Anyone holding it can publish roots within
 the release limit. The guardian would have to veto each one during its challenge delay and rotate
-the publisher, which takes {{testnet.rotationDelay}} on testnet.
+the publisher, which takes {{network.rotationDelay}} on {{network.label}}.
 
 ### The guardian key
 
 The guardian can veto settlements, schedule and disable zaps, propose a new publisher, and list
-and delist pairs. It has no function that moves funds. On testnet the guardian is a single key
-held by the project.
+and delist pairs. It has no function that moves funds. {{network.guardianNote}}
 
 - **A guardian can delay payouts** by vetoing every settlement.
 - **A compromised guardian key is the largest risk.** Whoever held it could appoint a new publisher
   after the rotation delay, then publish settlements paying themselves, limited only by the
-  release limit. The rotation delay makes such a change public {{testnet.rotationDelay}} before it
-  can act on testnet, but nothing on chain stops it.
+  release limit. The rotation delay makes such a change public {{network.rotationDelay}} before it
+  can act on {{network.label}}, but nothing on chain stops it.
 - **A zap the guardian allows** can receive only the claims of accounts that choose it themselves.
 
 ### The chain
 
-The contracts run on {{testnet.chainName}}, where a sequencer orders transactions. Every delay is
+The contracts run on {{network.chainName}}, where a sequencer orders transactions. Every delay is
 measured in block time. A sequencer that stalls or censors could delay claims, settlements or a
 guardian's veto.
 
@@ -120,7 +119,7 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
 - **Reported hardware is not trusted.** The GPU a node reports is informational. Sentinel times
   answers instead, and card ids only keep rigs apart.
 - **The release limit is linear.** If no settlement is published for
-  {{testnet.fullReleaseDays}} days at the testnet rate, the whole uncommitted balance can be
+  {{network.fullReleaseDays}} days at the {{network.label}} rate, the whole uncommitted balance can be
   committed at once.
 - **Campaign ids are not reserved.** Anyone can burn under any campaign id, and the campaign
   figures count every such burn.

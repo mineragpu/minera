@@ -101,7 +101,7 @@ completed since the last one.
 
 No settlement is built while the previous one is inside its challenge delay, when the budget is
 zero, or when there is no paid work to settle. A published settlement becomes claimable after
-the challenge delay, {{testnet.challengeDelay}} on testnet. During that delay the guardian can veto
+the challenge delay, {{network.challengeDelay}} on {{network.label}}. During that delay the guardian can veto
 it.
 
 The site calls each settlement round a block, as in "the pool pays each block".

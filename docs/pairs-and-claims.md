@@ -4,23 +4,23 @@ Every rig is paired with an asset: ETH, or a stock token listed on the network. 
 in ETH. The [Claim page](/claim) defaults to the pair of your rigs: when that is a stock token, the
 pair zap swaps the ETH into it as you claim. You can claim in ETH instead at any time.
 
-## Listed assets on testnet
+## Listed assets on {{network.label}}
 
-{{testnet.pairTable}}
+{{network.pairTable}}
 
 ETH is address zero and is always a valid pair. Tokenized stocks are not available to US persons.
 
 ## How an asset gets listed
 
 - The guardian lists an asset on the rig registry with `listPair`. It can be used only after the
-  listing delay, {{testnet.listingDelay}} on testnet, so every new listing is public before anyone
+  listing delay, {{network.listingDelay}} on {{network.label}}, so every new listing is public before anyone
   can pair with it.
 - `delistPair` stops new deployments and pair changes to that asset. Rigs already paired with it
   keep it until their operator changes it.
 - A claim can be converted only along a route in the pair zap. Routes are fixed when the zap is
   deployed: each asset has one native-ETH pool with a fixed fee and tick spacing, and no hooks.
   Nobody can redirect a conversion later. A new route means a new zap, and the Burn Pool accepts a
-  new zap only after its challenge delay, {{testnet.challengeDelay}} on testnet.
+  new zap only after its challenge delay, {{network.challengeDelay}} on {{network.label}}.
 
 ## How rewards are counted
 

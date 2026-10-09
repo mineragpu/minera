@@ -35,7 +35,7 @@ rig-request-v1
 <body digest>
 ```
 
-- **Chain id:** the chain of the network the node runs on, {{testnet.chainId}} on testnet. A
+- **Chain id:** the chain of the network the node runs on, {{network.chainId}} on {{network.label}}. A
   request signed for one network is refused by the coordinator of another, even when the same node
   key is a rig on both.
 - **Method:** in upper case, `POST`.
@@ -54,7 +54,7 @@ An example message, with illustrative values:
 
 ```text
 rig-request-v1
-{{testnet.chainId}}
+{{network.chainId}}
 POST
 {{protocol.route.heartbeat}}
 1790683230
