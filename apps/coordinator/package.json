@@ -15,11 +15,11 @@
     "@minera/shared": "1.0.0",
     "fastify": "5.12.5",
     "postgres": "3.4.9",
-    "viem": "2.56.9",
+    "viem": "2.57.3",
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@types/node": "24.19.0",
+    "@types/node": "24.19.1",
     "fast-check": "4.10.2",
     "typescript": "7.0.2"
   }
