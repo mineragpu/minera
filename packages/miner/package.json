@@ -20,10 +20,10 @@
   },
   "dependencies": {
     "@minera/shared": "1.0.0",
-    "viem": "2.56.9"
+    "viem": "2.57.3"
   },
   "devDependencies": {
-    "@types/node": "24.19.0",
+    "@types/node": "24.19.1",
     "rolldown": "1.2.12",
     "typescript": "7.0.2"
   }
