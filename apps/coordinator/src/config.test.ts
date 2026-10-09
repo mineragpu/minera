@@ -13,13 +13,20 @@ describe('loadConfig', () => {
     assert.equal(config.port, 8080);
     assert.equal(config.network, 'testnet');
     assert.equal(config.chain.id, 46630);
-    assert.deepEqual(config.rpcUrls, CHAINS.testnet.rpcUrls);
+    assert.deepEqual(config.rpcUrls.reveal(), CHAINS.testnet.rpcUrls);
     assert.equal(config.publisherKey, null);
     assert.deepEqual(config.corsOrigins, []);
     assert.equal(config.epochSeconds, 3_600);
     assert.equal(config.heartbeatSeconds, 30);
     assert.equal(config.redundancyRate, 0.2);
     assert.deepEqual(config.playground, { model: 'llama3.2:1b', maxTokens: 256 });
+    assert.deepEqual(config.chainPolling, { indexMs: 5_000, poolMs: 15_000, logRange: 5_000 });
+  });
+
+  it('reads how often the chain is polled', () => {
+    const config = loadConfig({ DATABASE_URL, INDEX_POLL_SECONDS: '10', POOL_REFRESH_SECONDS: '60', INDEX_LOG_RANGE: '100' });
+    assert.deepEqual(config.chainPolling, { indexMs: 10_000, poolMs: 60_000, logRange: 100 });
+    assert.throws(() => loadConfig({ DATABASE_URL, INDEX_LOG_RANGE: '5' }), /INDEX_LOG_RANGE/);
   });
 
   it('reads comma lists and treats empty values as unset', () => {
@@ -29,7 +36,7 @@ describe('loadConfig', () => {
       CORS_ORIGINS: 'https://site.example,,http://localhost:5173',
       PORT: '',
     });
-    assert.deepEqual(config.rpcUrls, ['https://a.example', 'https://b.example']);
+    assert.deepEqual(config.rpcUrls.reveal(), ['https://a.example', 'https://b.example']);
     assert.deepEqual(config.corsOrigins, ['https://site.example', 'http://localhost:5173']);
     assert.equal(config.port, 8080);
   });
@@ -50,7 +57,7 @@ describe('loadConfig', () => {
   });
 
   it('never prints a secret, even in a validation error', () => {
-    const config = loadConfig({ DATABASE_URL, PUBLISHER_PRIVATE_KEY: KEY });
+    const config = loadConfig({ DATABASE_URL, PUBLISHER_PRIVATE_KEY: KEY, RPC_URL: 'https://user:hunter2@rpc.example' });
     assert.equal(config.publisherKey?.reveal(), KEY);
     for (const text of [JSON.stringify(config), inspect(config), JSON.stringify(configSummary(config))]) {
       assert.ok(!text.includes(KEY.slice(2)));

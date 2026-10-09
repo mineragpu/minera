@@ -20,6 +20,11 @@ export interface IndexerDeps {
   store: Store;
   deployment: Deployment;
   range?: bigint;
+  /**
+   * Whether the contracts have emitted nothing the indexer follows yet. On a first run with more than
+   * one range of history to read, a quiet deployment starts at the head instead.
+   */
+  isQuiet?: () => Promise<boolean>;
 }
 
 export interface IndexedRange {
@@ -28,6 +33,8 @@ export interface IndexedRange {
   events: number;
   /** Whether the cursor reached the confirmed head the range was planned against. */
   caughtUp: boolean;
+  /** Blocks passed over on a first run because the deployment was quiet, when it was. */
+  skipped?: bigint;
 }
 
 async function blockTimes(client: ChainReader, blockNumbers: Iterable<bigint>): Promise<Map<bigint, Date>> {
@@ -48,8 +55,14 @@ export async function indexNextRange(deps: IndexerDeps): Promise<IndexedRange | 
   const { client, store, deployment } = deps;
   const range = deps.range ?? LOG_RANGE;
   const confirmed = (await client.getBlockNumber({ cacheTime: 0 })) - CONFIRMATIONS;
-  const cursor = (await store.chain.cursor()) ?? BigInt(deployment.startBlock) - 1n;
+  const stored = await store.chain.cursor();
+  const cursor = stored ?? BigInt(deployment.startBlock) - 1n;
   if (cursor >= confirmed) return null;
+
+  if (stored === null && confirmed - cursor > range && deps.isQuiet && (await deps.isQuiet())) {
+    await applyChainEvents(store, [], confirmed);
+    return { from: cursor + 1n, to: confirmed, events: 0, caughtUp: true, skipped: confirmed - cursor };
+  }
 
   const from = cursor + 1n;
   const to = cursor + range < confirmed ? cursor + range : confirmed;

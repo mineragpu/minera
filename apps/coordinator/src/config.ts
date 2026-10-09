@@ -19,8 +19,13 @@ export interface Config {
   network: NetworkKey;
   chain: ChainConfig;
   deployment: Deployment;
-  /** The first entry is tried first; the rest are fallbacks, in order. */
-  rpcUrls: readonly string[];
+  /**
+   * The first entry is tried first; the rest are fallbacks, in order. Held as a secret because an
+   * endpoint can carry an API key or `user:password@` credentials.
+   */
+  rpcUrls: Secret<readonly string[]>;
+  /** How often the chain is read, and how many blocks one log request covers at most. */
+  chainPolling: { indexMs: number; poolMs: number; logRange: number };
   /** Without a key, settlement runs in dry mode and never publishes. */
   publisherKey: Secret<Hex> | null;
   corsOrigins: readonly string[];
@@ -58,6 +63,9 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().optional(),
   EPOCH_SECONDS: z.coerce.number().int().min(60).max(7 * 86_400).default(3_600),
   HEARTBEAT_SECONDS: z.coerce.number().int().min(5).max(600).default(30),
+  INDEX_POLL_SECONDS: z.coerce.number().int().min(1).max(300).default(5),
+  POOL_REFRESH_SECONDS: z.coerce.number().int().min(5).max(3_600).default(15),
+  INDEX_LOG_RANGE: z.coerce.number().int().min(10).max(100_000).default(5_000),
   REDUNDANCY_RATE: z.coerce.number().min(0).max(1).default(0.2),
   PLAYGROUND_MAX_TOKENS: z.coerce.number().int().min(1).max(4_096).default(256),
   PLAYGROUND_MODEL: z.string().trim().min(1).max(128).default('llama3.2:1b'),
@@ -111,7 +119,12 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
     network: values.NETWORK,
     chain,
     deployment,
-    rpcUrls: rpcUrls.length > 0 ? rpcUrls : [...chain.rpcUrls],
+    rpcUrls: new Secret(rpcUrls.length > 0 ? rpcUrls : [...chain.rpcUrls]),
+    chainPolling: {
+      indexMs: values.INDEX_POLL_SECONDS * 1000,
+      poolMs: values.POOL_REFRESH_SECONDS * 1000,
+      logRange: values.INDEX_LOG_RANGE,
+    },
     publisherKey: values.PUBLISHER_PRIVATE_KEY ? new Secret(values.PUBLISHER_PRIVATE_KEY as Hex) : null,
     corsOrigins,
     epochSeconds: values.EPOCH_SECONDS,
@@ -132,7 +145,8 @@ export function configSummary(config: Config): Record<string, unknown> {
   return {
     network: config.network,
     chainId: config.chain.id,
-    rpcHosts: config.rpcUrls.map((url) => new URL(url).host),
+    rpcHosts: config.rpcUrls.reveal().map((url) => new URL(url).host),
+    chainPolling: config.chainPolling,
     publisher: config.publisherKey ? 'configured' : 'dry mode',
     corsOrigins: config.corsOrigins,
     epochSeconds: config.epochSeconds,

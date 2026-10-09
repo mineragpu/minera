@@ -17,6 +17,7 @@ const BURN_POOL_EVENTS = [
 
 const BURN_POOL_FUNCTIONS = [
   'function totalBurned() view returns (uint256)',
+  'function totalClaimed() view returns (uint256)',
   'function committed() view returns (uint256)',
   'function releasable() view returns (uint256)',
   'function head() view returns (uint256)',
@@ -38,6 +39,7 @@ const BURN_POOL_ERRORS = [
 ] as const;
 
 const rigRegistryEvents = parseAbi(RIG_REGISTRY_EVENTS);
+export const rigRegistryAbi = parseAbi([...RIG_REGISTRY_EVENTS, 'function rigCount() view returns (uint256)']);
 export const burnPoolEvents = parseAbi(BURN_POOL_EVENTS);
 export const burnPoolAbi = parseAbi([...BURN_POOL_EVENTS, ...BURN_POOL_FUNCTIONS, ...BURN_POOL_ERRORS]);
 

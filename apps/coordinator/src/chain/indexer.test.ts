@@ -98,4 +98,37 @@ describe('indexNextRange', () => {
     assert.equal(await store.chain.cursor(), START + 25n);
     assert.equal(await indexNextRange({ client: chain, store, deployment, range: 10n }), null);
   });
+
+  it('starts a quiet first run at the head instead of reading the whole history', async () => {
+    const store = createMemoryStore();
+    const chain = fakeChain(START + 1_000n, []);
+    let asked = 0;
+    const isQuiet = async () => {
+      asked += 1;
+      return true;
+    };
+    const first = await indexNextRange({ client: chain, store, deployment, range: 100n, isQuiet });
+    assert.deepEqual(first, { from: START, to: START + 990n, events: 0, caughtUp: true, skipped: 991n });
+    assert.deepEqual(chain.requests, []);
+    assert.equal(await store.chain.cursor(), START + 990n);
+    // Once a cursor is stored, history is never skipped again.
+    assert.equal(await indexNextRange({ client: chain, store, deployment, range: 100n, isQuiet }), null);
+    assert.equal(asked, 1);
+  });
+
+  it('reads the history of a first run when the deployment has activity', async () => {
+    const store = createMemoryStore();
+    const chain = fakeChain(START + 1_000n, []);
+    const first = await indexNextRange({ client: chain, store, deployment, range: 100n, isQuiet: async () => false });
+    assert.deepEqual(first, { from: START, to: START + 99n, events: 0, caughtUp: false });
+    assert.deepEqual(chain.requests, [[START, START + 99n]]);
+  });
+
+  it('does not ask whether the deployment is quiet when one range covers the history', async () => {
+    const store = createMemoryStore();
+    const chain = fakeChain(START + 50n, []);
+    const isQuiet = async () => assert.fail('a short history is read, not skipped');
+    const first = await indexNextRange({ client: chain, store, deployment, range: 100n, isQuiet });
+    assert.deepEqual(first, { from: START, to: START + 40n, events: 0, caughtUp: true });
+  });
 });
