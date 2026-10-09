@@ -7,6 +7,9 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Mainnet preparation:** `deploy/mainnet.json` (6-hour challenge delay, 48-hour rotation delay, 10%
+  daily release limit, 24-hour listing delay, ETH-only), ETH-only deploys in the deploy script, and
+  the final audit round on the code to deploy: no critical or high findings.
 - **Contracts audit, round 1**, in `audits/`: an internal audit of the testnet contracts at
   `v0.1.1`. No critical or high findings; 1 medium, 2 low and 7 informational, each with its status.
   The bytecode on chain matches the source byte for byte outside the constructor parameters.

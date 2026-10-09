@@ -7,6 +7,7 @@ every finding with its status.
 | Date | Report | Scope | Result |
 |---|---|---|---|
 | 2026-10-06 | [Contracts, round 1](2026-10-06-contracts-round-1.md) | `packages/contracts/src` at `v0.1.1`, as deployed on testnet | No critical or high findings; 1 medium, 2 low, 7 informational |
+| 2026-10-09 | [Contracts, final round](2026-10-09-contracts-final-round.md) | `packages/contracts/src` at `2b8839a`, the code to deploy on mainnet, and the deploy script | No critical or high findings; code unchanged since round 1; 1 medium acknowledged, 2 informational |
 
 ## Follow-ups
 
@@ -15,7 +16,8 @@ Changes made after a report, so each report stays as it was published.
 | Date | Finding | Change |
 |---|---|---|
 | 2026-10-06 | Round 1, L-01 | The deploy script refuses unsafe delays, release rates and missing addresses. |
-| 2026-10-08 | Round 1, M-01 | On mainnet the deploy script refuses a guardian without contract code, so a plain key cannot be the guardian; the guardian is meant to be a multisig wallet. It also refuses a guardian that is the publisher, and a mainnet challenge delay under an hour. |
+| 2026-10-08 | Round 1, M-01 | The deploy script refuses a guardian that is the publisher, and a mainnet challenge delay under an hour. |
+| 2026-10-09 | Round 1, M-01 and I-07 | For mainnet the owner chose a dedicated guardian key instead of a multisig; the script refuses a guardian that is the deployer or the publisher. NatSpec added (I-07). See the final round. |
 
 ## How the audits work
 
