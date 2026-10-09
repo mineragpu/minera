@@ -1,6 +1,9 @@
 /**
  * The values `{{name}}` placeholders in the docs resolve to. Addresses, parameters and names come
  * from the shared package and the deployment configuration, so the docs cannot drift from them.
+ *
+ * Each network has its own family, `testnet.*` and `mainnet.*`, and `network.*` repeats the family
+ * of the network the site is built for, so a page about the live network reads right on either.
  */
 
 import {
@@ -12,14 +15,31 @@ import {
   PROTOCOL_VERSION,
   TOKEN,
   deploymentFor,
+  isNetworkKey,
   pairListingFor,
+  type NetworkKey,
 } from '@minera/shared';
 import { keccak256 } from 'viem';
+import mainnetConfig from '../../../../packages/contracts/deploy/mainnet.json' with { type: 'json' };
 import testnetConfig from '../../../../packages/contracts/deploy/testnet.json' with { type: 'json' };
 
 const BPS = 10_000;
 const DAY_SECONDS = 86_400;
 const PLACEHOLDER = /\{\{\s*([A-Za-z0-9_.]+)\s*\}\}/g;
+const ZERO = '0x0000000000000000000000000000000000000000';
+
+interface DeployConfig {
+  chainId: number;
+  challengeDelay: number;
+  rotationDelay: number;
+  releaseBpsPerDay: number;
+  listingDelay: number;
+  router: string;
+  stockRegistry: string;
+  routes: readonly { asset: string; fee: number; tickSpacing: number }[];
+}
+
+const DEPLOY_CONFIGS: Readonly<Record<NetworkKey, DeployConfig>> = { testnet: testnetConfig, mainnet: mainnetConfig };
 
 function duration(seconds: number): string {
   const unit = (count: number, name: string) => `${count} ${name}${count === 1 ? '' : 's'}`;
@@ -37,15 +57,15 @@ function explorerLink(explorer: string, address: string): string {
   return `[\`${address}\`](${explorer}/address/${address})`;
 }
 
-function pairTable(): string {
-  const chain = CHAINS.testnet;
-  const listing = pairListingFor(chain.id);
-  const rows = listing.assets.map((asset) => {
+function pairTable(network: NetworkKey): string {
+  const chain = CHAINS[network];
+  const config = DEPLOY_CONFIGS[network];
+  const rows = pairListingFor(chain.id).assets.map((asset) => {
     if (asset.kind === 'native') {
       return `| ${asset.symbol} | \`${asset.address}\` | ${asset.decimals} | Paid directly, no swap | Not applied |`;
     }
-    const route = testnetConfig.routes.find((entry) => entry.asset.toLowerCase() === asset.address.toLowerCase());
-    if (!route) throw new Error(`the testnet pair ${asset.address} has no route in the deployment configuration`);
+    const route = config.routes.find((entry) => entry.asset.toLowerCase() === asset.address.toLowerCase());
+    if (!route) throw new Error(`the ${network} pair ${asset.address} has no route in the deployment configuration`);
     const swap = `Swapped at a ${poolFee(route.fee)} pool fee, tick spacing ${route.tickSpacing}`;
     const link = explorerLink(chain.explorerUrl, asset.address);
     return `| ${asset.symbol} | ${link} | ${asset.decimals} | ${swap} | Checked at every claim |`;
@@ -57,6 +77,60 @@ function pairTable(): string {
   ].join('\n');
 }
 
+/** Every value about one network: its chain, its contracts and its parameters. */
+function networkEntries(network: NetworkKey): Record<string, string | number> {
+  const chain = CHAINS[network];
+  const config = DEPLOY_CONFIGS[network];
+  const deployment = deploymentFor(chain.id);
+  if (!deployment) throw new Error(`no ${network} deployment is recorded in the shared package`);
+  if (config.chainId !== chain.id) throw new Error(`the ${network} deployment configuration is for another chain`);
+  const rpc = chain.rpcUrls[0];
+  if (!rpc) throw new Error(`the ${network} has no RPC URL`);
+  const quoter = pairListingFor(chain.id).quoter;
+  const release = config.releaseBpsPerDay;
+  return {
+    label: network,
+    Label: network === 'mainnet' ? 'Mainnet' : 'Testnet',
+    chainName: chain.name,
+    chainId: chain.id,
+    chainIdHex: chain.hexId,
+    currency: chain.nativeCurrency.symbol,
+    rpc,
+    explorer: chain.explorerUrl,
+
+    burnPool: deployment.burnPool,
+    rigRegistry: deployment.rigRegistry,
+    pairZap: deployment.pairZap === ZERO ? 'not deployed yet' : deployment.pairZap,
+    guardian: deployment.guardian,
+    publisher: deployment.publisher,
+    startBlock: deployment.startBlock.toLocaleString('en-US'),
+    router: config.router === ZERO ? 'none yet' : config.router,
+    stockRegistry: config.stockRegistry === ZERO ? 'none yet' : config.stockRegistry,
+    quoter: quoter ?? 'none yet',
+    pairTable: pairTable(network),
+    pairZapStatus: deployment.pairZap === ZERO ? 'Not deployed yet; claims pay in ETH' : `Live on ${network}`,
+    guardianNote:
+      network === 'mainnet'
+        ? 'On mainnet the guardian is a dedicated key held by the project and used for nothing else.'
+        : 'On testnet the guardian is a single key held by the project.',
+
+    challengeDelay: duration(config.challengeDelay),
+    challengeDelaySeconds: config.challengeDelay,
+    rotationDelay: duration(config.rotationDelay),
+    rotationDelaySeconds: config.rotationDelay,
+    listingDelay: duration(config.listingDelay),
+    listingDelaySeconds: config.listingDelay,
+    releaseBpsPerDay: release,
+    releasePercentPerDay: `${release / 100}%`,
+    fullReleaseDays: BPS / release,
+    hourlyReleaseOfOneEth: (Math.floor((release * 3_600 * 1e6) / (BPS * DAY_SECONDS)) / 1e6).toString(),
+  };
+}
+
+function prefixed(prefix: string, entries: Record<string, string | number>): Record<string, string | number> {
+  return Object.fromEntries(Object.entries(entries).map(([name, value]) => [`${prefix}.${name}`, value]));
+}
+
 /** The coordinator URL as the site reads it at build time, or a stand-in when none is set. */
 function coordinatorUrl(apiBase: string | undefined): string {
   const value = apiBase?.trim() ?? '';
@@ -66,12 +140,9 @@ function coordinatorUrl(apiBase: string | undefined): string {
   return url.href.replace(/\/+$/, '');
 }
 
-export function placeholderValues(apiBase: string | undefined): ReadonlyMap<string, string> {
-  const chain = CHAINS.testnet;
-  const deployment = deploymentFor(chain.id);
-  if (!deployment) throw new Error('no testnet deployment is recorded in the shared package');
-  if (testnetConfig.chainId !== chain.id) throw new Error('the testnet deployment configuration is for another chain');
-  const quoter = pairListingFor(chain.id).quoter;
+/** `requested` is the build's VITE_NETWORK; anything else, or nothing, means testnet, as in the app. */
+export function placeholderValues(apiBase: string | undefined, requested?: unknown): ReadonlyMap<string, string> {
+  const active: NetworkKey = isNetworkKey(requested) ? requested : 'testnet';
   if (!TOKEN.address || !TOKEN.launchedOn) throw new Error('the docs name the token, but its address or launch date is not set');
   const launched = new Date(`${TOKEN.launchedOn}T00:00:00Z`).toLocaleDateString('en-US', {
     month: 'long',
@@ -79,11 +150,7 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
     year: 'numeric',
     timeZone: 'UTC',
   });
-  if (!quoter) throw new Error('the testnet pair listing has no quoter');
-  const rpc = chain.rpcUrls[0];
-  if (!rpc) throw new Error('the testnet has no RPC URL');
 
-  const release = testnetConfig.releaseBpsPerDay;
   const entries: Record<string, string | number> = {
     'brand.name': BRAND.name,
     'brand.rewardAllocation': BRAND.rewardAllocation,
@@ -96,34 +163,11 @@ export function placeholderValues(apiBase: string | undefined): ReadonlyMap<stri
     'token.address': TOKEN.address,
     'token.launchedOn': launched,
 
-    'testnet.chainName': chain.name,
-    'testnet.chainId': chain.id,
-    'testnet.chainIdHex': chain.hexId,
-    'testnet.currency': chain.nativeCurrency.symbol,
-    'testnet.rpc': rpc,
-    'testnet.explorer': chain.explorerUrl,
-
-    'testnet.burnPool': deployment.burnPool,
-    'testnet.rigRegistry': deployment.rigRegistry,
-    'testnet.pairZap': deployment.pairZap,
-    'testnet.guardian': deployment.guardian,
-    'testnet.publisher': deployment.publisher,
-    'testnet.startBlock': deployment.startBlock.toLocaleString('en-US'),
-    'testnet.router': testnetConfig.router,
-    'testnet.stockRegistry': testnetConfig.stockRegistry,
-    'testnet.quoter': quoter,
-    'testnet.pairTable': pairTable(),
-
-    'testnet.challengeDelay': duration(testnetConfig.challengeDelay),
-    'testnet.challengeDelaySeconds': testnetConfig.challengeDelay,
-    'testnet.rotationDelay': duration(testnetConfig.rotationDelay),
-    'testnet.rotationDelaySeconds': testnetConfig.rotationDelay,
-    'testnet.listingDelay': duration(testnetConfig.listingDelay),
-    'testnet.listingDelaySeconds': testnetConfig.listingDelay,
-    'testnet.releaseBpsPerDay': release,
-    'testnet.releasePercentPerDay': `${release / 100}%`,
-    'testnet.fullReleaseDays': BPS / release,
-    'testnet.hourlyReleaseOfOneEth': (Math.floor((release * 3_600 * 1e6) / (BPS * DAY_SECONDS)) / 1e6).toString(),
+    ...prefixed('testnet', networkEntries('testnet')),
+    ...prefixed('mainnet', networkEntries('mainnet')),
+    ...prefixed('network', networkEntries(active)),
+    // The flag `rig` needs for the built network; nothing on testnet, which is its default.
+    'network.rigFlag': active === 'mainnet' ? ' --network mainnet' : '',
 
     'protocol.version': PROTOCOL_VERSION,
     'protocol.skewSeconds': MAX_CLOCK_SKEW_SECONDS,

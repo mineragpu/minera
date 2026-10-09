@@ -6,3 +6,6 @@ export const DEPLOYMENT: Deployment | null = deploymentFor(ACTIVE_CHAIN.id) ?? n
 
 /** The assets a rig can pair with on this network, ETH first. */
 export const PAIR_LISTING: PairListing = pairListingFor(ACTIVE_CHAIN.id);
+
+/** Whether any stock token is listed here; without one, every claim pays in ETH. */
+export const STOCKS_LISTED = PAIR_LISTING.assets.some((asset) => asset.kind === 'stock');

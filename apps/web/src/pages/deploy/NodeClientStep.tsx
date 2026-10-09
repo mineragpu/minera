@@ -1,5 +1,6 @@
 import { BRAND, type Address } from '@minera/shared';
 import { CommandBlock } from '../../components/CommandBlock.tsx';
+import { RIG_NETWORK_FLAG } from '../../config/network.ts';
 
 const { package: PACKAGE, command: CLI } = BRAND.nodeClient;
 const PLACEHOLDER = '0xYourWalletAddress';
@@ -14,13 +15,13 @@ export function NodeClientStep({ operator }: { operator: Address | null }) {
       </p>
       <CommandBlock
         label="the install commands"
-        lines={[`npm install --global ${PACKAGE}`, `${CLI} init --operator ${wallet}`]}
+        lines={[`npm install --global ${PACKAGE}`, `${CLI} init --operator ${wallet}${RIG_NETWORK_FLAG}`]}
       />
       <p className="flow-step__text">
         It prints the node address and the deploy code. If this machine already has a node key, print the code for
         this wallet instead:
       </p>
-      <CommandBlock label="the code command" lines={[`${CLI} code --operator ${wallet}`]} />
+      <CommandBlock label="the code command" lines={[`${CLI} code --operator ${wallet}${RIG_NETWORK_FLAG}`]} />
       {!operator && <p className="hint">Connect your wallet to fill in its address.</p>}
       <p className="flow-step__text">
         <a

@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { BRAND } from '@minera/shared';
+import { ON_MAINNET } from '../config/network.ts';
 import { fetchPool } from '../api/coordinator.ts';
 import type { PoolView } from '../api/schemas.ts';
 import { usePoll } from '../api/usePoll.ts';
@@ -115,7 +116,10 @@ export function BurnPool({ index }: { index: string }) {
               <b>
                 Campaign {PREVIEW_CAMPAIGN.number} · {PREVIEW_CAMPAIGN.name}.
               </b>{' '}
-              {BRAND.rewardAllocation} On testnet the project wallet burns into the pool directly.
+              {BRAND.rewardAllocation}{' '}
+              {ON_MAINNET
+                ? 'The project wallet made the first burn on mainnet, and burns directly until the scheduled refills start.'
+                : 'On testnet the project wallet burns into the pool directly.'}
             </span>
           </p>
 

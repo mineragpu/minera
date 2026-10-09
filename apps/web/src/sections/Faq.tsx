@@ -3,6 +3,8 @@ import { BRAND, TOKEN } from '@minera/shared';
 import { Kicker } from '../components/Kicker.tsx';
 import { Reveal } from '../components/Reveal.tsx';
 import { TokenAddress } from '../components/TokenAddress.tsx';
+import { STOCKS_LISTED } from '../config/contracts.ts';
+import { ON_MAINNET } from '../config/network.ts';
 import { Words } from '../components/Words.tsx';
 import { useMergedRef } from '../lib/useMergedRef.ts';
 import { detailsMotionRef } from '../motion/detailsMotion.ts';
@@ -54,8 +56,10 @@ const QUESTIONS: readonly Question[] = [
           it is split between operators by the verified work units their rigs earned.
         </p>
         <p>
-          Rewards are committed in ETH. A claim defaults to the pair of your rigs, and you can claim in ETH instead at
-          any time. On testnet they are test ETH, which has no value. No rate is promised.
+          {STOCKS_LISTED
+            ? 'Rewards are committed in ETH. A claim defaults to the pair of your rigs, and you can claim in ETH instead at any time.'
+            : 'Rewards are committed and claimed in ETH. Claims in a stock token come later.'}{' '}
+          {ON_MAINNET ? 'No rate is promised.' : 'On testnet they are test ETH, which has no value. No rate is promised.'}
         </p>
       </>
     ),
@@ -121,8 +125,9 @@ const QUESTIONS: readonly Question[] = [
     question: 'Is this mainnet?',
     answer: (
       <p>
-        Not for mining yet. The contracts and the ${TOKEN.symbol} token are on mainnet, but mining runs on testnet
-        until the mainnet coordinator opens, and test ETH has no value. Testnet balances stay on testnet.
+        {ON_MAINNET
+          ? `Yes. Rigs deploy and mine on mainnet, claims pay in ETH, and the $${TOKEN.symbol} token trades there. The testnet keeps running for trying things out; its test ETH has no value.`
+          : `No, this site runs on testnet, where test ETH has no value. The network, its contracts and the $${TOKEN.symbol} token are on mainnet.`}
       </p>
     ),
   },

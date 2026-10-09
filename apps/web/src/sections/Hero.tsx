@@ -3,6 +3,8 @@ import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { TokenAddress } from '../components/TokenAddress.tsx';
 import { ArrowRightIcon } from '../components/icons.tsx';
 import { BlockCluster } from '../components/cluster/BlockCluster.tsx';
+import { STOCKS_LISTED } from '../config/contracts.ts';
+import { ACTIVE_NETWORK_LABEL } from '../config/network.ts';
 import { PATHS } from '../router/routes.ts';
 import { NetworkFigures } from './NetworkFigures.tsx';
 import './hero.css';
@@ -28,8 +30,9 @@ export function Hero() {
           </span>
         </h1>
         <p className="hero__sub rise" style={rise(0.38)}>
-          Plug in your card, choose whether its rewards pair with ETH or a tokenized stock, and mine from
-          a pool that only fills.
+          {STOCKS_LISTED
+            ? 'Plug in your card, choose whether its rewards pair with ETH or a tokenized stock, and mine from a pool that only fills.'
+            : 'Plug in your card, earn ETH for verified work, and mine from a pool that only fills.'}
         </p>
         <div className="hero__ctas rise" style={rise(0.48)}>
           <ButtonLink variant="primary" href={PATHS.deploy}>
@@ -59,7 +62,7 @@ export function Hero() {
             Fig. 1 · Network view
           </span>
           <span className="lab lab--tr" aria-hidden="true">
-            Testnet
+            {ACTIVE_NETWORK_LABEL}
           </span>
           <BlockCluster />
           <span className="lab lab--bl" aria-hidden="true">

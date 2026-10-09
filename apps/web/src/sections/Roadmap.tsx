@@ -18,34 +18,29 @@ const PHASES: readonly Phase[] = [
   {
     name: 'Testnet',
     tone: 'live',
-    status: 'Live now',
+    status: 'Running',
     items: [
       'Burn Pool, rig registry and pair zap, with verified source',
       'The network service: jobs, cross-checks and a settlement after each epoch',
-      'The playground and the deploy flow',
       'Claims in the pair of your rigs, or in ETH',
     ],
+    note: 'It keeps running for trying things out. Test ETH has no value.',
   },
   {
     name: 'Token launch',
-    tone: 'planned',
-    status: 'Planned',
-    items: [
-      'The token launches while the network keeps running on testnet',
-      'Its contract address is published on this site',
-    ],
-    note: 'No token exists yet.',
+    tone: 'live',
+    status: 'Live',
+    items: ['The token launched on October 8, 2026', 'Its contract address is published on this site'],
   },
   {
     name: 'Mainnet',
-    tone: 'planned',
-    status: 'Planned',
+    tone: 'live',
+    status: 'Live now',
     items: [
-      'New contracts on mainnet, and the first burn into their Burn Pool',
+      'Burn Pool and rig registry on mainnet, verified on Sourcify, and the first burn',
       'Rigs deploy and mine on mainnet',
-      'Claims in the pair of your rigs, or in mainnet ETH',
+      'Claims in ETH; claims in a tokenized stock come later',
     ],
-    note: 'The network moves to mainnet. Test ETH has no value, and testnet balances stay on testnet.',
   },
   {
     name: 'Growth',

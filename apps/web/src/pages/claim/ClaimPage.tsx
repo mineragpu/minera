@@ -10,7 +10,7 @@ import { useTransaction } from '../../chain/useTransaction.ts';
 import { LoadError } from '../../components/LoadError.tsx';
 import { Skeleton } from '../../components/Skeleton.tsx';
 import { TxStatus } from '../../components/TxStatus.tsx';
-import { DEPLOYMENT, PAIR_LISTING } from '../../config/contracts.ts';
+import { DEPLOYMENT, PAIR_LISTING, STOCKS_LISTED } from '../../config/contracts.ts';
 import { ACTIVE_CHAIN } from '../../config/network.ts';
 import { formatAmount } from '../../lib/amount.ts';
 import { formatDateTime, timeFromNow } from '../../lib/time.ts';
@@ -174,9 +174,10 @@ export function ClaimPage() {
   return (
     <div className="shell">
       <PageHead kicker="Claim" title="Claim your rewards.">
-        Rewards become claimable once a settlement that includes your wallet has passed its challenge delay. A claim
-        defaults to the asset your rigs pair with: for a stock token, the pair zap buys it with the ETH as you claim.
-        You can claim in ETH instead at any time.
+        Rewards become claimable once a settlement that includes your wallet has passed its challenge delay.{' '}
+        {STOCKS_LISTED
+          ? 'A claim defaults to the asset your rigs pair with: for a stock token, the pair zap buys it with the ETH as you claim. You can claim in ETH instead at any time.'
+          : 'Claims pay in ETH, straight to your wallet. Claims in a stock token come later.'}
       </PageHead>
       <div className="page-body claim-grid">
         <section className="panel claim-panel" aria-labelledby="claim-balance-title">
@@ -199,7 +200,7 @@ export function ClaimPage() {
 
         <section className="claim-choose" aria-labelledby="claim-options-title">
           <h2 className="claim-choose__title" id="claim-options-title">
-            Choose how to receive them
+            {STOCKS_LISTED ? 'Choose how to receive them' : 'Receive them in ETH'}
           </h2>
           {ready && address ? (
             <>
@@ -224,8 +225,9 @@ export function ClaimPage() {
             </>
           ) : (
             <p className="claim-pair">
-              A claim defaults to the asset your rigs pair with, and ETH is always available. Connect your wallet to
-              see yours.
+              {STOCKS_LISTED
+                ? 'A claim defaults to the asset your rigs pair with, and ETH is always available. Connect your wallet to see yours.'
+                : 'Every claim pays in ETH. Connect your wallet to see yours.'}
             </p>
           )}
           {requoteFailed && (
@@ -237,13 +239,15 @@ export function ClaimPage() {
             state={transaction.state}
             confirmed={<p>Claimed. The figures update once the network indexes the claim.</p>}
           />
-          <div className="claim-notes">
-            <p>
-              A stock claim fails, and nothing is paid, if the stock token blocks your wallet as a recipient or its
-              market is paused. Claiming in ETH always works.
-            </p>
-            <p className="eligibility">Tokenized stocks are not available to US persons.</p>
-          </div>
+          {STOCKS_LISTED && (
+            <div className="claim-notes">
+              <p>
+                A stock claim fails, and nothing is paid, if the stock token blocks your wallet as a recipient or its
+                market is paused. Claiming in ETH always works.
+              </p>
+              <p className="eligibility">Tokenized stocks are not available to US persons.</p>
+            </div>
+          )}
         </section>
       </div>
     </div>

@@ -17,8 +17,8 @@ interface DocContent {
 }
 
 /** Reads, checks and renders every page, or throws one error that lists every problem found. */
-function buildDocs(directory: string, apiBase: string | undefined): DocContent[] {
-  const values = placeholderValues(apiBase);
+function buildDocs(directory: string, apiBase: string | undefined, network: unknown): DocContent[] {
+  const values = placeholderValues(apiBase, network);
   const problems: string[] = [];
   const listed = new Set(DOC_ORDER.map((page) => page.slug));
   for (const file of readdirSync(directory)) {
@@ -74,6 +74,7 @@ function buildDocs(directory: string, apiBase: string | undefined): DocContent[]
 export function docsPlugin(docsDirectory: string): Plugin {
   let directory = docsDirectory;
   let apiBase: string | undefined;
+  let network: unknown;
   let pages: DocContent[] | null = null;
   return {
     name: 'docs',
@@ -81,10 +82,11 @@ export function docsPlugin(docsDirectory: string): Plugin {
       directory = resolve(config.root, docsDirectory);
       const value: unknown = config.env['VITE_API_BASE'];
       apiBase = typeof value === 'string' ? value : undefined;
+      network = config.env['VITE_NETWORK'];
     },
     // Checked on every build, so a broken page fails it even before any route imports the docs.
     buildStart() {
-      pages = buildDocs(directory, apiBase);
+      pages = buildDocs(directory, apiBase, network);
       for (const entry of DOC_ORDER) this.addWatchFile(join(directory, `${entry.slug}.md`));
     },
     resolveId(id) {
@@ -92,7 +94,7 @@ export function docsPlugin(docsDirectory: string): Plugin {
     },
     load(id) {
       if (id !== RESOLVED_ID) return undefined;
-      pages ??= buildDocs(directory, apiBase);
+      pages ??= buildDocs(directory, apiBase, network);
       return `export const DOCS = ${JSON.stringify(pages)};\n`;
     },
     configureServer(server) {

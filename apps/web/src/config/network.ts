@@ -7,3 +7,9 @@ export const ACTIVE_CHAIN: ChainConfig = CHAINS[isNetworkKey(requested) ? reques
 
 /** A short label for the network badge; the full chain name appears where a user connects. */
 export const ACTIVE_NETWORK_LABEL = ACTIVE_CHAIN.network === 'mainnet' ? 'Mainnet' : 'Testnet';
+
+/** Whether this build serves mainnet, where ETH has value and the copy speaks of real rewards. */
+export const ON_MAINNET = ACTIVE_CHAIN.network === 'mainnet';
+
+/** The `rig` flag for this build's network; testnet is the client's default and needs none. */
+export const RIG_NETWORK_FLAG = ON_MAINNET ? ' --network mainnet' : '';

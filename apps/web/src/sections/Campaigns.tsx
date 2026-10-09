@@ -2,6 +2,7 @@ import { CubeGlyph } from '../components/CubeGlyph.tsx';
 import { Kicker } from '../components/Kicker.tsx';
 import { Words } from '../components/Words.tsx';
 import { BRAND } from '@minera/shared';
+import { ON_MAINNET } from '../config/network.ts';
 import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
 import { useMergedRef } from '../lib/useMergedRef.ts';
 import { loopRef } from '../motion/loopGate.ts';
@@ -22,7 +23,10 @@ export function Campaigns({ index }: { index: string }) {
           </h2>
         </div>
         <p className="lede">
-          {BRAND.rewardAllocation} Every burn carries its campaign id on chain. The first campaign opens with the network on testnet.
+          {BRAND.rewardAllocation} Every burn carries its campaign id on chain.{' '}
+          {ON_MAINNET
+            ? 'The first campaign opened on mainnet with the first burn into the Burn Pool.'
+            : 'The first campaign opens with the network on testnet.'}
         </p>
       </div>
       <ol className="timeline" ref={timelineRef} data-reveal="timeline">
@@ -32,7 +36,7 @@ export function Campaigns({ index }: { index: string }) {
           </span>
           <p className="camp__idx">Campaign {PREVIEW_CAMPAIGN.number}</p>
           <h3>{PREVIEW_CAMPAIGN.name}</h3>
-          <p className="camp__state">Opens on testnet</p>
+          <p className="camp__state">{ON_MAINNET ? 'Live on mainnet' : 'Opens on testnet'}</p>
           <p className="camp__share">
             <span>Burned into the pool from the project wallet</span>
           </p>

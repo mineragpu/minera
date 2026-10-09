@@ -26,6 +26,14 @@ import './whats-live.css';
 
 const REFRESH_MS = 30_000;
 
+/** An address of all zeros marks a contract this network does not have yet. */
+const UNSET = /^0x0{40}$/;
+function deployedCount(deployment: typeof DEPLOYMENT): number {
+  if (!deployment) return 0;
+  return (['burnPool', 'rigRegistry', 'pairZap'] as const).filter((key) => !UNSET.test(deployment[key])).length;
+}
+const DEPLOYED_COUNT = deployedCount(DEPLOYMENT);
+
 interface ContractInfo {
   key: 'burnPool' | 'rigRegistry' | 'pairZap';
   name: string;
@@ -76,7 +84,7 @@ function Contracts() {
         </span>
       </div>
       <ul className="contracts">
-        {CONTRACTS.map(({ key, name, role, color }) => {
+        {CONTRACTS.filter(({ key }) => !UNSET.test(deployment[key])).map(({ key, name, role, color }) => {
           const address = deployment[key];
           return (
             <li key={key} className="contract" ref={revealRef} data-reveal="contract">
@@ -202,7 +210,8 @@ export function WhatsLive({ index }: { index: string }) {
           </h2>
         </div>
         <p className="lede">
-          Three contracts, and the network service that measures the work. Every figure here is read from them.
+          {DEPLOYED_COUNT === 3 ? 'Three' : 'Two'} contracts, and the network service that measures the work. Every figure
+          here is read from them.
         </p>
       </div>
       <div className="live-grid section-body">

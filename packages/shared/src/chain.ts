@@ -58,7 +58,9 @@ export const CHAINS: Readonly<Record<NetworkKey, ChainConfig>> = {
     hexId: '0x1237',
     name: 'Robinhood Chain',
     nativeCurrency: ETHER,
-    rpcUrls: ['https://rpc.mainnet.chain.robinhood.com'],
+    // The official endpoint served an expired certificate on 2026-10-09, so a working public one
+    // comes first: wallets check the first URL when they add the network.
+    rpcUrls: ['https://robinhood-rpc.publicnode.com', 'https://rpc.mainnet.chain.robinhood.com'],
     explorerUrl: 'https://robinhoodchain.blockscout.com',
   },
 };

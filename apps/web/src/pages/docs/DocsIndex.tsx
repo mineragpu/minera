@@ -1,4 +1,5 @@
 import { PageHead } from '../PageHead.tsx';
+import { ON_MAINNET } from '../../config/network.ts';
 import { DOC_GROUPS, docPath } from './manifest.ts';
 import './docs-index.css';
 
@@ -8,7 +9,7 @@ export function DocsIndex() {
     <div className="shell">
       <PageHead kicker="Docs" title="How the network works, in full.">
         Run a node, deploy a rig, and check every rule the contracts and the coordinator apply. These pages describe
-        the testnet as deployed. Mainnet is planned.
+        the network on {ON_MAINNET ? 'mainnet' : 'testnet'} as deployed.
       </PageHead>
       <ol className="docs-groups page-body">
         {DOC_GROUPS.map((group, index) => {

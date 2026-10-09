@@ -21,7 +21,7 @@ export const DOC_GROUPS: readonly DocGroup[] = [
       {
         slug: 'overview',
         title: 'Overview',
-        summary: 'What the network does, what runs on testnet today and what is planned.',
+        summary: 'What the network does, what runs today and what is planned.',
       },
       {
         slug: 'quickstart',
@@ -66,7 +66,7 @@ export const DOC_GROUPS: readonly DocGroup[] = [
       {
         slug: 'contracts',
         title: 'Contracts',
-        summary: 'Testnet addresses, parameters, functions, events and errors.',
+        summary: 'Mainnet and testnet addresses, parameters, functions, events and errors.',
       },
       {
         slug: 'api',

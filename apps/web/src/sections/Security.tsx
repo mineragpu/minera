@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { BRAND } from '@minera/shared';
+import { ON_MAINNET } from '../config/network.ts';
 import { fetchPool } from '../api/coordinator.ts';
 import { usePoll } from '../api/usePoll.ts';
 import { Kicker } from '../components/Kicker.tsx';
@@ -50,7 +51,10 @@ const DEPENDS_ON: readonly Point[] = [
   },
   {
     title: 'The guardian',
-    body: 'One key can veto a settlement during its challenge delay, list pairs, allow or remove a zap and propose a new publisher. It has no path to the funds. On testnet it is a single key held by the project.',
+    body: 'One key can veto a settlement during its challenge delay, list pairs, allow or remove a zap and propose a new publisher. It has no path to the funds. ' +
+      (ON_MAINNET
+        ? 'On mainnet it is a dedicated key held by the project and used for nothing else.'
+        : 'On testnet it is a single key held by the project.'),
   },
   {
     title: 'The coordinator',
