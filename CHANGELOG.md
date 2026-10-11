@@ -5,6 +5,16 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+### Changed
+
+- The mainnet coordinator moved to `https://api.mineragpu.tech`, so its address no longer depends on
+  where it is hosted. The testnet network service is paused; the testnet contracts stay deployed.
+
+### Upgrade notes
+
+- **Node operators** restart with `rig start --network mainnet --coordinator https://api.mineragpu.tech`.
+  The node remembers the new address for mainnet.
+
 ## [1.0.0] - 2026-10-09
 
 Minera runs on mainnet (chain ID 4663). Rigs deploy and mine there, and claims pay in ETH; claims in

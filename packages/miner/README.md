@@ -4,10 +4,9 @@
 binds the rig to the operator's wallet, and runs inference jobs from the coordinator on a local
 model runtime. It is published to npm as [`@minera-gpu/miner`](https://www.npmjs.com/package/@minera-gpu/miner).
 
-**Status:** mainnet is open. Start against the mainnet coordinator at
-`https://coordinator-mainnet-production.up.railway.app`. The testnet coordinator at `https://api.mineragpu.tech` keeps running
-for testing. Its `GET /v1/network` reports the model open
-jobs use as `jobs.model`; load that model into your runtime before you start.
+**Status:** mainnet is open. Start against the mainnet coordinator at `https://api.mineragpu.tech`. Its
+`GET /v1/network` reports the model open jobs use as `jobs.model`; load that model into your
+runtime before you start. The testnet network service is paused for now.
 
 ## Requirements
 
@@ -68,7 +67,7 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 4. **Start the node.**
 
    ```sh
-   rig start --coordinator https://coordinator-mainnet-production.up.railway.app
+   rig start --coordinator https://api.mineragpu.tech
    ```
 
    The node says hello, runs a benchmark job, then sends heartbeats and runs the jobs they carry.

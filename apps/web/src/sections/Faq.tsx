@@ -126,7 +126,7 @@ const QUESTIONS: readonly Question[] = [
     answer: (
       <p>
         {ON_MAINNET
-          ? `Yes. Rigs deploy and mine on mainnet, claims pay in ETH, and the $${TOKEN.symbol} token trades there. The testnet keeps running for trying things out; its test ETH has no value.`
+          ? `Yes. Rigs deploy and mine on mainnet, claims pay in ETH, and the $${TOKEN.symbol} token trades there. The testnet contracts stay deployed, and the testnet network service is paused for now.`
           : `No, this site runs on testnet, where test ETH has no value. The network, its contracts and the $${TOKEN.symbol} token are on mainnet.`}
       </p>
     ),

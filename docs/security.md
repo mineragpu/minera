@@ -7,7 +7,7 @@ coordinator's source.
 ## Status
 
 - The network runs on mainnet, ETH-only for now: there is no pair zap on mainnet yet. The testnet
-  keeps running with test assets. On mainnet the guardian is a dedicated key, not a multisig.
+  contracts stay deployed; the testnet network service is paused. On mainnet the guardian is a dedicated key, not a multisig.
 - The maintainers audit the contracts in rounds and publish every report in full in
   [audits](https://github.com/mineragpu/minera/tree/main/audits). [Round 1](https://github.com/mineragpu/minera/blob/main/audits/2026-10-06-contracts-round-1.md) found no critical or high
   issues and confirmed that the code on chain matches the source. The final round covers the exact

@@ -11,7 +11,8 @@ The published threat model, with every trust assumption and known limitation, is
 
 | Version | Supported |
 |---|---|
-| Testnet deployment (chain ID 46630): the contracts listed in the [README](README.md#testnet-contracts), the coordinator at `https://api.mineragpu.tech` and the site at `https://mineragpu.tech` | Yes |
+| Mainnet deployment (chain ID 4663): the contracts listed in the [README](README.md#mainnet-contracts), the coordinator at `https://api.mineragpu.tech` and the site at `https://mineragpu.tech` | Yes |
+| Testnet contracts (chain ID 46630), listed in the [README](README.md#testnet-contracts) | Yes |
 | `main` branch | Yes |
 | Older commits, forks and self-hosted copies | No |
 
@@ -55,7 +56,7 @@ Reporters are credited in the advisory unless they ask not to be.
 In scope:
 
 - **Contracts** in `packages/contracts`: the Burn Pool, the rig registry and the pair zap, as
-  deployed on the testnet and as they stand on `main`.
+  deployed on mainnet and the testnet and as they stand on `main`.
 - **Coordinator API** in `apps/coordinator`, served at `https://api.mineragpu.tech`: node
   authentication, job dispatch, verification, Sentinel, settlement building and publishing, and
   the public routes.

@@ -89,5 +89,5 @@ committed in ETH. On mainnet you claim them in ETH; claims in a stock token come
 ## Is mainnet live?
 
 Yes. Rigs deploy and mine on mainnet (chain ID {{mainnet.chainId}}), claims pay in ETH, and the
-${{token.symbol}} token trades there. The testnet keeps running, with test assets, for trying things
-out.
+${{token.symbol}} token trades there. The testnet contracts stay deployed, and the testnet network
+service is paused for now.
