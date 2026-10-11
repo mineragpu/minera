@@ -7,13 +7,15 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Changed
 
-- The mainnet coordinator moved to `https://api.mineragpu.tech`, so its address no longer depends on
-  where it is hosted. The testnet network service is paused; the testnet contracts stay deployed.
+- The coordinators moved to addresses on the project's own domain, so they no longer depend on where
+  they are hosted: mainnet at `https://api.mineragpu.tech`, testnet at
+  `https://testnet-api.mineragpu.tech`.
 
 ### Upgrade notes
 
-- **Node operators** restart with `rig start --network mainnet --coordinator https://api.mineragpu.tech`.
-  The node remembers the new address for mainnet.
+- **Node operators** restart with `rig start --network mainnet --coordinator https://api.mineragpu.tech`,
+  or on testnet with `--network testnet --coordinator https://testnet-api.mineragpu.tech`. The node
+  remembers the new address for each network.
 
 ## [1.0.0] - 2026-10-09
 

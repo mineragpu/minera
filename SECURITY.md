@@ -12,7 +12,7 @@ The published threat model, with every trust assumption and known limitation, is
 | Version | Supported |
 |---|---|
 | Mainnet deployment (chain ID 4663): the contracts listed in the [README](README.md#mainnet-contracts), the coordinator at `https://api.mineragpu.tech` and the site at `https://mineragpu.tech` | Yes |
-| Testnet contracts (chain ID 46630), listed in the [README](README.md#testnet-contracts) | Yes |
+| Testnet deployment (chain ID 46630): the contracts listed in the [README](README.md#testnet-contracts) and the coordinator at `https://testnet-api.mineragpu.tech` | Yes |
 | `main` branch | Yes |
 | Older commits, forks and self-hosted copies | No |
 

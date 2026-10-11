@@ -5,8 +5,8 @@ or a listed stock token, and the rig earns by answering real inference jobs that
 checks. Rewards come from the Burn Pool, a contract with no withdraw function.
 
 These docs describe the network as it runs on {{network.chainName}} (chain ID
-{{network.chainId}}). The testnet contracts stay deployed, with their addresses on
-[Contracts](contracts.md); the testnet network service is paused for now.
+{{network.chainId}}). The testnet keeps running with test assets, for trying things out; its
+addresses are on [Contracts](contracts.md).
 
 ## What runs today
 

@@ -17,14 +17,14 @@ interface Phase {
 const PHASES: readonly Phase[] = [
   {
     name: 'Testnet',
-    tone: 'none',
-    status: 'Paused',
+    tone: 'live',
+    status: 'Running',
     items: [
       'Burn Pool, rig registry and pair zap, with verified source',
       'The network service: jobs, cross-checks and a settlement after each epoch',
       'Claims in the pair of your rigs, or in ETH',
     ],
-    note: 'Its contracts stay deployed; the network service is paused for now. Test ETH has no value.',
+    note: 'It keeps running for trying things out. Test ETH has no value.',
   },
   {
     name: 'Token launch',

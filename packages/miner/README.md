@@ -6,7 +6,8 @@ model runtime. It is published to npm as [`@minera-gpu/miner`](https://www.npmjs
 
 **Status:** mainnet is open. Start against the mainnet coordinator at `https://api.mineragpu.tech`. Its
 `GET /v1/network` reports the model open jobs use as `jobs.model`; load that model into your
-runtime before you start. The testnet network service is paused for now.
+runtime before you start. The testnet coordinator at `https://testnet-api.mineragpu.tech` keeps
+running for testing.
 
 ## Requirements
 
