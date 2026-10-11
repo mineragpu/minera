@@ -11,6 +11,12 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
   they are hosted: mainnet at `https://api.mineragpu.tech`, testnet at
   `https://testnet-api.mineragpu.tech`.
 
+### Fixed
+
+- **The coordinator's indexer catches up faster after a refused log request.** A refusal still halves
+  the log range, and the range now doubles again after 20 accepted requests in a row instead of staying
+  small until the indexer has caught up.
+
 ### Upgrade notes
 
 - **Node operators** restart with `rig start --network mainnet --coordinator https://api.mineragpu.tech`,

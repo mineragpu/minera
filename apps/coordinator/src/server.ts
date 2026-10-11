@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { buildApp } from './app.ts';
 import { createChainClient } from './chain/client.ts';
 import { indexNextRange } from './chain/indexer.ts';
+import { afterRefusal, afterSuccess, initialLogRange, type LogRangeLimits } from './chain/logRange.ts';
 import { readPoolSnapshot } from './chain/pool.ts';
 import { deploymentIsQuiet } from './chain/quiet.ts';
 import { createPoolWatcher } from './chain/poolWatcher.ts';
@@ -20,6 +21,8 @@ import { createPostgresStore } from './store/postgres/index.ts';
 
 /** The smallest log range public endpoints serve; a refused request never shrinks below it. */
 const MIN_LOG_RANGE = 10n;
+/** Accepted log requests in a row before a shrunken range doubles again. */
+const LOG_RANGE_REGROW_AFTER = 20;
 const JANITOR_MS = 10_000;
 const SENTINEL_MS = 60_000;
 const RETRY_MS = 30_000;
@@ -71,12 +74,15 @@ async function start(config: Config): Promise<void> {
     : null;
   if (!publisher) log.warn('no publisher key is configured; settlements run in dry mode and are never published');
 
-  // A refused log request halves the range, down to the smallest one public endpoints serve, so an
-  // indexer that fell behind a free endpoint's recent window catches up through the next one. The
-  // range returns to its configured size once the indexer has caught up.
+  // The log range shrinks on a refusal and grows back after a run of accepted requests; see
+  // chain/logRange.ts.
   const { indexMs, poolMs } = config.chainPolling;
-  const maxRange = BigInt(config.chainPolling.logRange);
-  let logRange = maxRange;
+  const rangeLimits: LogRangeLimits = {
+    min: MIN_LOG_RANGE,
+    max: BigInt(config.chainPolling.logRange),
+    regrowAfter: LOG_RANGE_REGROW_AFTER,
+  };
+  let logRange = initialLogRange(rangeLimits);
   const isQuiet = () => deploymentIsQuiet(client, deployment);
 
   const loops: Loop[] = [
@@ -87,16 +93,17 @@ async function start(config: Config): Promise<void> {
       run: async () => {
         let range;
         try {
-          range = await indexNextRange({ client, store, deployment, range: logRange, isQuiet });
+          range = await indexNextRange({ client, store, deployment, range: logRange.size, isQuiet });
         } catch (error) {
-          if (logRange <= MIN_LOG_RANGE) throw error;
-          logRange = logRange / 2n > MIN_LOG_RANGE ? logRange / 2n : MIN_LOG_RANGE;
-          log.warn({ logRange: Number(logRange), error: errorSummary(error) }, 'log request refused; retrying with a smaller range');
+          const smaller = afterRefusal(logRange, rangeLimits);
+          if (!smaller) throw error;
+          logRange = smaller;
+          log.warn({ logRange: Number(logRange.size), error: errorSummary(error) }, 'log request refused; retrying with a smaller range');
           return 0;
         }
         if (range?.skipped) log.info(range, 'no activity since the deployment; indexing from the head');
         else if (range && range.events > 0) log.info(range, 'indexed chain events');
-        if (!range || range.caughtUp) logRange = maxRange;
+        logRange = afterSuccess(logRange, rangeLimits, !range || range.caughtUp);
         return range && !range.caughtUp ? 0 : indexMs;
       },
     }),
