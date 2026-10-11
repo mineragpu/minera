@@ -16,7 +16,6 @@ The published threat model, with every trust assumption and known limitation, is
 | `main` branch | Yes |
 | Older commits, forks and self-hosted copies | No |
 
-The mainnet deployment is planned. This policy will list it when it ships.
 
 ## Report a vulnerability
 

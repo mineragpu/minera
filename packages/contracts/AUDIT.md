@@ -181,13 +181,15 @@ delay under an hour.
 
 Before mainnet, together with the final audit round:
 
-- [ ] The audited commit is the deployed commit, and every contract is source-verified.
+- [x] The audited commit is the deployed commit, and every contract is source-verified: the Burn Pool
+      and the rig registry run the code of the final round (`2b8839a`), verified with an exact match.
 - [x] The guardian is a dedicated key, never the deployer or the publisher (the owner's choice over a
       multisig; final round, M-01). The publisher is a separate key held by the coordinator.
 - [x] The challenge delay gives the guardian time to react: 6 hours on mainnet.
 - [x] The rotation delay is longer than the challenge delay: 48 hours on mainnet.
 - [x] The release limit and listing delay are set in `deploy/mainnet.json` and reviewed.
-- [ ] Every route in the zap points at a pool with real liquidity and a hookless native-ETH pair.
+- [ ] Every route in the zap points at a pool with real liquidity and a hookless native-ETH pair. Not
+      yet due: mainnet is ETH-only and has no zap.
 
 ## Questions for reviewers
 

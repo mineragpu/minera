@@ -10,8 +10,9 @@ coordinator's source.
   keeps running with test assets. On mainnet the guardian is a dedicated key, not a multisig.
 - The maintainers audit the contracts in rounds and publish every report in full in
   [audits](https://github.com/mineragpu/minera/tree/main/audits). [Round 1](https://github.com/mineragpu/minera/blob/main/audits/2026-10-06-contracts-round-1.md) found no critical or high
-  issues and confirmed that the code on chain matches the source. The final round covers the exact
-  commit to be deployed and comes before mainnet. The audits are internal; the
+  issues and confirmed that the code on chain matches the source. The [final round](https://github.com/mineragpu/minera/blob/main/audits/2026-10-09-contracts-final-round.md)
+  covered the exact commit deployed to mainnet and found no critical or high issues either. The
+  audits are internal; the
   [audit guide](https://github.com/mineragpu/minera/blob/main/packages/contracts/AUDIT.md) lets anyone review the same code.
 - The contracts' tests cover every line and branch.
 - The contracts cannot be upgraded. A change of rules means new contracts at new addresses.
