@@ -188,8 +188,11 @@ Before mainnet, together with the final audit round:
 - [x] The challenge delay gives the guardian time to react: 6 hours on mainnet.
 - [x] The rotation delay is longer than the challenge delay: 48 hours on mainnet.
 - [x] The release limit and listing delay are set in `deploy/mainnet.json` and reviewed.
-- [ ] Every route in the zap points at a pool with real liquidity and a hookless native-ETH pair. Not
-      yet due: mainnet is ETH-only and has no zap.
+- [x] Every route in the zap points at a pool with real liquidity and a hookless native-ETH pair.
+      Checked on 2026-10-14 for the four routes in `deploy/mainnet-zap.json`: each is a hookless pool
+      against native ETH, a 0.1 ETH quote moves its price by at most 0.28%, and
+      `test/PairZap.mainnetFork.t.sol` delivers every one through the live router on a fork of mainnet.
+      Stocks without such a pool are left out.
 
 ## Questions for reviewers
 

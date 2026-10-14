@@ -11,6 +11,15 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
   they are hosted: mainnet at `https://api.mineragpu.tech`, testnet at
   `https://testnet-api.mineragpu.tech`.
 
+### Added
+
+- **Stock pairs for mainnet, prepared.** `script/DeployZap.s.sol` deploys a pair zap next to an
+  existing Burn Pool and rig registry, with the routes in `deploy/mainnet-zap.json`: four tokenized
+  stocks, each through a hookless pool against native ETH with real liquidity, and the chain's stock
+  registry for the blocklist and pause checks. A fork test runs every route through the live mainnet
+  router before anything is deployed. The pairs go live only after the guardian allows the zap (a
+  6-hour public delay) and lists each stock (a 24-hour public delay).
+
 ### Fixed
 
 - **The coordinator's indexer catches up faster after a refused log request.** A refusal still halves

@@ -1,0 +1,11 @@
+{
+  "chainId": 4663,
+  "router": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+  "stockRegistry": "0xe10b6f6B275de231345c20D14Ab812db62151b00",
+  "routes": [
+    { "asset": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC", "fee": 500, "tickSpacing": 10 },
+    { "asset": "0x2e0847E8910a9732eB3fb1bb4b70a580ADAD4FE3", "fee": 10000, "tickSpacing": 200 },
+    { "asset": "0xe93237C50D904957Cf27E7B1133b510C669c2e74", "fee": 10000, "tickSpacing": 200 },
+    { "asset": "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C", "fee": 10000, "tickSpacing": 200 }
+  ]
+}

@@ -225,7 +225,7 @@ Roles, functions, events and errors are listed in [Contracts](https://mineragpu.
 | 1&nbsp;·&nbsp;Testnet | Coordinator, node client, deploy flow, launchpad board, Burn Pool and rig registry on testnet | Running, for testing |
 | 2&nbsp;·&nbsp;Token | $MNRA, launched on October 8, 2026 | Live |
 | 3&nbsp;·&nbsp;Mainnet | Contracts on mainnet, the first burn, Campaign 01, rigs mining, claims in ETH | Live |
-| 4&nbsp;·&nbsp;Pairs on mainnet | The pair zap, so mainnet claims can pay in a tokenized stock | Planned |
+| 4&nbsp;·&nbsp;Pairs on mainnet | The pair zap, so mainnet claims can pay in a tokenized stock | In progress: routes tested on mainnet |
 
 ## Repository
 
