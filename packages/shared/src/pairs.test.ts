@@ -33,15 +33,30 @@ describe('PAIR_LISTINGS', () => {
     });
   }
 
-  for (const name of readdirSync(deployConfigs).filter((file) => file.endsWith('.json'))) {
-    it(`matches the zap routes in deploy/${name}`, () => {
-      const config = JSON.parse(readFileSync(new URL(name, deployConfigs), 'utf8'));
-      const routed = config.routes.map((route: { asset: string }) => route.asset.toLowerCase()).sort();
+  // The app lists the stocks a deployed zap routes. A network's deploy config holds the routes of
+  // the zap deployed with its contracts; a separate `<network>-zap.json` holds a zap deployed
+  // later, and it replaces the first only once DEPLOYMENTS records it. Until then it lists nothing.
+  const configs = readdirSync(deployConfigs)
+    .filter((file) => file.endsWith('.json'))
+    .map((name) => ({ name, config: JSON.parse(readFileSync(new URL(name, deployConfigs), 'utf8')) }));
+  const routesOf = (config: { routes: { asset: string }[] }) =>
+    config.routes.map((route) => route.asset.toLowerCase()).sort();
+  const zapIsDeployed = (chainId: number) => (DEPLOYMENTS[chainId]?.pairZap ?? ETH_PAIR) !== ETH_PAIR;
+
+  for (const { name, config } of configs) {
+    const separateZap = name.endsWith('-zap.json');
+    const replaced =
+      !separateZap &&
+      zapIsDeployed(config.chainId) &&
+      configs.some((other) => other.name.endsWith('-zap.json') && other.config.chainId === config.chainId);
+    if (replaced) continue;
+    it(`lists what deploy/${name} routes, once its zap is deployed`, () => {
+      const expected = separateZap && !zapIsDeployed(config.chainId) ? [] : routesOf(config);
       const listed = pairListingFor(config.chainId)
         .assets.filter((asset) => asset.kind === 'stock')
         .map((asset) => asset.address.toLowerCase())
         .sort();
-      assert.deepEqual(listed, routed);
+      assert.deepEqual(listed, expected);
     });
   }
 });
