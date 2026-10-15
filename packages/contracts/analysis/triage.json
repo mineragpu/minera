@@ -1,0 +1,57 @@
+[
+  {
+    "tool": "slither",
+    "key": "arbitrary-send-eth:BurnPool.claim(uint256,address,uint256,bytes32[])",
+    "verdict": "By design",
+    "reason": "Anyone may trigger a claim, but the ETH goes only to `account`, and only the amount its Merkle proof entitles it to (`_settle` checks the proof and the amount already claimed). The function is `nonReentrant`.",
+    "evidence": [
+      "test/BurnPool.t.sol: test_ClaimPaysTheAccountWhoeverCalls",
+      "test/BurnPool.t.sol: test_ClaimsNeverExceedTheSettlementTotal",
+      "test/BurnPool.t.sol: test_ClaimCannotBeReentered"
+    ]
+  },
+  {
+    "tool": "slither",
+    "key": "reentrancy-balance:PairZap.deliver(address,bytes)",
+    "verdict": "False positive",
+    "reason": "The router and every asset are fixed at deployment. A nested `deliver` during the swap transfers out what it received before it returns, so the outer balance difference is exactly the outer swap's output; tokens sent to the zap from elsewhere could only add to the claimant's amount. `minOut`, chosen by the claimant, bounds the result.",
+    "evidence": [
+      "test/PairZap.t.sol: test_DeliversTheStockToTheAccount",
+      "test/PairZap.t.sol: test_RevertWhen_OutputBelowMinimumEvenIfTheRouterDoesNotCheck"
+    ]
+  },
+  {
+    "tool": "slither",
+    "key": "unused-return:RigRegistry.deploy(address,address,string,bytes)",
+    "verdict": "False positive",
+    "reason": "`ECDSA.tryRecover` returns the signer, an error and an error argument. The error is checked on the next line and any error reverts; the error argument only details an error that already reverts.",
+    "evidence": [
+      "test/RigRegistry.t.sol: test_RevertWhen_AuthorizationIsFromAnotherKey",
+      "test/RigRegistry.t.sol: test_RevertWhen_AuthorizationIsForAnotherOperator"
+    ]
+  },
+  {
+    "tool": "aderyn",
+    "key": "contract-locks-ether:src/PairZap.sol:17",
+    "verdict": "False positive",
+    "reason": "`deliver` forwards the whole `msg.value` to the router in the same call, and the zap has no receive or fallback function, so it never holds ETH. Every delivery test asserts the zap's ETH balance is zero afterwards.",
+    "evidence": [
+      "test/PairZap.t.sol: test_DeliversTheStockToTheAccount",
+      "test/PairZap.mainnetFork.t.sol: the zap's balance after every route"
+    ]
+  },
+  {
+    "tool": "aderyn",
+    "key": "unsafe-casting-operator:src/PairZap.sol:122",
+    "verdict": "False positive",
+    "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
+    "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
+  },
+  {
+    "tool": "aderyn",
+    "key": "unsafe-casting-operator:src/PairZap.sol:123",
+    "verdict": "False positive",
+    "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
+    "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
+  }
+]

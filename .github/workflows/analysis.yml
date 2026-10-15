@@ -1,8 +1,9 @@
 name: Static analysis
 
 # Two independent static analyzers read the contracts on every change. Slither's findings go to code
-# scanning; Aderyn's report is written to the run summary. Slither fails the run on a finding of
-# medium severity or higher, Aderyn on a high one.
+# scanning and Aderyn's full report to the run summary. A Slither finding of medium impact or higher,
+# or a high Aderyn finding, fails the run unless packages/contracts/analysis/triage.json lists it with
+# the reason it is not a bug.
 
 on:
   push:
@@ -47,8 +48,9 @@ jobs:
           target: packages/contracts
           slither-version: 0.11.6
           slither-config: packages/contracts/slither.config.json
+          slither-args: --json slither.json
           sarif: results.sarif
-          fail-on: medium
+          fail-on: none
 
       - name: Upload the findings to code scanning
         if: always() && steps.slither.outputs.sarif != ''
@@ -56,6 +58,9 @@ jobs:
         with:
           sarif_file: ${{ steps.slither.outputs.sarif }}
           category: slither
+
+      - name: Check every finding is fixed or reviewed
+        run: node packages/contracts/analysis/check.mjs slither slither.json | tee -a "$GITHUB_STEP_SUMMARY"
 
   aderyn:
     name: Aderyn
@@ -96,8 +101,5 @@ jobs:
           aderyn . --path-excludes test,script --output "$RUNNER_TEMP/aderyn.json"
           cat "$RUNNER_TEMP/aderyn.md" | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: Fail on a high finding
-        run: |
-          high=$(node -e 'const r=require(process.argv[1]);console.log(r.issue_count.high)' "$RUNNER_TEMP/aderyn.json")
-          echo "High findings: $high"
-          test "$high" -eq 0
+      - name: Check every finding is fixed or reviewed
+        run: node packages/contracts/analysis/check.mjs aderyn "$RUNNER_TEMP/aderyn.json" | tee -a "$GITHUB_STEP_SUMMARY"
