@@ -16,6 +16,12 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Minera Brain, first version** (`packages/brain`, not on npm yet). `minera-brain report` drafts a
+  network report: the day's figures, read from the public API and formatted by code, as posts for X
+  (within 280 characters) and Telegram. With `--ask` it adds one sentence the network writes itself,
+  kept only when two unrelated rigs agreed on it and it has no figures, links or price talk. It posts
+  nothing: a person approves every draft, and a day with no rig online and no verified work is marked
+  to hold.
 - **An Agents section on the site,** between the playground and the ways in: what an agent can do
   with Minera today (read the network through the MCP server, ask for a verified answer) and what
   comes next (Minera Brain), each marked as it stands. The roadmap adds an Agents phase.
