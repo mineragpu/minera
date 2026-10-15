@@ -16,7 +16,8 @@ running for testing.
 - **The GPU driver**, with its command-line management tool on your `PATH`. The node reads the GPU
   model, VRAM and driver version from it. Without the tool, the node reports no GPU and still runs.
 - **A local model runtime** compatible with the `/api/chat` interface on port 11434, running, with
-  at least one model downloaded. The client never downloads models itself.
+  at least one model downloaded. The client downloads a model only when you start it with
+  `--keep-model`.
 - **Node.js 22 or later**, with npm, and **a wallet on the network** to deploy the rig from. This
   wallet is the rig's operator.
 - **A synchronized system clock.** The coordinator rejects requests stamped more than 120 seconds
@@ -85,8 +86,33 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 | `--coordinator <url>` | `start` | The coordinator URL. It must use https unless it is on this machine. |
 | `--runtime-url <url>` | `status`, `start` | The model runtime. Defaults to `http://127.0.0.1:11434`. |
 | `--concurrency <1-4>` | `start` | How many jobs run at once. Defaults to 1. |
+| `--keep-model` | `start` | Download the model open jobs use when the runtime does not have it. |
+| `--auto-claim <eth>` | `start` | Claim the operator's rewards once at least this much ETH is claimable. |
+| `--rpc-url <url>` | `start` | With `--auto-claim`: the chain's https endpoint. Defaults to the network's. |
 | `--quiet`, `-q` | all | Print only results, warnings and errors. |
 | `--json` | all | Print one JSON object per line. |
+
+## Autopilot
+
+The node can run the rig's chores itself:
+
+```sh
+rig start --keep-model --auto-claim 0.001
+```
+
+Every 10 minutes while it runs, it:
+
+- **reports the rig's Sentinel standing** and says when it changes, with a warning when the rig is
+  quarantined;
+- **with `--keep-model`, keeps the open-job model installed.** It reads `jobs.model` from the
+  coordinator and asks the runtime to download it when it is missing, also once before the node
+  starts. The runtime downloads it from its own registry;
+- **with `--auto-claim <eth>`, claims for the operator** once at least that much ETH is claimable.
+  The node key sends the Burn Pool's `claim` and pays the network fee; the pool pays the operator's
+  wallet whoever sends it, so the key cannot send the ETH anywhere else. Send the node address a
+  little ETH for fees. Each claim is simulated first, and a refusal is reported in plain words.
+
+Auto-claim pays in ETH. To receive a tokenized stock instead, claim on the site's Claim page.
 
 ## The deploy code
 
@@ -118,6 +144,8 @@ directory:
 - If it leaks, anyone holding it can act as your rig. Retire the rig from the operator wallet with
   the registry's `retire` function, then deploy a new key.
 - `rig init` refuses to overwrite an existing key unless you pass `--force`.
+- With `--auto-claim`, the node address holds a little ETH for claim fees. Keep only what a few
+  claims cost there: a copy of the key can spend it, but cannot redirect rewards.
 
 ## What leaves this machine
 
@@ -133,7 +161,12 @@ To the coordinator at the URL you pass, and nowhere else:
 - **Every request:** the node address, a timestamp, a random nonce and the signature. Like any
   server you connect to, the coordinator also sees your IP address.
 
-To the local model runtime: the prompts of the jobs the coordinator assigns.
+With the autopilot, the node also reads the coordinator's public routes for its rig, the network and
+the operator's claim. With `--auto-claim`, it sends the signed claim transaction, and the calls that
+simulate it, to the chain endpoint (`--rpc-url`, or the network's default).
+
+To the local model runtime: the prompts of the jobs the coordinator assigns, and with `--keep-model`
+the name of the model to download.
 
 The client sends no other files, no hostname and no user name. It does not write prompts or outputs
 to disk, and its logs record only job ids, models, timings and token counts. The model runtime may

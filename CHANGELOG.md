@@ -5,6 +5,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-15
+
+Agents arrive: they can read the network and ask it for verified answers, and the node client gains
+an autopilot that keeps a rig serving and claims for its operator.
+
 ### Changed
 
 - The coordinators moved to addresses on the project's own domain, so they no longer depend on where
@@ -52,9 +57,10 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Upgrade notes
 
-- **Node operators** restart with `rig start --network mainnet --coordinator https://api.mineragpu.tech`,
-  or on testnet with `--network testnet --coordinator https://testnet-api.mineragpu.tech`. The node
-  remembers the new address for each network.
+- **Node operators** update with `npm install --global @minera-gpu/miner` and restart with
+  `rig start`. The node replaces a retired coordinator address with the project's own on its own.
+  Nodes still on 1.0.0 restart once with `--coordinator https://api.mineragpu.tech` on mainnet, or
+  `--coordinator https://testnet-api.mineragpu.tech` on testnet.
 
 ## [1.0.0] - 2026-10-09
 
@@ -180,7 +186,8 @@ take work, get cross-checked, settle and claim. Mainnet has not launched.
 - **Anyone checking settlements:** settlement inputs are now version 2, in which each rig lists its
   verified units and the units it is paid for.
 
-[Unreleased]: https://github.com/mineragpu/minera/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/mineragpu/minera/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/mineragpu/minera/releases/tag/v1.1.0
 [1.0.0]: https://github.com/mineragpu/minera/releases/tag/v1.0.0
 [0.1.1]: https://github.com/mineragpu/minera/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mineragpu/minera/releases/tag/v0.1.0
