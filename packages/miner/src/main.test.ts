@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CHAINS, NODE_ROUTES, type Hex } from '@minera/shared';
+import { CHAINS, COORDINATORS, NODE_ROUTES, type Hex } from '@minera/shared';
 import { getAddress, recoverMessageAddress } from 'viem';
 import { deployDigest, deployTargetFor } from './deploy-code.ts';
 import { main, type MainEnvironment } from './main.ts';
@@ -123,12 +123,30 @@ describe('rig start', () => {
     assert.match(result.err, /compatible with the \/api\/chat interface/);
   });
 
-  it('requires a coordinator URL the first time', async () => {
+  it("uses and saves the network's coordinator when none is set", async () => {
     const { home } = fresh('no-coordinator');
     await run(['init', '--operator', OPERATOR], environment(home));
-    const result = await run(['start'], environment(home));
-    assert.equal(result.code, 64);
-    assert.match(result.err, /No coordinator URL is set for testnet/);
+    const closed = await startMockServer(() => ({ json: {} }));
+    await closed.close();
+    const result = await run(['start', '--runtime-url', closed.url], environment(home));
+    assert.equal(result.code, 2);
+    const paths = nodePaths({ platform: 'linux', env: { XDG_CONFIG_HOME: home }, home });
+    const saved = JSON.parse(readFileSync(paths.settings, 'utf8'));
+    assert.equal(saved.coordinators.testnet, COORDINATORS.testnet.url);
+  });
+
+  it('moves a saved coordinator URL the project has retired', async () => {
+    const { home } = fresh('retired-coordinator');
+    await run(['init', '--operator', OPERATOR], environment(home));
+    const paths = nodePaths({ platform: 'linux', env: { XDG_CONFIG_HOME: home }, home });
+    writeFileSync(paths.settings, JSON.stringify({ network: 'testnet', coordinators: { testnet: 'https://api.mineragpu.tech' } }));
+    const closed = await startMockServer(() => ({ json: {} }));
+    await closed.close();
+    const result = await run(['start', '--runtime-url', closed.url], environment(home));
+    assert.equal(result.code, 2);
+    assert.ok((result.out + result.err).includes('moved from https://api.mineragpu.tech to https://testnet-api.mineragpu.tech'));
+    const saved = JSON.parse(readFileSync(paths.settings, 'utf8'));
+    assert.equal(saved.coordinators.testnet, COORDINATORS.testnet.url);
   });
 
   it('refuses a saved coordinator URL that is not https', async () => {

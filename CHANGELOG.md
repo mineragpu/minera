@@ -10,6 +10,9 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 - The coordinators moved to addresses on the project's own domain, so they no longer depend on where
   they are hosted: mainnet at `https://api.mineragpu.tech`, testnet at
   `https://testnet-api.mineragpu.tech`.
+- **`rig start` needs no coordinator URL.** The node client connects to the project's coordinator for
+  its network unless `--coordinator` names another, and a saved address the project has retired is
+  replaced with the current one, with a note in the log. `rig status` shows which address it will use.
 
 ### Added
 

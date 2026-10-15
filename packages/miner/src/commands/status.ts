@@ -2,6 +2,7 @@
  * `rig status`: what this machine would bring to the network, without contacting the coordinator.
  */
 
+import { resolveCoordinator } from '@minera/shared';
 import type { Command } from '../args.ts';
 import { deployTargetFor } from '../deploy-code.ts';
 import { describeGpu } from '../gpu.ts';
@@ -54,10 +55,8 @@ export async function statusCommand(
     logger.result(`Models: ${models}`, { models: runtime.models });
   }
 
-  const coordinator = settings.coordinators[network];
-  logger.result(
-    coordinator ? `Coordinator: ${coordinator}` : 'Coordinator: not set. Pass --coordinator to rig start once.',
-    { coordinator: coordinator ?? null },
-  );
+  const { url: coordinator, source } = resolveCoordinator(network, null, settings.coordinators[network]);
+  const note = source === 'default' ? ' (the network default)' : source === 'moved' ? ' (moved; rig start saves it)' : '';
+  logger.result(`Coordinator: ${coordinator}${note}`, { coordinator, source });
   return EXIT.ok;
 }

@@ -2,7 +2,7 @@
  * `rig start`: check the machine, connect to the coordinator and run jobs until stopped.
  */
 
-import { BRAND, CHAINS } from '@minera/shared';
+import { BRAND, CHAINS, resolveCoordinator } from '@minera/shared';
 import type { Command } from '../args.ts';
 import { CoordinatorError, createCoordinatorClient } from '../client.ts';
 import { describeGpu } from '../gpu.ts';
@@ -40,11 +40,8 @@ export async function startCommand(
   const settings = readSettings(paths.settings);
   const network = command.network ?? settings.network;
   const saved = settings.coordinators[network];
-  const coordinator = command.coordinator ?? saved ?? null;
-  if (coordinator === null) {
-    logger.error(`No coordinator URL is set for ${network}. Pass --coordinator <url> once; it is remembered.`);
-    return EXIT.usage;
-  }
+  const { url: coordinator, source } = resolveCoordinator(network, command.coordinator, saved);
+  if (source === 'moved') logger.info(`The coordinator for ${network} moved from ${saved} to ${coordinator}; using the new address.`);
   const checked = checkServiceUrl(coordinator, true);
   if (!checked.ok) {
     const replace = 'Pass --coordinator <url> to replace it.';

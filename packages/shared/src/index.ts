@@ -14,6 +14,8 @@ export { accumulate, allocate, totalOf } from './rewards.ts';
 export type { Address, WorkRecord } from './rewards.ts';
 export { buildSettlement } from './merkle.ts';
 export type { Settlement } from './merkle.ts';
+export { COORDINATORS, resolveCoordinator } from './coordinators.ts';
+export type { CoordinatorInfo, CoordinatorSource, ResolvedCoordinator } from './coordinators.ts';
 export { DEPLOYMENTS, deploymentFor } from './deployments.ts';
 export type { Deployment } from './deployments.ts';
 export { SENTINEL_GATES, SENTINEL_ROUTE } from './sentinel.ts';
