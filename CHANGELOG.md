@@ -16,6 +16,10 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Security analysis on every change.** Slither and Aderyn read the contracts on every pull request
+  and every push to `main`. A finding of medium impact or higher fails the run unless it is fixed or
+  reviewed in `packages/contracts/analysis/triage.json` with the reason it is not a bug and the tests
+  that show it. The six reported so far are false positives or intended behaviour.
 - **Minera Brain, first version** (`packages/brain`, not on npm yet). `minera-brain report` drafts a
   network report: the day's figures, read from the public API and formatted by code, as posts for X
   (within 280 characters) and Telegram. With `--ask` it adds one sentence the network writes itself,

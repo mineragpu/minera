@@ -15,6 +15,10 @@ coordinator's source.
   audits are internal; the
   [audit guide](https://github.com/mineragpu/minera/blob/main/packages/contracts/AUDIT.md) lets anyone review the same code.
 - The contracts' tests cover every line and branch.
+- Two independent static analyzers, Slither and Aderyn, read the contracts on every change
+  ([runs](https://github.com/mineragpu/minera/actions/workflows/analysis.yml)). A finding of medium impact or higher fails the run
+  unless it is fixed or reviewed in [triage.json](https://github.com/mineragpu/minera/blob/main/packages/contracts/analysis/triage.json),
+  with the reason it is not a bug and the tests that show it. None is open.
 - The contracts cannot be upgraded. A change of rules means new contracts at new addresses.
 
 ## What the contracts enforce

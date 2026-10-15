@@ -126,6 +126,15 @@ Found in our own review. None of it is a bug in our reading, but each deserves a
 
 ## Static analysis
 
+Slither 0.11.6 and Aderyn 0.6.8 run on every pull request and every push to `main`
+([`analysis.yml`](../../.github/workflows/analysis.yml)). Slither's findings go to code scanning and
+Aderyn's full report to the run summary. A Slither finding of medium impact or higher, or a high
+Aderyn finding, fails the run unless [`analysis/triage.json`](analysis/triage.json) lists it with the
+reason it is not a bug and the tests that show it; [`analysis/check.mjs`](analysis/check.mjs) applies
+that rule. Six findings are reviewed there: three from Slither (`arbitrary-send-eth` in
+`BurnPool.claim`, `reentrancy-balance` in `PairZap.deliver`, `unused-return` in `RigRegistry.deploy`)
+and three from Aderyn (`contract-locks-ether` and two `unsafe-casting` in `PairZap`). None is a bug.
+
 `forge lint` (Foundry 1.8.3) on `src/` reports 9 warnings. Our triage:
 
 | Lint | Where | Triage |

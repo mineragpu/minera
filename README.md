@@ -13,6 +13,7 @@ and mine from a pool that only fills.
 
 <a href="https://github.com/mineragpu/minera/actions/workflows/ci.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
 <a href="https://github.com/mineragpu/minera/actions/workflows/codeql.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" height="20"></a>
+<a href="https://github.com/mineragpu/minera/actions/workflows/analysis.yml"><img src="https://github.com/mineragpu/minera/actions/workflows/analysis.yml/badge.svg" alt="Security analysis status" height="20"></a>
 <a href="https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera"><img src="https://api.scorecard.dev/projects/github.com/mineragpu/minera/badge" alt="OpenSSF Scorecard" height="20"></a>
 <a href="https://www.bestpractices.dev/projects/15188"><img src="https://www.bestpractices.dev/projects/15188/badge" alt="OpenSSF Best Practices: passing" height="20"></a>
 <a href="https://www.npmjs.com/package/@minera-gpu/miner"><img src="https://img.shields.io/npm/v/%40minera-gpu%2Fminer?label=node%20client&color=2ee6c8" alt="Node client on npm" height="20"></a>
@@ -113,6 +114,7 @@ Every claim above can be checked without trusting us.
 | **Contracts** | Source-verified on the explorer (see below). Tests cover 100% of lines, statements and branches, with invariant and fuzz runs in CI. [Audit round 1](audits/2026-10-06-contracts-round-1.md), by the maintainers, found no critical or high issues and matched the code on chain to the source byte for byte. The [audit guide](packages/contracts/AUDIT.md) lets anyone review the same code. |
 | **Dependencies** | `npm audit` reports nothing. Actions and base images are pinned by digest and kept current by Dependabot. |
 | **Code scanning** | CodeQL's security-extended queries run on every push and weekly. |
+| **Security&nbsp;analysis** | Two independent analyzers, Slither and Aderyn, read the contracts on every pull request and every push to `main` ([runs](https://github.com/mineragpu/minera/actions/workflows/analysis.yml)). A finding of medium impact or higher fails the run unless it is fixed or reviewed: each one reported so far is in [`triage.json`](packages/contracts/analysis/triage.json) with the reason it is not a bug and the tests that show it. |
 | **Independent score** | The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/mineragpu/minera) is computed and published by a workflow on every push. |
 | **Best practices** | The project meets every criterion of the [OpenSSF Best Practices passing level](https://www.bestpractices.dev/projects/15188), each with its justification and evidence. |
 

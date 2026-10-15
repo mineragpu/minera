@@ -1,4 +1,4 @@
-name: Static analysis
+name: Security analysis
 
 # Two independent static analyzers read the contracts on every change. Slither's findings go to code
 # scanning and Aderyn's full report to the run summary. A Slither finding of medium impact or higher,
