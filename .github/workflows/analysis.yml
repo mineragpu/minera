@@ -36,18 +36,15 @@ jobs:
         with:
           version: v1.8.3
 
-      - name: Build the contracts
+      - name: Install dependencies
         working-directory: packages/contracts
-        run: |
-          forge soldeer install
-          forge build --build-info --skip test --skip script
+        run: forge soldeer install
 
       - name: Run Slither
         id: slither
         uses: crytic/slither-action@b52cc1cbfee9ca3e8722dd5224299d16c9a6b80f # v0.4.2
         with:
           target: packages/contracts
-          ignore-compile: true
           slither-version: 0.11.6
           slither-config: packages/contracts/slither.config.json
           sarif: results.sarif
@@ -97,7 +94,7 @@ jobs:
           aderyn --version
           aderyn . --path-excludes test,script --output "$RUNNER_TEMP/aderyn.md"
           aderyn . --path-excludes test,script --output "$RUNNER_TEMP/aderyn.json"
-          cat "$RUNNER_TEMP/aderyn.md" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/aderyn.md" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Fail on a high finding
         run: |
