@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { useDocumentTitle } from '../router/useDocumentTitle.ts';
+import { Agents } from '../sections/Agents.tsx';
 import { BurnPool } from '../sections/BurnPool.tsx';
 import { Campaigns } from '../sections/Campaigns.tsx';
 import { DeployPanel } from '../sections/DeployPanel.tsx';
@@ -30,6 +31,7 @@ const SECTIONS: readonly ComponentType<{ index: string }>[] = [
   VerifiedWork,
   Launchpad,
   PlaygroundSection,
+  Agents,
   WaysIn,
   Campaigns,
   Roadmap,

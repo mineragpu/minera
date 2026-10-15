@@ -43,10 +43,21 @@ const PHASES: readonly Phase[] = [
     ],
   },
   {
+    name: 'Agents',
+    tone: 'live',
+    status: 'Started',
+    items: [
+      'An MCP server, so agents can read the network (in the repository)',
+      'Verified asks: a prompt answered by two unrelated rigs (live)',
+      'Minera Brain, an agent that thinks on the network (next)',
+      'Agents that run rigs, and a paid API that agents can pay (planned)',
+    ],
+  },
+  {
     name: 'Growth',
     tone: 'planned',
     status: 'Planned',
-    items: ['A buyer API for verified GPU work', 'A browser tier, for work from a browser tab', 'Rig NFTs'],
+    items: ['A browser tier, for work from a browser tab', 'Rig NFTs'],
   },
 ];
 

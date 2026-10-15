@@ -16,6 +16,9 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **An Agents section on the site,** between the playground and the ways in: what an agent can do
+  with Minera today (read the network through the MCP server, ask for a verified answer) and what
+  comes next (Minera Brain), each marked as it stands. The roadmap adds an Agents phase.
 - **Verified prompts.** `POST /v1/playground/jobs` takes `"verify": true`, which sends the prompt to two
   unrelated rigs every time, so its answer is always cross-checked.
 - **Agents can ask the network.** Started with `--allow-ask`, the MCP server offers `minera_ask`: it sends
