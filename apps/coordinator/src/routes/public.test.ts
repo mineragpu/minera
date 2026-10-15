@@ -282,4 +282,12 @@ describe('public routes', () => {
     assert.equal(limited.statusCode, 429);
     assert.equal(limited.json().error.code, 'rate_limited');
   });
+
+  it('sends a prompt to two rigs every time when the caller asks for verification', async () => {
+    const before = await harness.store.jobs.queuedCount('chat');
+    const accepted = await post('/v1/playground/jobs', { prompt: 'What is a GPU?', verify: true });
+    assert.equal(accepted.statusCode, 202);
+    assert.equal((await harness.store.jobs.queuedCount('chat')) - before, 2);
+    assert.equal((await post('/v1/playground/jobs', { prompt: 'Again', verify: 'yes' })).statusCode, 400);
+  });
 });

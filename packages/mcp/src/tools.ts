@@ -1,6 +1,6 @@
 /**
- * The tools the server offers. Every one is a read: it maps validated arguments onto one GET route
- * of the coordinator's public API and returns what the coordinator answered.
+ * The tools the server offers. The seven in TOOLS are reads: each maps validated arguments onto one
+ * GET route of the coordinator's public API. makeAskTool builds the one write, offered on request.
  */
 
 import { z } from 'zod';
@@ -81,6 +81,46 @@ export const TOOLS: readonly Tool[] = [
   },
 ];
 
-export function findTool(name: string): Tool | undefined {
-  return TOOLS.find((tool) => tool.name === name);
+
+export interface AskOptions {
+  /** How long to wait for the answer before returning what is known. */
+  timeoutMs?: number;
+  /** How often to check on the prompt. */
+  intervalMs?: number;
+  sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
+}
+
+const FINISHED = new Set(['done', 'expired']);
+
+/**
+ * Asks the network: the prompt goes to the playground with verify set, so two unrelated rigs always
+ * answer it and the answers are compared. It waits for the outcome and returns the answer with how it
+ * was checked. Offered only when the server was started with --allow-ask, because it creates a job.
+ */
+export function makeAskTool(options: AskOptions = {}): Tool {
+  const timeoutMs = options.timeoutMs ?? 120_000;
+  const intervalMs = options.intervalMs ?? 2_000;
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+  const now = options.now ?? Date.now;
+  return {
+    name: 'minera_ask',
+    title: 'Ask the network',
+    description:
+      'Sends a prompt to the Minera network and waits for the answer. Two unrelated rigs always answer it and their answers are compared; check `verification` before relying on the answer (verified means two rigs agreed). Prompts are read by independent operators, so never include private information. Up to 5 prompts a minute.',
+    input: z.object({ prompt: z.string().trim().min(1).max(2_000).describe('The question, 1 to 2,000 characters') }),
+    async read(api, args) {
+      const queued = (await api.post('/v1/playground/jobs', { prompt: args['prompt'], verify: true })) as { id?: unknown };
+      if (typeof queued?.id !== 'string') throw new Error('The network did not return a job id.');
+      const deadline = now() + timeoutMs;
+      let view: Record<string, unknown> = {};
+      for (;;) {
+        view = (await api.get(`/v1/playground/jobs/${queued.id}`)) as Record<string, unknown>;
+        const settled = FINISHED.has(String(view['status'])) && view['verification'] !== 'pending';
+        if (settled || now() >= deadline) break;
+        await sleep(intervalMs);
+      }
+      return { ...view, waitedUntilSettled: FINISHED.has(String(view['status'])) };
+    },
+  };
 }

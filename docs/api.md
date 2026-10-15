@@ -358,7 +358,9 @@ private information.
 { "prompt": "Explain what a Merkle proof is in two sentences." }
 ```
 
-The prompt is 1 to 2,000 characters after trimming. The answer is `202 Accepted`:
+The prompt is 1 to 2,000 characters after trimming. Add `"verify": true` to have the prompt sent
+to two unrelated rigs every time, so the answer is always cross-checked; without it, a share of
+prompts is (20% by default). The answer is `202 Accepted`:
 
 ```json
 { "id": "7b0c7f9e-3c1d-4f7e-9a51-2d4b8c6e1f20", "status": "queued" }

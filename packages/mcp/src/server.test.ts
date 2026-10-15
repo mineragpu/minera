@@ -3,8 +3,11 @@ import { describe, it } from 'node:test';
 import { ApiError, type MineraApi } from './api.ts';
 import { PROTOCOL_VERSIONS, createServer, type Message } from './server.ts';
 
-function fakeApi(get: MineraApi['get'] = async (path, query) => ({ path, query })): MineraApi {
-  return { baseUrl: 'https://api.example', get };
+function fakeApi(
+  get: MineraApi['get'] = async (path, query) => ({ path, query }),
+  post: MineraApi['post'] = async () => ({ id: 'g1' }),
+): MineraApi {
+  return { baseUrl: 'https://api.example', get, post };
 }
 
 const server = createServer({ api: fakeApi(), network: 'mainnet', version: '9.9.9' });
@@ -89,5 +92,45 @@ describe('tools/call', () => {
   it('refuses an unknown tool', async () => {
     const answer = await call('minera_withdraw', {});
     assert.equal((answer as { error: { code: number } }).error.code, -32602);
+  });
+});
+
+describe('minera_ask', () => {
+  it('is offered only when the server allows it, and marked as not read-only', async () => {
+    const asking = createServer({ api: fakeApi(), network: 'mainnet', version: '0', allowAsk: true });
+    const { tools } = resultOf(await asking.handle({ jsonrpc: '2.0', id: 1, method: 'tools/list' })) as {
+      tools: { name: string; annotations: { readOnlyHint: boolean } }[];
+    };
+    assert.equal(tools.length, 8);
+    assert.equal(tools.find((tool) => tool.name === 'minera_ask')?.annotations.readOnlyHint, false);
+    assert.equal((await call('minera_ask', { prompt: 'Hi' }) as { error: { code: number } }).error.code, -32602);
+  });
+
+  it('asks for a verified answer and waits until the rigs have settled it', async () => {
+    let sent: unknown;
+    const views = [
+      { id: 'g1', status: 'queued', verification: 'pending', output: null },
+      { id: 'g1', status: 'checking', verification: 'pending', output: null },
+      { id: 'g1', status: 'done', verification: 'verified', crossChecked: true, output: 'A GPU is a graphics processor.' },
+    ];
+    const api = fakeApi(async () => views.shift(), async (_path, body) => { sent = body; return { id: 'g1' }; });
+    const asking = createServer({ api, network: 'mainnet', version: '0', allowAsk: true, ask: { sleep: async () => undefined } });
+    const answer = resultOf(await asking.handle({ jsonrpc: '2.0', id: 9, method: 'tools/call', params: { name: 'minera_ask', arguments: { prompt: '  What is a GPU?  ' } } }));
+    assert.deepEqual(sent, { prompt: 'What is a GPU?', verify: true });
+    const view = answer['structuredContent'] as Record<string, unknown>;
+    assert.equal(view['verification'], 'verified');
+    assert.equal(view['output'], 'A GPU is a graphics processor.');
+    assert.equal(view['waitedUntilSettled'], true);
+  });
+
+  it('returns what is known when the answer takes too long', async () => {
+    let clock = 0;
+    const api = fakeApi(async () => ({ id: 'g1', status: 'running', verification: 'pending', output: null }));
+    const asking = createServer({
+      api, network: 'mainnet', version: '0', allowAsk: true,
+      ask: { timeoutMs: 10, intervalMs: 5, now: () => clock, sleep: async (ms) => { clock += ms; } },
+    });
+    const answer = resultOf(await asking.handle({ jsonrpc: '2.0', id: 9, method: 'tools/call', params: { name: 'minera_ask', arguments: { prompt: 'Slow?' } } }));
+    assert.equal((answer['structuredContent'] as Record<string, unknown>)['waitedUntilSettled'], false);
   });
 });

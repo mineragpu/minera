@@ -16,6 +16,10 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Verified prompts.** `POST /v1/playground/jobs` takes `"verify": true`, which sends the prompt to two
+  unrelated rigs every time, so its answer is always cross-checked.
+- **Agents can ask the network.** Started with `--allow-ask`, the MCP server offers `minera_ask`: it sends
+  a verified prompt, waits for both rigs and returns the answer with how it was checked.
 - **An MCP server for AI agents,** in `packages/mcp`: `minera-mcp` lets an agent read the network
   summary, the rigs, one rig, the Burn Pool, one settlement, a wallet's claims and Sentinel's counts
   through the Model Context Protocol. It is read-only: each tool maps onto one GET route of the public

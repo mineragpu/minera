@@ -27,6 +27,17 @@ describe('createApi', () => {
     });
   });
 
+  it('posts JSON for the one write it makes', async () => {
+    let init: RequestInit | undefined;
+    const api = createApi({
+      baseUrl: 'https://api.example',
+      fetch: (async (_url: URL, given?: RequestInit) => { init = given; return new Response(JSON.stringify({ id: 'g1' }), { status: 202 }); }) as typeof fetch,
+    });
+    assert.deepEqual(await api.post('/v1/playground/jobs', { prompt: 'Hi', verify: true }), { id: 'g1' });
+    assert.equal(init?.method, 'POST');
+    assert.equal(init?.body, JSON.stringify({ prompt: 'Hi', verify: true }));
+  });
+
   it('says when the service cannot be reached', async () => {
     const api = createApi({ baseUrl: 'https://api.example', fetch: (async () => { throw new TypeError('fetch failed'); }) as typeof fetch });
     await assert.rejects(api.get('/v1/network'), /could not be reached/);

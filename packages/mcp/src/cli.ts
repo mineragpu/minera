@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * `minera-mcp`: the read-only Minera MCP server on stdio. One JSON-RPC message per line in and
- * out; anything for people goes to stderr, so stdout carries only protocol messages.
+ * `minera-mcp`: the Minera MCP server on stdio. One JSON-RPC message per line in and out; anything
+ * for people goes to stderr, so stdout carries only protocol messages. It is read-only unless
+ * started with --allow-ask.
  *
- *   minera-mcp [--network mainnet|testnet] [--coordinator <https url>]
+ *   minera-mcp [--network mainnet|testnet] [--coordinator <https url>] [--allow-ask]
  */
 
 import { createInterface } from 'node:readline';
@@ -18,8 +19,14 @@ async function main(): Promise<void> {
     process.exitCode = options.code;
     return;
   }
-  const server = createServer({ api: createApi({ baseUrl: options.coordinator }), network: options.network, version: VERSION });
-  process.stderr.write(`minera-mcp ${VERSION}: ${options.network} through ${options.coordinator}\n`);
+  const server = createServer({
+    api: createApi({ baseUrl: options.coordinator }),
+    network: options.network,
+    version: VERSION,
+    allowAsk: options.allowAsk,
+  });
+  const mode = options.allowAsk ? 'reads and asks' : 'read-only';
+  process.stderr.write(`minera-mcp ${VERSION}: ${options.network} through ${options.coordinator}, ${mode}\n`);
   const lines = createInterface({ input: process.stdin, crlfDelay: Infinity });
   for await (const line of lines) {
     if (line.trim() === '') continue;

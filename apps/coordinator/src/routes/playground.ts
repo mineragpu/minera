@@ -18,6 +18,8 @@ const promptSchema = z.object({
     .trim()
     .min(1, 'Enter a prompt.')
     .max(MAX_PROMPT_CHARS, `Keep the prompt to ${MAX_PROMPT_CHARS} characters or fewer.`),
+  /** Send the prompt to two unrelated rigs every time, so its answer can be verified. */
+  verify: z.boolean().optional(),
 });
 
 interface PlaygroundJobView extends Omit<PlaygroundView, 'createdAt' | 'finishedAt'> {
@@ -31,10 +33,10 @@ export function registerPlaygroundRoutes(app: FastifyInstance, context: RouteCon
   const salt = config.sentinel.networkSalt.reveal();
 
   app.post('/v1/playground/jobs', { config: { rateLimit: PLAYGROUND_RATE_LIMIT } }, async (request, reply) => {
-    const { prompt } = parse(promptSchema, request.body, 'body');
+    const { prompt, verify } = parse(promptSchema, request.body, 'body');
     const id = await submitPlaygroundJob(
       store,
-      { ...config.playground, redundancyRate: config.redundancyRate },
+      { ...config.playground, redundancyRate: verify ? 1 : config.redundancyRate },
       prompt,
       clock(),
       random,
