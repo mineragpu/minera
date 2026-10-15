@@ -60,6 +60,7 @@ jobs:
           category: slither
 
       - name: Check every finding is fixed or reviewed
+        shell: bash
         run: node packages/contracts/analysis/check.mjs slither slither.json | tee -a "$GITHUB_STEP_SUMMARY"
 
   aderyn:
@@ -102,4 +103,5 @@ jobs:
           cat "$RUNNER_TEMP/aderyn.md" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Check every finding is fixed or reviewed
+        shell: bash
         run: node packages/contracts/analysis/check.mjs aderyn "$RUNNER_TEMP/aderyn.json" | tee -a "$GITHUB_STEP_SUMMARY"

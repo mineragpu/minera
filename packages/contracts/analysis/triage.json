@@ -42,14 +42,14 @@
   },
   {
     "tool": "aderyn",
-    "key": "unsafe-casting-operator:src/PairZap.sol:122",
+    "key": "unsafe-casting:src/PairZap.sol:122",
     "verdict": "False positive",
     "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
     "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
   },
   {
     "tool": "aderyn",
-    "key": "unsafe-casting-operator:src/PairZap.sol:123",
+    "key": "unsafe-casting:src/PairZap.sol:123",
     "verdict": "False positive",
     "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
     "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
