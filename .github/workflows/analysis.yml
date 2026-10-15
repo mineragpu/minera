@@ -1,0 +1,106 @@
+name: Static analysis
+
+# Two independent static analyzers read the contracts on every change. Slither's findings go to code
+# scanning; Aderyn's report is written to the run summary. Slither fails the run on a finding of
+# medium severity or higher, Aderyn on a high one.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  slither:
+    name: Slither
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+        with:
+          version: v1.8.3
+
+      - name: Build the contracts
+        working-directory: packages/contracts
+        run: |
+          forge soldeer install
+          forge build --build-info --skip test --skip script
+
+      - name: Run Slither
+        id: slither
+        uses: crytic/slither-action@b52cc1cbfee9ca3e8722dd5224299d16c9a6b80f # v0.4.2
+        with:
+          target: packages/contracts
+          ignore-compile: true
+          slither-version: 0.11.6
+          slither-config: packages/contracts/slither.config.json
+          sarif: results.sarif
+          fail-on: medium
+
+      - name: Upload the findings to code scanning
+        if: always() && steps.slither.outputs.sarif != ''
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
+          category: slither
+
+  aderyn:
+    name: Aderyn
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ADERYN_VERSION: v0.6.8
+      ADERYN_SHA256: ffd6ca658962e211a3ac821c646f69c8e14bf1b1001cbfe091bcd4535a691e46
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+        with:
+          version: v1.8.3
+
+      - name: Install dependencies
+        working-directory: packages/contracts
+        run: forge soldeer install
+
+      - name: Install Aderyn, checked against its pinned SHA-256
+        run: |
+          file=aderyn-x86_64-unknown-linux-gnu.tar.xz
+          curl -fsSL -o "$RUNNER_TEMP/$file" "https://github.com/Cyfrin/aderyn/releases/download/aderyn-$ADERYN_VERSION/$file"
+          echo "$ADERYN_SHA256  $RUNNER_TEMP/$file" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/aderyn"
+          tar -xJf "$RUNNER_TEMP/$file" -C "$RUNNER_TEMP/aderyn" --strip-components=1
+          echo "$RUNNER_TEMP/aderyn" >> "$GITHUB_PATH"
+
+      - name: Run Aderyn
+        working-directory: packages/contracts
+        run: |
+          aderyn --version
+          aderyn . --path-excludes test,script --output "$RUNNER_TEMP/aderyn.md"
+          aderyn . --path-excludes test,script --output "$RUNNER_TEMP/aderyn.json"
+          cat "$RUNNER_TEMP/aderyn.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail on a high finding
+        run: |
+          high=$(node -e 'const r=require(process.argv[1]);console.log(r.issue_count.high)' "$RUNNER_TEMP/aderyn.json")
+          echo "High findings: $high"
+          test "$high" -eq 0

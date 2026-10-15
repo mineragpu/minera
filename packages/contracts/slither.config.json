@@ -1,0 +1,6 @@
+{
+  "filter_paths": "(dependencies/|test/|script/)",
+  "exclude_dependencies": true,
+  "exclude_informational": true,
+  "exclude_optimization": true
+}
