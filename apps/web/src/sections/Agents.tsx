@@ -11,7 +11,6 @@ import { useMergedRef } from '../lib/useMergedRef.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import { useSheenFollow } from '../motion/useSheenFollow.ts';
 import { docPath } from '../pages/docs/manifest.ts';
-import { sectionPath } from '../router/routes.ts';
 import './ways-in.css';
 
 interface AgentWay {
@@ -51,13 +50,13 @@ const AGENT_WAYS: readonly AgentWay[] = [
   },
   {
     key: 'run',
-    label: 'Next',
-    title: 'Run a rig.',
-    body: 'An agent with its own wallet deploys a rig, keeps it serving the model the network asks for, watches its Sentinel standing and claims what it earned.',
-    tone: 'planned',
-    status: 'Next',
+    label: 'Run',
+    title: 'Rigs on autopilot.',
+    body: 'The node client keeps the model the network asks for installed, reports its Sentinel standing and claims for the operator. Next, agents deploy rigs of their own.',
+    tone: 'live',
+    status: 'Node client 1.1',
     color: 'var(--violet)',
-    action: { label: 'See the roadmap', href: sectionPath('roadmap') },
+    action: { label: 'See the autopilot', href: `${docPath('quickstart')}#autopilot` },
   },
 ];
 
