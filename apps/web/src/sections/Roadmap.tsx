@@ -49,8 +49,8 @@ const PHASES: readonly Phase[] = [
     items: [
       'An MCP server, so agents can read the network (in the repository)',
       'Verified asks: a prompt answered by two unrelated rigs (live)',
-      'Minera Brain, an agent that thinks on the network (next)',
-      'Agents that run rigs, and a paid API that agents can pay (planned)',
+      'Agents that run rigs: deploy, keep serving, claim (next)',
+      'A paid API that agents can pay (planned)',
     ],
   },
   {

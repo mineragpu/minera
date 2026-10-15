@@ -20,15 +20,9 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
   and every push to `main`. A finding of medium impact or higher fails the run unless it is fixed or
   reviewed in `packages/contracts/analysis/triage.json` with the reason it is not a bug and the tests
   that show it. The six reported so far are false positives or intended behaviour.
-- **Minera Brain, first version** (`packages/brain`, not on npm yet). `minera-brain report` drafts a
-  network report: the day's figures, read from the public API and formatted by code, as posts for X
-  (within 280 characters) and Telegram. With `--ask` it adds one sentence the network writes itself,
-  kept only when two unrelated rigs agreed on it and it has no figures, links or price talk. It posts
-  nothing: a person approves every draft, and a day with no rig online and no verified work is marked
-  to hold.
 - **An Agents section on the site,** between the playground and the ways in: what an agent can do
   with Minera today (read the network through the MCP server, ask for a verified answer) and what
-  comes next (Minera Brain), each marked as it stands. The roadmap adds an Agents phase.
+  comes next (agents that run rigs), each marked as it stands. The roadmap adds an Agents phase.
 - **Verified prompts.** `POST /v1/playground/jobs` takes `"verify": true`, which sends the prompt to two
   unrelated rigs every time, so its answer is always cross-checked.
 - **Agents can ask the network.** Started with `--allow-ask`, the MCP server offers `minera_ask`: it sends

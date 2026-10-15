@@ -5,11 +5,6 @@
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
-  "exports": {
-    "./api": "./src/api.ts",
-    "./tools": "./src/tools.ts",
-    "./server": "./src/server.ts"
-  },
   "bin": {
     "minera-mcp": "./src/cli.ts"
   },

@@ -50,10 +50,10 @@ const AGENT_WAYS: readonly AgentWay[] = [
     action: { label: 'Read the API', href: docPath('api') },
   },
   {
-    key: 'brain',
+    key: 'run',
     label: 'Next',
-    title: 'Minera Brain.',
-    body: "An agent that thinks on the network it lives on: open models served by Minera's rigs, every thought cross-checked by Sentinel, and no outside AI service.",
+    title: 'Run a rig.',
+    body: 'An agent with its own wallet deploys a rig, keeps it serving the model the network asks for, watches its Sentinel standing and claims what it earned.',
     tone: 'planned',
     status: 'Next',
     color: 'var(--violet)',
