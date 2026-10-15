@@ -5,7 +5,7 @@
 
 import { parseArgs } from 'node:util';
 import { isNetworkKey, type Address, type NetworkKey } from '@minera/shared';
-import { getAddress, isAddress } from 'viem';
+import { getAddress, isAddress, parseEther } from 'viem';
 import { DEFAULT_RUNTIME_URL } from './runtime.ts';
 import { MAX_CONCURRENCY } from './scheduler.ts';
 import { checkServiceUrl } from './url.ts';
@@ -20,6 +20,12 @@ export type Command =
       network: NetworkKey | null;
       runtimeUrl: string;
       concurrency: number;
+      /** Download the open-job model into the runtime when it is missing. */
+      keepModel: boolean;
+      /** Claim the operator's rewards once at least this much is claimable; null when off. */
+      autoClaimWei: bigint | null;
+      /** The chain endpoint for claims; null means the network's default. */
+      rpcUrl: string | null;
     }
   | { name: 'help' }
   | { name: 'version' };
@@ -48,6 +54,11 @@ Options:
   --coordinator <url>          With start: the coordinator's https URL, remembered per network.
   --runtime-url <url>          The local model runtime. Defaults to ${DEFAULT_RUNTIME_URL}.
   --concurrency <1-${MAX_CONCURRENCY}>          With start: how many jobs run at once. Defaults to 1.
+  --keep-model                 With start: download the model open jobs use when the runtime lacks it.
+  --auto-claim <eth>           With start: claim the operator's rewards once at least this much ETH is
+                               claimable. The node address pays the network fee; the ETH goes to the
+                               operator's wallet.
+  --rpc-url <url>              With --auto-claim: the chain's https endpoint. Defaults to the network's.
   --quiet, -q                  Print only results, warnings and errors.
   --json                       Print one JSON object per line.
   --version                    Print the client version.`;
@@ -59,6 +70,9 @@ const OPTIONS = {
   coordinator: { type: 'string' },
   'runtime-url': { type: 'string' },
   concurrency: { type: 'string' },
+  'keep-model': { type: 'boolean' },
+  'auto-claim': { type: 'string' },
+  'rpc-url': { type: 'string' },
   quiet: { type: 'boolean', short: 'q' },
   json: { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
@@ -72,7 +86,7 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly OptionName[]>> = {
   init: ['operator', 'network', 'force'],
   code: ['operator', 'network'],
   status: ['network', 'runtime-url'],
-  start: ['coordinator', 'network', 'runtime-url', 'concurrency'],
+  start: ['coordinator', 'network', 'runtime-url', 'concurrency', 'keep-model', 'auto-claim', 'rpc-url'],
   help: [],
 };
 
@@ -113,6 +127,18 @@ function parseConcurrency(value: string | undefined): number {
     throw new UsageError(`--concurrency must be a whole number from 1 to ${MAX_CONCURRENCY}.`);
   }
   return concurrency;
+}
+
+const MAX_CLAIM_THRESHOLD_WEI = 100n * 10n ** 18n;
+
+function parseClaimThreshold(value: string | undefined): bigint | null {
+  if (value === undefined) return null;
+  if (!/^\d{1,3}(\.\d{1,18})?$/.test(value)) {
+    throw new UsageError('--auto-claim must be an amount of ETH, such as 0.001.');
+  }
+  const wei = parseEther(value);
+  if (wei <= 0n || wei > MAX_CLAIM_THRESHOLD_WEI) throw new UsageError('--auto-claim must be more than 0 and at most 100 ETH.');
+  return wei;
 }
 
 function parseErrorMessage(error: unknown): string {
@@ -156,12 +182,18 @@ function toCommand(name: string, values: Partial<Record<OptionName, string | boo
       return { name, network: parseNetwork(text('network')), runtimeUrl };
     case 'start': {
       const coordinator = text('coordinator');
+      const autoClaimWei = parseClaimThreshold(text('auto-claim'));
+      const rpcUrl = text('rpc-url');
+      if (rpcUrl !== undefined && autoClaimWei === null) throw new UsageError('--rpc-url applies only with --auto-claim.');
       return {
         name,
         coordinator: coordinator === undefined ? null : parseUrl(coordinator, '--coordinator', true),
         network: parseNetwork(text('network')),
         runtimeUrl,
         concurrency: parseConcurrency(text('concurrency')),
+        keepModel: values['keep-model'] === true,
+        autoClaimWei,
+        rpcUrl: rpcUrl === undefined ? null : parseUrl(rpcUrl, '--rpc-url', true),
       };
     }
     default:

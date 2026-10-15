@@ -144,3 +144,39 @@ export async function chat(baseUrl: string, request: ChatRequest, signal: AbortS
     durationMs: totalNs > 0 ? Math.round(totalNs / 1_000_000) : Math.round(performance.now() - started),
   };
 }
+
+/** Whether `name` is a model name the client accepts from the runtime or the coordinator. */
+export function isModelName(name: unknown): name is string {
+  return typeof name === 'string' && MODEL_NAME.test(name);
+}
+
+/**
+ * Asks the runtime to download a model and resolves once it has. Used only when the operator starts
+ * the node with --keep-model; the client itself never downloads anything.
+ */
+export async function pullModel(baseUrl: string, model: string, signal: AbortSignal): Promise<void> {
+  if (!isModelName(model)) throw new RuntimeError('The model name is not one the client accepts.', null);
+  let response: Response;
+  try {
+    response = await fetch(endpoint(baseUrl, '/api/pull'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model, stream: false }),
+      signal,
+    });
+  } catch (error) {
+    if (signal.aborted) throw error;
+    throw new RuntimeError(`Could not reach the model runtime at ${baseUrl}.`, null);
+  }
+  if (!response.ok) throw new RuntimeError(await refusal(response), response.status);
+  let reply: unknown;
+  try {
+    reply = await response.json();
+  } catch (error) {
+    if (signal.aborted) throw error;
+    throw new RuntimeError('The model runtime sent a reply that is not JSON.', response.status);
+  }
+  if (!isRecord(reply) || reply['status'] !== 'success') {
+    throw new RuntimeError(`The model runtime did not finish downloading ${model}.`, response.status);
+  }
+}

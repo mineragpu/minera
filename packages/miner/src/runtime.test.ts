@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { startMockServer } from './mock-server.ts';
-import { RUNTIME_INTERFACE, detectRuntime, modelNames } from './runtime.ts';
+import { RUNTIME_INTERFACE, RuntimeError, detectRuntime, modelNames, pullModel } from './runtime.ts';
 
 describe('detectRuntime', () => {
   it('reports the version and the installed models', async () => {
@@ -73,5 +73,41 @@ describe('modelNames', () => {
     assert.deepEqual(modelNames({ models: names.map((name) => ({ name })) }), ['hf.co/team/model-GGUF:Q4_K_M', 'ok:1b']);
     const many = { models: Array.from({ length: 80 }, (_, i) => ({ name: `model-${i}:1b` })) };
     assert.equal(modelNames(many).length, 64);
+  });
+});
+
+describe('pullModel', () => {
+  const signal = new AbortController().signal;
+
+  it('asks the runtime for the model and waits until it reports success', async () => {
+    const asked: unknown[] = [];
+    const server = await startMockServer((request) => {
+      asked.push([request.method, request.url, JSON.parse(request.body.toString())]);
+      return { json: { status: 'success' } };
+    });
+    try {
+      await pullModel(server.url, 'llama3.2:1b', signal);
+      assert.deepEqual(asked, [['POST', '/api/pull', { model: 'llama3.2:1b', stream: false }]]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  it('fails when the runtime refuses or does not finish', async () => {
+    const server = await startMockServer((request) =>
+      JSON.parse(request.body.toString()).model === 'missing:1b'
+        ? { status: 500, json: { error: 'pull model manifest: file does not exist' } }
+        : { json: { status: 'downloading' } },
+    );
+    try {
+      await assert.rejects(pullModel(server.url, 'missing:1b', signal), /refused the request \(HTTP 500: pull model manifest/);
+      await assert.rejects(pullModel(server.url, 'alpha:7b', signal), /did not finish downloading alpha:7b/);
+    } finally {
+      await server.close();
+    }
+  });
+
+  it('never sends a name it would not accept', async () => {
+    await assert.rejects(pullModel('http://127.0.0.1:9', '../x; rm', signal), RuntimeError);
   });
 });

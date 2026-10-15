@@ -53,8 +53,30 @@ describe('parseCommandLine', () => {
       network: null,
       runtimeUrl: 'http://127.0.0.1:11434',
       concurrency: 1,
+      keepModel: false,
+      autoClaimWei: null,
+      rpcUrl: null,
     });
     assert.equal((command(['start']) as { coordinator: string | null }).coordinator, null);
+  });
+
+  it('reads the autopilot options for start', () => {
+    const start = command(['start', '--keep-model', '--auto-claim', '0.0015', '--rpc-url', 'https://rpc.example/']);
+    assert.deepEqual(
+      { keepModel: (start as { keepModel: boolean }).keepModel, autoClaimWei: (start as { autoClaimWei: bigint }).autoClaimWei, rpcUrl: (start as { rpcUrl: string }).rpcUrl },
+      { keepModel: true, autoClaimWei: 1_500_000_000_000_000n, rpcUrl: 'https://rpc.example' },
+    );
+  });
+
+  it('bounds the auto-claim amount and its endpoint', () => {
+    assert.match(error(['start', '--auto-claim', '0']), /more than 0/);
+    assert.match(error(['start', '--auto-claim', '101']), /at most 100 ETH/);
+    assert.match(error(['start', '--auto-claim', '1e18']), /amount of ETH/);
+    assert.match(error(['start', '--auto-claim', '-1']), /needs a value|amount of ETH/);
+    assert.match(error(['start', '--auto-claim', '0.0000000000000000001']), /amount of ETH/);
+    assert.match(error(['start', '--rpc-url', 'https://rpc.example']), /only with --auto-claim/);
+    assert.match(error(['start', '--auto-claim', '0.01', '--rpc-url', 'http://rpc.example']), /must use https/);
+    assert.match(error(['status', '--keep-model']), /does not apply to status/);
   });
 
   it('requires https for a remote coordinator', () => {

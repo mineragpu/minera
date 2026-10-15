@@ -9,8 +9,8 @@ the node key, deploy the rig from your wallet, then start the node.
   driver version from the GPU driver's command-line management tool when it is on your `PATH`.
   Without it, the node reports no GPU and still runs. The reported GPU is informational.
 - **A local model runtime** compatible with the `/api/chat` interface, running on this machine
-  (`http://127.0.0.1:11434` by default), with at least one model downloaded. The node client never
-  downloads models itself.
+  (`http://127.0.0.1:11434` by default), with at least one model downloaded. The node client downloads a model only when you start it
+  with `--keep-model` (see [Autopilot](#autopilot)).
 - **Node.js 22 or later**, with npm.
 - **A browser wallet on {{network.chainName}}** with a little ETH for the network fee. This
   wallet becomes the rig's operator: it deploys the rig and receives its rewards.
@@ -102,11 +102,39 @@ If the coordinator cannot be reached, the node retries with a delay that doubles
 | `--coordinator <url>` | `start` | The coordinator URL, remembered per network. |
 | `--runtime-url <url>` | `status`, `start` | The model runtime. Defaults to `http://127.0.0.1:11434`. |
 | `--concurrency <1-4>` | `start` | How many jobs run at once. Defaults to 1. |
+| `--keep-model` | `start` | Download the model open jobs use when the runtime does not have it. |
+| `--auto-claim <eth>` | `start` | Claim the operator's rewards once at least this much ETH is claimable. |
+| `--rpc-url <url>` | `start` | With `--auto-claim`: the chain's https endpoint. Defaults to the network's. |
 | `--quiet`, `-q` | all | Print only results, warnings and errors. |
 | `--json` | all | Print one JSON object per line. |
 
 The coordinator assigns a rig at most two jobs at a time, so a concurrency above 2 adds nothing
 today.
+
+## Autopilot
+
+The node can do the chores an operator, or an agent acting for one, would otherwise do by hand:
+
+```sh
+rig start --keep-model --auto-claim 0.001
+```
+
+Every 10 minutes while it runs, it:
+
+- **reports the rig's standing** with [Sentinel](sentinel.md) and says when it changes, with a
+  warning when the rig is quarantined;
+- **with `--keep-model`, keeps the model installed.** It reads `jobs.model` from
+  [`GET /v1/network`](api.md#get-v1-network) and asks the runtime to download it when it is missing,
+  also once before the node starts. The coordinator names the model; the runtime downloads it from
+  its own registry;
+- **with `--auto-claim <eth>`, claims for the operator** once at least that much ETH is claimable.
+  It reads the claim and its proof from [`GET /v1/claims/:account`](api.md#get-v1-claims-account)
+  and calls the Burn Pool's `claim`. The pool pays the operator's wallet whoever sends the call, so
+  the node key only pays the network fee and cannot send the ETH anywhere else. Send the node
+  address a little ETH for fees. Each claim is simulated first, so one the pool would refuse is not
+  sent, and the node says why.
+
+Auto-claim pays in ETH. To receive a tokenized stock instead, claim on the [Claim page](/claim).
 
 ## Stop the node
 

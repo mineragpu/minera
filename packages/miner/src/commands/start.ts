@@ -4,12 +4,14 @@
 
 import { BRAND, CHAINS, resolveCoordinator } from '@minera/shared';
 import type { Command } from '../args.ts';
+import { ensureModel, runAutopilot, type AutopilotOptions } from '../autopilot.ts';
+import { createClaimSender } from '../claim.ts';
 import { CoordinatorError, createCoordinatorClient } from '../client.ts';
 import { describeGpu } from '../gpu.ts';
 import { isKeyFileShared, loadNodeKey } from '../keystore.ts';
 import { runNode } from '../loop.ts';
 import { createJobRunner } from '../runner.ts';
-import { detectRuntime } from '../runtime.ts';
+import { detectRuntime, pullModel } from '../runtime.ts';
 import { readSettings, writeSettings } from '../settings.ts';
 import { checkServiceUrl } from '../url.ts';
 import { CLIENT_VERSION } from '../version.ts';
@@ -52,7 +54,8 @@ export async function startCommand(
     writeSettings(paths.settings, { ...settings, coordinators: { ...settings.coordinators, [network]: coordinator } });
   }
 
-  const [gpu, runtime] = await Promise.all([context.detectGpu(), detectRuntime(command.runtimeUrl)]);
+  const [gpu, detected] = await Promise.all([context.detectGpu(), detectRuntime(command.runtimeUrl)]);
+  let runtime = detected;
   if (gpu === null) {
     logger.warn('No GPU detected. The node still runs, and the benchmark measures what this machine can do.');
   } else {
@@ -64,6 +67,42 @@ export async function startCommand(
         '/api/chat interface, start it on port 11434 and download at least one model.',
     );
     return EXIT.noRuntime;
+  }
+  const autopilot: AutopilotOptions | null =
+    command.keepModel || command.autoClaimWei !== null
+      ? {
+          coordinator,
+          nodeAddress: key.address,
+          logger,
+          keepModel: command.keepModel
+            ? {
+                listModels: async () => (await detectRuntime(command.runtimeUrl))?.models ?? null,
+                pull: (model, signal) => pullModel(command.runtimeUrl, model, signal),
+              }
+            : null,
+          claim:
+            command.autoClaimWei === null
+              ? null
+              : {
+                  minWei: command.autoClaimWei,
+                  send: createClaimSender({
+                    network,
+                    rpcUrl: command.rpcUrl ?? CHAINS[network].rpcUrls[0] ?? '',
+                    account: key.account,
+                  }),
+                },
+        }
+      : null;
+  if (autopilot?.keepModel) {
+    try {
+      await ensureModel(autopilot, AbortSignal.timeout(60 * 60_000));
+      runtime = (await detectRuntime(command.runtimeUrl)) ?? runtime;
+    } catch (error) {
+      logger.warn(`Could not make sure the open-job model is installed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  if (autopilot?.claim) {
+    logger.info(`Autopilot claims for the operator once the claimable amount reaches the threshold. The node address ${key.address} pays the network fee.`);
   }
   if (runtime.models.length === 0) {
     logger.warn('The model runtime has no models yet. Download at least one so the node can take jobs.');
@@ -90,6 +129,9 @@ export async function startCommand(
     }
   });
 
+  const pilotStop = new AbortController();
+  const pilot = autopilot === null ? Promise.resolve() : runAutopilot(autopilot, AbortSignal.any([stop.signal, pilotStop.signal]));
+
   try {
     await runNode({
       client: createCoordinatorClient({
@@ -114,6 +156,8 @@ export async function startCommand(
     logger.error(`${error.message}${refusalHint(error)}`, { status: error.status });
     return EXIT.failure;
   } finally {
+    pilotStop.abort();
+    await pilot;
     unsubscribe();
   }
   logger.info('Stopped.');

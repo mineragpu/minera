@@ -131,6 +131,12 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
 - **A rig's pair is a default, not a rule.** Rewards are counted in ETH per operator wallet. The
   Claim page defaults to the pair of the wallet's rigs and always offers ETH, but the contracts do
   not enforce the pair: the account can call `claimVia` with any asset the pair zap routes.
+- **With `--auto-claim`, the node key holds a little ETH.** It pays the network fee for claims.
+  Anyone who copies the key can spend that ETH, but cannot redirect rewards: the Burn Pool pays the
+  account in the proof whoever sends the claim. Keep only what a few claims cost on the node address.
+- **With `--keep-model`, the coordinator chooses a download.** The node asks the runtime to download
+  the model named in `jobs.model`, after checking the name. The runtime fetches it from its own
+  registry.
 - **Playground prompts are not private.** Prompts go to rigs run by independent operators, who can
   read them.
 - **The node key is stored unencrypted,** in a file only your user can read on systems that

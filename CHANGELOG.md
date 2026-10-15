@@ -16,6 +16,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Autopilot for rigs.** `rig start --keep-model` downloads the model open jobs use when the runtime
+  lacks it, and `rig start --auto-claim <eth>` claims the operator's rewards once at least that much is
+  claimable: the node address pays the network fee and the Burn Pool pays the operator's wallet.
+  While it runs, the node also reports its Sentinel standing and each change to it. `--rpc-url`
+  picks the chain endpoint for claims.
 - **Security analysis on every change.** Slither and Aderyn read the contracts on every pull request
   and every push to `main`. A finding of medium impact or higher fails the run unless it is fixed or
   reviewed in `packages/contracts/analysis/triage.json` with the reason it is not a bug and the tests
