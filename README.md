@@ -236,6 +236,7 @@ apps/
 packages/
   shared/         brand, chain config, mining math, merkle, shared types
   miner/          the node client
+  mcp/            read-only MCP server, so AI agents can read the network
   contracts/      Burn Pool, rig registry, pair swaps
 docs/             documentation, rendered by the site
 ops/              deployment configuration

@@ -16,6 +16,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **An MCP server for AI agents,** in `packages/mcp`: `minera-mcp` lets an agent read the network
+  summary, the rigs, one rig, the Burn Pool, one settlement, a wallet's claims and Sentinel's counts
+  through the Model Context Protocol. It is read-only: each tool maps onto one GET route of the public
+  API, with its arguments checked against a schema first, and it adds no dependency beyond the schema
+  library the coordinator already uses. CI builds the package and smoke-tests it.
 - **Stock pairs for mainnet, prepared.** `script/DeployZap.s.sol` deploys a pair zap next to an
   existing Burn Pool and rig registry, with the routes in `deploy/mainnet-zap.json`: four tokenized
   stocks, each through a hookless pool against native ETH with real liquidity, and the chain's stock

@@ -53,7 +53,7 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm test --workspace @minera/shared --workspace @minera/coordinator --workspace @minera-gpu/miner
+        run: npm test --workspace @minera/shared --workspace @minera/coordinator --workspace @minera-gpu/miner --workspace @minera-gpu/mcp
 
       - name: Build
         run: npm run build --workspace @minera/web
@@ -65,6 +65,14 @@ jobs:
           npm pack --dry-run
           node bin/rig.js --version
           node bin/rig.js help
+
+      - name: Build and smoke-test the MCP server package
+        run: |
+          npm run build --workspace @minera-gpu/mcp
+          cd packages/mcp/dist
+          npm pack --dry-run
+          node bin/minera-mcp.js --version
+          echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | node bin/minera-mcp.js | grep -q '"minera_network"'
 
   contracts:
     name: Contracts
