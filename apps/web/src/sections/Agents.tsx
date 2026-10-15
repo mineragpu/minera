@@ -98,7 +98,7 @@ export function Agents({ index }: { index: string }) {
           </h2>
         </div>
         <p className="lede">
-          AI agents can read Minera and ask it questions today. Next is an agent that thinks on the network itself.
+          AI agents can read Minera and ask it questions today. Next, agents run rigs of their own.
         </p>
       </div>
       <div className="ways section-body">
