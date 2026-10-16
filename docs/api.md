@@ -260,9 +260,9 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
   "claimableAt": "2026-09-29T11:31:00.000Z",
   "epochs": { "from": 497408, "to": 497410 },
   "inputsDigest": "0xdddd…",
-  "inputsJson": "{\"version\":2,\"chainId\":{{network.chainId}},…}",
+  "inputsJson": "{\"version\":3,\"chainId\":{{network.chainId}},…}",
   "inputs": {
-    "version": 2,
+    "version": 3,
     "chainId": {{network.chainId}},
     "burnPool": "0x…",
     "previousIndex": 0,
@@ -271,16 +271,18 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
     "epochSeconds": 3600,
     "poolBlock": "126089990",
     "poolTimestamp": "1790679655",
-    "budget": "300000000000000",
+    "budget": "96000000000000",
+    "releaseBudget": "300000000000000",
+    "maxWeiPerUnit": "100000000000",
     "work": [{ "nodeKey": "0x1111…", "account": "0x2222…", "verified": "960", "units": "960" }],
-    "allocation": [{ "account": "0x2222…", "amount": "300000000000000" }],
-    "entitlements": [{ "account": "0x2222…", "cumulative": "300000000000000" }]
+    "allocation": [{ "account": "0x2222…", "amount": "96000000000000" }],
+    "entitlements": [{ "account": "0x2222…", "cumulative": "96000000000000" }]
   },
   "tree": {
     "format": "standard-v1",
     "leafEncoding": ["address", "uint256"],
     "tree": ["0x…"],
-    "values": [{ "value": ["0x2222…", "300000000000000"], "treeIndex": 0 }]
+    "values": [{ "value": ["0x2222…", "96000000000000"], "treeIndex": 0 }]
   },
   "howToVerify": "Rebuilding `tree` must give `root`: …"
 }
@@ -290,6 +292,9 @@ its digest, and the full Merkle tree. Answers `404 settlement_not_found` for an 
 - In `work`, `verified` is a rig's verified units over the epochs and `units` the units it is
   paid for after Sentinel weighs them by standing. The split uses `units`. Settlements built
   before Sentinel carry version 1, with `units` only.
+- `releaseBudget` is what the pool's release limit allowed. `budget`, the reward this settlement
+  adds, is that amount capped at `maxWeiPerUnit` for every paid unit (`"0"` means no cap); the rest
+  stays in the pool. Version 2 documents, built before the cap, carry `budget` only.
 - `inputsDigest`, `inputsJson`, `inputs` and `tree` are `null` for a settlement this coordinator did
   not build.
 - [Verification and rewards](verification-and-rewards.md#check-a-settlement-yourself) explains the

@@ -48,6 +48,12 @@ describe('loadConfig', () => {
     assert.throws(() => loadConfig({}), /DATABASE_URL/);
   });
 
+  it('caps each paid unit at 0.0000001 ETH unless told otherwise', () => {
+    assert.equal(loadConfig({ DATABASE_URL }).rewardMaxWeiPerUnit, '100000000000');
+    assert.equal(loadConfig({ DATABASE_URL, REWARD_MAX_WEI_PER_UNIT: '0' }).rewardMaxWeiPerUnit, '0');
+    assert.throws(() => loadConfig({ DATABASE_URL, REWARD_MAX_WEI_PER_UNIT: '0.1' }), /REWARD_MAX_WEI_PER_UNIT/);
+  });
+
   it('loads each network with its own recorded deployment', () => {
     for (const network of ['testnet', 'mainnet'] as const) {
       const config = loadConfig({ DATABASE_URL, NETWORK: network });

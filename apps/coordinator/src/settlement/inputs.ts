@@ -6,7 +6,7 @@ import type { Address, Hex } from '@minera/shared';
  * the document itself is served in full, so anyone can redo the computation and compare.
  */
 export interface SettlementInputs {
-  version: 2;
+  version: 3;
   chainId: number;
   burnPool: Address;
   /** The settlement these entitlements build on; 0 before the first. */
@@ -17,8 +17,12 @@ export interface SettlementInputs {
   /** The pool block the budget was read at, and that block's timestamp. */
   poolBlock: string;
   poolTimestamp: string;
-  /** New reward released by this settlement, in wei. */
+  /** New reward released by this settlement, in wei: the release budget, capped per paid unit. */
   budget: string;
+  /** What the pool's release limit allowed this settlement to add, in wei. */
+  releaseBudget: string;
+  /** The most one paid unit could earn, in wei; "0" means no limit. */
+  maxWeiPerUnit: string;
   /**
    * Per rig over the epoch range: the account it pays, its verified units, and the units paid for
    * after Sentinel's weighting (half on probation, nothing in a quarantined epoch). The split uses

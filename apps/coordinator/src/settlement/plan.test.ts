@@ -70,6 +70,30 @@ describe('planSettlement', () => {
     assert.equal(plan.draft.root, buildSettlement(cumulative).root);
   });
 
+  it('pays each unit at most the cap, leaving the rest of the release in the pool', () => {
+    // 100 paid units at 0.01 ETH each is 1 ETH, well under the 10 ETH the release limit allows.
+    const plan = publish(planSettlement(input({ maxWeiPerUnit: ETH / 100n })));
+    assert.equal(plan.budget, 1n * ETH);
+    const cumulative = new Map(plan.draft.entitlements.map((entry) => [entry.account, entry.cumulative]));
+    assert.equal(cumulative.get(OPERATOR_A), (4n * ETH) / 10n);
+    assert.equal(cumulative.get(OPERATOR_B), (6n * ETH) / 10n);
+    assert.equal(plan.draft.total, 1n * ETH);
+    const inputs = JSON.parse(plan.draft.inputs);
+    assert.deepEqual([inputs.version, inputs.budget, inputs.releaseBudget, inputs.maxWeiPerUnit], [3, String(ETH), String(10n * ETH), String(ETH / 100n)]);
+  });
+
+  it('never pays more than the release limit, whatever the cap', () => {
+    const plan = publish(planSettlement(input({ maxWeiPerUnit: 1n * ETH })));
+    assert.equal(plan.budget, 10n * ETH);
+    assert.equal(plan.draft.total, 10n * ETH);
+  });
+
+  it('releases the whole budget when no cap is set', () => {
+    const plan = publish(planSettlement(input({ maxWeiPerUnit: 0n })));
+    assert.equal(plan.budget, 10n * ETH);
+    assert.equal(JSON.parse(plan.draft.inputs).maxWeiPerUnit, '0');
+  });
+
   it('publishes a digest of the exact inputs document', () => {
     const plan = publish(planSettlement(input()));
     assert.equal(plan.draft.inputsDigest, keccak256(toBytes(plan.draft.inputs)));

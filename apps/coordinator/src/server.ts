@@ -176,6 +176,7 @@ async function start(config: Config): Promise<void> {
           epochSeconds: config.epochSeconds,
           chainId: config.chain.id,
           burnPool: deployment.burnPool,
+          maxWeiPerUnit: BigInt(config.rewardMaxWeiPerUnit),
         });
         logSettlement(log, outcome);
         return nextRoundDelay(outcome, new Date(), config.epochSeconds);

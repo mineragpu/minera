@@ -5,6 +5,14 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+### Changed
+
+- **Each paid unit earns at most 0.0000001 ETH per settlement.** The budget a settlement releases is
+  the release limit capped at that rate for every paid unit, so a quiet hour cannot hand the whole
+  release to a little work; the rest stays in the Burn Pool. The inputs document (now version 3)
+  records the release budget and the cap, so anyone can still redo the split. `REWARD_MAX_WEI_PER_UNIT`
+  sets the rate; `0` turns the cap off.
+
 ### Added
 
 - **Token supply on the API.** `GET /v1/token` reports the $MNRA supply read from the chain at one

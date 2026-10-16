@@ -90,7 +90,10 @@ About a minute after each epoch ends, the coordinator builds the next settlement
 completed since the last one.
 
 1. **Budget.** It reads the Burn Pool at its latest block and takes what the
-   [release limit](burn-pool.md#the-release-limit) allows on top of what is already committed.
+   [release limit](burn-pool.md#the-release-limit) allows on top of what is already committed,
+   capped at 0.0000001 ETH for every paid unit in the settlement. A quiet hour therefore cannot hand
+   the whole release to a little work: what the cap leaves out stays in the pool for later
+   settlements. The cap and the release limit are both recorded in the settlement's inputs.
 2. **Split.** It divides the budget across operator wallets in proportion to their paid units:
    verified units weighed by each rig's [standing](sentinel.md#5-reputation), in full for a trusted
    rig, half on probation, and nothing for an epoch in which the rig was quarantined. Each share is

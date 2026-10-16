@@ -29,6 +29,8 @@ export interface PlanInput {
   chainId: number;
   burnPool: Address;
   epochSeconds: number;
+  /** The most one paid unit can earn, in wei; 0 or absent means no limit. */
+  maxWeiPerUnit?: bigint;
   createdAt: Date;
 }
 
@@ -61,7 +63,8 @@ function byAddress<T extends { account: Address }>(a: T, b: T): number {
 /**
  * Decide the next settlement from chain state and verified work, as a pure function.
  *
- * The budget is what the pool's release limit adds since the head settlement. It is split across
+ * The budget is what the pool's release limit adds since the head settlement, capped at a fixed
+ * amount per paid unit when one is set. It is split across
  * operator accounts by verified units, added to the head's cumulative entitlements, and built into
  * the tree the pool verifies. The total is checked against the release limit before anything is
  * returned for publishing.
@@ -83,12 +86,19 @@ export function planSettlement(input: PlanInput): SettlementPlan {
   }
 
   const state = poolState(pool);
-  const budget = blockBudget(state, now);
-  if (budget <= 0n) return skip('the release budget is zero');
+  const releaseBudget = blockBudget(state, now);
+  if (releaseBudget <= 0n) return skip('the release budget is zero');
   const records = input.work
     .filter((entry) => entry.units > 0n)
     .map((entry) => ({ account: entry.operator, units: entry.units }));
   if (records.length === 0) return skip('there is no paid work to settle');
+
+  // Each paid unit earns at most maxWeiPerUnit, so a quiet hour cannot hand the whole release to a
+  // little work; what is not paid stays in the pool for later settlements.
+  const maxWeiPerUnit = input.maxWeiPerUnit ?? 0n;
+  const paidUnits = records.reduce((sum, record) => sum + record.units, 0n);
+  const earned = paidUnits * maxWeiPerUnit;
+  const budget = maxWeiPerUnit > 0n && earned < releaseBudget ? earned : releaseBudget;
 
   const allocation = allocate(budget, records);
   if (allocation.size === 0) return skip('the budget is too small to pay any account');
@@ -105,7 +115,7 @@ export function planSettlement(input: PlanInput): SettlementPlan {
   }
 
   const inputs: SettlementInputs = {
-    version: 2,
+    version: 3,
     chainId: input.chainId,
     burnPool: input.burnPool.toLowerCase() as Address,
     previousIndex: headIndex,
@@ -115,6 +125,8 @@ export function planSettlement(input: PlanInput): SettlementPlan {
     poolBlock: pool.blockNumber.toString(),
     poolTimestamp: now.toString(),
     budget: budget.toString(),
+    releaseBudget: releaseBudget.toString(),
+    maxWeiPerUnit: maxWeiPerUnit.toString(),
     work: [...input.work]
       .sort((a, b) => (a.nodeKey < b.nodeKey ? -1 : a.nodeKey > b.nodeKey ? 1 : 0))
       .map((entry) => ({

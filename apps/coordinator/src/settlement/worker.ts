@@ -18,6 +18,8 @@ export interface SettlementWorkerDeps {
   epochSeconds: number;
   chainId: number;
   burnPool: Address;
+  /** The most one paid unit can earn in a settlement, in wei; 0 means no limit. Defaults to none. */
+  maxWeiPerUnit?: bigint;
 }
 
 export type SettleOutcome =
@@ -118,6 +120,7 @@ export async function settleOnce(deps: SettlementWorkerDeps): Promise<SettleOutc
     chainId: deps.chainId,
     burnPool: deps.burnPool,
     epochSeconds: deps.epochSeconds,
+    maxWeiPerUnit: deps.maxWeiPerUnit ?? 0n,
     createdAt: now,
   });
   if (plan.kind === 'skip') return { kind: 'skipped', reason: plan.reason };
