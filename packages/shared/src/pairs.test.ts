@@ -36,9 +36,11 @@ describe('PAIR_LISTINGS', () => {
   // The app lists the stocks a deployed zap routes. A network's deploy config holds the routes of
   // the zap deployed with its contracts; a separate `<network>-zap.json` holds a zap deployed
   // later, and it replaces the first only once DEPLOYMENTS records it. Until then it lists nothing.
+  // Configs without routes, such as a work bond's, describe no zap and are left out.
   const configs = readdirSync(deployConfigs)
     .filter((file) => file.endsWith('.json'))
-    .map((name) => ({ name, config: JSON.parse(readFileSync(new URL(name, deployConfigs), 'utf8')) }));
+    .map((name) => ({ name, config: JSON.parse(readFileSync(new URL(name, deployConfigs), 'utf8')) }))
+    .filter(({ config }) => Array.isArray(config.routes));
   const routesOf = (config: { routes: { asset: string }[] }) =>
     config.routes.map((route) => route.asset.toLowerCase()).sort();
   const zapIsDeployed = (chainId: number) => (DEPLOYMENTS[chainId]?.pairZap ?? ETH_PAIR) !== ETH_PAIR;

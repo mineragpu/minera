@@ -31,6 +31,17 @@
     ]
   },
   {
+    "tool": "slither",
+    "key": "unused-return:RigBond._requireOperator(address,bool)",
+    "verdict": "False positive",
+    "reason": "`registry.rigs` returns the operator, the pair, the deploy time and whether the rig is retired. Who may bond a rig depends only on its operator and on whether it is retired, so those two are read and checked; the pair and the deploy time have no bearing on it.",
+    "evidence": [
+      "test/RigBond.t.sol: test_RevertWhen_SomeoneElseBonds",
+      "test/RigBond.t.sol: test_RevertWhen_TheRigIsUnknown",
+      "test/RigBond.t.sol: test_RevertWhen_BondingARetiredRig"
+    ]
+  },
+  {
     "tool": "aderyn",
     "key": "contract-locks-ether:src/PairZap.sol:17",
     "verdict": "False positive",
@@ -45,13 +56,17 @@
     "key": "unsafe-casting:src/PairZap.sol:122",
     "verdict": "False positive",
     "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
-    "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
+    "evidence": [
+      "test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"
+    ]
   },
   {
     "tool": "aderyn",
     "key": "unsafe-casting:src/PairZap.sol:123",
     "verdict": "False positive",
     "reason": "`deliver` reverts with `AmountTooLarge` when `msg.value` or `minOut` exceeds `type(uint128).max`, before this cast, so it cannot truncate.",
-    "evidence": ["test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"]
+    "evidence": [
+      "test/PairZap.t.sol: test_RevertWhen_MinimumDoesNotFitTheSwap"
+    ]
   }
 ]
