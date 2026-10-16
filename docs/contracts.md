@@ -218,3 +218,23 @@ Converts a claim's ETH into a listed stock token and delivers it. See
 | `RecipientBlocked(account)` | The account is on the stock token registry's blocklist. |
 | `InsufficientOutput(received, minimum)` | The swap delivered less than the minimum. |
 | `ZeroAddress()`, `DuplicateRoute(asset)` | Invalid routes were given at deployment. |
+
+## Work bond
+
+`RigBond` lets an operator lock ETH behind a rig. It is written and tested, with tests covering
+every line and branch, but it is **not deployed yet** and has not been through an audit round. Its
+parameters for mainnet are in `packages/contracts/deploy/mainnet-bond.json`: a minimum bond of
+0.005 ETH and an unbonding delay of 7 days. Once it is deployed, the coordinator can require a bond
+before a rig is paid for open work, so every extra rig an operator runs costs a bond.
+
+| Function | Who | What it does |
+|---|---|---|
+| `bond(address nodeKey)` | The rig's operator | Adds the ETH sent to the rig's bond. Adding cancels a pending unbond. Refused for a retired rig. |
+| `requestUnbond(address nodeKey)` | The rig's operator | The bond stops counting at once and can be withdrawn after the unbonding delay. |
+| `withdraw(address nodeKey)` | The rig's operator | After the delay, sends the whole bond to the operator. |
+| `slash(address nodeKey, uint256 amount, bytes32 reason)` | The guardian | Takes part or all of a bond, active or unbonding, and burns it into the Burn Pool with the reason as its memo. The guardian never receives it. |
+| `isBonded(address nodeKey)` | Anyone | Whether the bond is at least the minimum and not unbonding. |
+
+The unbonding delay is what makes the bond hold: a rig cannot cheat and withdraw in the same
+breath, because its bond stays slashable until the delay has passed. Slashed ETH pays honest rigs
+through the Burn Pool. The contract has no owner and cannot be upgraded.

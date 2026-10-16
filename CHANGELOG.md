@@ -20,6 +20,12 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **A work bond contract, not deployed yet.** `RigBond` lets an operator lock ETH behind a rig. Leaving
+  takes an unbonding delay during which the guardian can still slash the bond, and slashed ETH is
+  burned into the Burn Pool, never paid to the guardian. `script/DeployBond.s.sol` deploys it with the
+  parameters in `deploy/<network>-bond.json` (0.005 ETH minimum and 7 days on mainnet) and refuses a
+  config whose guardian is not the pool's. Tests cover every line and branch.
+
 - **Token supply on the API.** `GET /v1/token` reports the $MNRA supply read from the chain at one
   block: max, total (minted less the burn address), circulating (total less the project wallet), the
   burn and non-circulating addresses and their balances. `/v1/token/total-supply`,

@@ -1,0 +1,9 @@
+{
+  "chainId": 4663,
+  "registry": "0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1",
+  "burnPool": "0xa9f0BaB0AE7cc4A7B605D831d57A3A2a0E7921D8",
+  "guardian": "0x90F4B2B88C3459555977B153ebA6BACB4420EADA",
+  "minBond": 5000000000000000,
+  "unbondDelay": 604800,
+  "slashCampaign": 0
+}
