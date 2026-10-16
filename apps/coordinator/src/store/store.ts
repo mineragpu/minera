@@ -112,6 +112,10 @@ export interface WorkStore {
    * which a rig was quarantined pay nothing.
    */
   verifiedByRig(fromEpoch: number, toEpoch: number): Promise<RigWork[]>;
+  /** Paid units already granted in an epoch against a limit, keyed by what it limits. */
+  limitUsed(key: string, epoch: number): Promise<bigint>;
+  /** Count paid units granted in an epoch against a limit. */
+  useLimit(key: string, epoch: number, units: bigint): Promise<void>;
 }
 
 export type TallyOutcome = 'passed' | 'blocked';

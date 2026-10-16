@@ -120,6 +120,9 @@ your wallet asks you to confirm each one. Compare the addresses your wallet show
   settles disagreements with a third rig. Operators who rent rigs in different networks and agree on
   answers in advance can still pass a cross-check between them; canaries and tiebreaks are what
   catch them over time. Operator wallets are not tied to identities, and there is no stake yet.
+  What such a group can take is bounded: each paid unit earns at most 0.0000001 ETH, one prompt
+  source and one pair of rigs can each earn at most 2,000 paid units an epoch, and the pool releases
+  at most 10% of its balance a day.
 - **Work units are estimates.** One unit per four characters of output, not a tokenizer count.
 - **Reported hardware is not trusted.** The GPU a node reports is informational. Sentinel times
   answers instead, and card ids only keep rigs apart.

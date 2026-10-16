@@ -267,6 +267,17 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       ]);
     });
 
+    it('counts paid units granted against a limit per key and epoch', async () => {
+      assert.equal(await store.work.limitUsed('origin:abc', 7), 0n);
+      await store.work.useLimit('origin:abc', 7, 40n);
+      await store.work.useLimit('origin:abc', 7, 2n);
+      await store.work.useLimit('origin:abc', 8, 5n);
+      await store.work.useLimit('pair:a:b', 7, 9n);
+      assert.equal(await store.work.limitUsed('origin:abc', 7), 42n);
+      assert.equal(await store.work.limitUsed('origin:abc', 8), 5n);
+      assert.equal(await store.work.limitUsed('pair:a:b', 7), 9n);
+    });
+
     it('credits work per epoch and sums it per rig with its operator', async () => {
       await store.work.credit(RIG_1, 3, { verified: 10, unverified: 4, paid: 5 });
       await store.work.credit(RIG_1, 3, { verified: 5, unverified: 0, paid: 5 });

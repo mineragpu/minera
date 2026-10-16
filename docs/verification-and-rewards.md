@@ -78,6 +78,20 @@ refused.
 The token counts and duration a node reports are kept for its own logs and never used for
 payment.
 
+## Limits on paid work
+
+Verified work on a visitor's prompt is paid within two limits per epoch, so no single source can
+steer the rewards:
+
+- **Per prompt source.** Prompts from one network (the sender's /24 for IPv4, /48 for IPv6) can earn
+  rigs at most 2,000 paid units an epoch in total.
+- **Per pair of rigs.** Two rigs that verify each other can earn at most 2,000 paid units an epoch
+  together.
+
+Work past a limit is still recorded as verified, and still counts toward a rig's standing; it just
+earns nothing. When a verified pair runs into a limit, what is left of it is shared between the two
+rigs in proportion to their paid units.
+
 ## Epochs
 
 Work is counted in epochs: fixed windows, one hour long by default and aligned to the UTC clock.

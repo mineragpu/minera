@@ -41,6 +41,8 @@ export interface MemoryState {
   quarantines: Set<string>;
   /** Counts keyed by `minute|gate|outcome`, the minute in epoch milliseconds. */
   tally: Map<string, number>;
+  /** Paid units granted against a limit, keyed by `key|epoch`. */
+  workLimits: Map<string, bigint>;
 }
 
 /** The state lives in a box so a failed transaction can swap it back for its snapshot. */
@@ -64,6 +66,7 @@ export function emptyState(): MemoryState {
     strikes: [],
     quarantines: new Set(),
     tally: new Map(),
+    workLimits: new Map(),
   };
 }
 

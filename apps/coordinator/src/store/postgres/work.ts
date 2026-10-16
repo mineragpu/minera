@@ -19,6 +19,18 @@ export function postgresWork(db: Queryable): WorkStore {
       }
     },
 
+    async limitUsed(key, epoch) {
+      const [row] = await db<{ used: string }[]>`SELECT used FROM work_limits WHERE key = ${key} AND epoch = ${epoch}`;
+      return toBigInt(row?.used ?? 0);
+    },
+
+    async useLimit(key, epoch, units) {
+      await db`
+        INSERT INTO work_limits (key, epoch, used) VALUES (${key}, ${epoch}, ${units.toString()})
+        ON CONFLICT (key, epoch) DO UPDATE SET used = work_limits.used + EXCLUDED.used
+      `;
+    },
+
     async epochUnits(nodeKey, epoch) {
       const [row] = await db<{ verified_units: string }[]>`
         SELECT verified_units FROM work WHERE node_key = ${nodeKey} AND epoch = ${epoch}

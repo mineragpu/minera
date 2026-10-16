@@ -185,6 +185,7 @@ export function registerNodeRoutes(app: FastifyInstance, context: RouteContext):
       epochSeconds: config.epochSeconds,
       speedFloor,
       random,
+      limits: config.workLimits,
     });
     switch (decision.kind) {
       case 'accepted':

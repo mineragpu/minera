@@ -33,6 +33,11 @@ export interface Config {
   heartbeatSeconds: number;
   /** Share of playground jobs that are also sent to a second rig for comparison. */
   redundancyRate: number;
+  /**
+   * The most paid units per epoch that prompts from one network can earn, and that one pair of rigs
+   * verifying each other can earn; 0 means no limit.
+   */
+  workLimits: { perOrigin: number; perPair: number };
   /** The most one paid unit can earn in a settlement, in wei as a decimal string; "0" means no limit. */
   rewardMaxWeiPerUnit: string;
   playground: { model: string; maxTokens: number };
@@ -69,6 +74,8 @@ const envSchema = z.object({
   POOL_REFRESH_SECONDS: z.coerce.number().int().min(5).max(3_600).default(15),
   INDEX_LOG_RANGE: z.coerce.number().int().min(10).max(100_000).default(5_000),
   REDUNDANCY_RATE: z.coerce.number().min(0).max(1).default(0.2),
+  REWARD_MAX_UNITS_PER_ORIGIN: z.coerce.number().int().min(0).max(100_000_000).default(2_000),
+  REWARD_MAX_UNITS_PER_PAIR: z.coerce.number().int().min(0).max(100_000_000).default(2_000),
   REWARD_MAX_WEI_PER_UNIT: z.string().regex(/^\d{1,30}$/, 'must be a whole number of wei').default('100000000000'),
   PLAYGROUND_MAX_TOKENS: z.coerce.number().int().min(1).max(4_096).default(256),
   PLAYGROUND_MODEL: z.string().trim().min(1).max(128).default('llama3.2:1b'),
@@ -133,6 +140,7 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
     epochSeconds: values.EPOCH_SECONDS,
     heartbeatSeconds: values.HEARTBEAT_SECONDS,
     redundancyRate: values.REDUNDANCY_RATE,
+    workLimits: { perOrigin: values.REWARD_MAX_UNITS_PER_ORIGIN, perPair: values.REWARD_MAX_UNITS_PER_PAIR },
     rewardMaxWeiPerUnit: values.REWARD_MAX_WEI_PER_UNIT,
     playground: { model: values.PLAYGROUND_MODEL, maxTokens: values.PLAYGROUND_MAX_TOKENS },
     trustProxyHops: values.TRUST_PROXY_HOPS,
@@ -156,6 +164,7 @@ export function configSummary(config: Config): Record<string, unknown> {
     epochSeconds: config.epochSeconds,
     heartbeatSeconds: config.heartbeatSeconds,
     redundancyRate: config.redundancyRate,
+    workLimits: config.workLimits,
     rewardMaxWeiPerUnit: config.rewardMaxWeiPerUnit,
     playground: config.playground,
     sentinel: { minTokensPerSecond: config.sentinel.minTokensPerSecond },

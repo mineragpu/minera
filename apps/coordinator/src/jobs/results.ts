@@ -21,6 +21,16 @@ export interface SubmittedResult {
   /** Tokens per second a rig must reach on the network's model. */
   speedFloor: number;
   random: Random;
+  /**
+   * The most paid units one prompt source's network, and one pair of rigs that verify each other,
+   * can earn per epoch. 0 or absent means no limit.
+   */
+  limits?: WorkLimits;
+}
+
+export interface WorkLimits {
+  perOrigin: number;
+  perPair: number;
 }
 
 export type ResultDecision =
@@ -35,11 +45,51 @@ function closedReason(job: JobRecord): string {
     : 'This job was closed before the result arrived.';
 }
 
-/** Credit a rig's verified answer. Only visitors' prompts pay, weighted by the rig's standing. */
-async function creditVerified(tx: Store, job: JobRecord, nodeKey: Address, units: number, epoch: number): Promise<void> {
-  if (job.origin !== 'playground') return;
-  const rig = await tx.rigs.get(nodeKey);
-  await tx.work.credit(nodeKey, epoch, { verified: units, unverified: 0, paid: paidUnits(rig?.standing ?? 'probation', units) });
+interface VerifiedAnswer {
+  job: JobRecord;
+  nodeKey: Address | null;
+  units: number;
+}
+
+/**
+ * How many of `want` paid units the epoch's limits still allow: one prompt source's network, and
+ * one pair of rigs, can each earn only so much per epoch. The grant counts against every limit.
+ */
+async function grantPaid(tx: Store, job: JobRecord, pair: readonly Address[], want: bigint, epoch: number, limits: WorkLimits): Promise<bigint> {
+  const keys: [string, bigint][] = [];
+  if (limits.perOrigin > 0) keys.push([`origin:${job.originNetwork ?? 'unknown'}`, BigInt(limits.perOrigin)]);
+  if (limits.perPair > 0 && pair.length === 2) keys.push([`pair:${[...pair].sort().join(':')}`, BigInt(limits.perPair)]);
+  let grant = want;
+  for (const [key, limit] of keys) {
+    const used = await tx.work.limitUsed(key, epoch);
+    const left = limit > used ? limit - used : 0n;
+    if (left < grant) grant = left;
+  }
+  if (grant > 0n) for (const [key] of keys) await tx.work.useLimit(key, epoch, grant);
+  return grant;
+}
+
+/**
+ * Credit two rigs whose answers agreed. Only visitors' prompts pay: each rig's units are weighed by
+ * its standing, then the pair's total is held to the epoch's limits and shared back in proportion.
+ * Verified units are always recorded in full.
+ */
+async function creditVerifiedPair(tx: Store, epoch: number, limits: WorkLimits, answers: readonly VerifiedAnswer[]): Promise<void> {
+  const credited = answers.filter((answer): answer is VerifiedAnswer & { nodeKey: Address } => answer.nodeKey !== null);
+  if (credited.length === 0 || credited[0]!.job.origin !== 'playground') return;
+  const weights: bigint[] = [];
+  for (const answer of credited) {
+    const rig = await tx.rigs.get(answer.nodeKey);
+    weights.push(BigInt(paidUnits(rig?.standing ?? 'probation', answer.units)));
+  }
+  const want = weights.reduce((sum, weight) => sum + weight, 0n);
+  const grant = want > 0n ? await grantPaid(tx, credited[0]!.job, credited.map((answer) => answer.nodeKey), want, epoch, limits) : 0n;
+  let left = grant;
+  for (const [i, answer] of credited.entries()) {
+    const paid = i === credited.length - 1 ? left : (grant * weights[i]!) / want;
+    left -= paid;
+    await tx.work.credit(answer.nodeKey, epoch, { verified: answer.units, unverified: 0, paid: Number(paid) });
+  }
 }
 
 async function creditUnverified(tx: Store, job: JobRecord, nodeKey: Address, units: number, epoch: number): Promise<void> {
@@ -91,6 +141,7 @@ async function openTiebreak(tx: Store, job: JobRecord, now: Date, random: Random
  */
 export async function acceptResult(store: Store, result: SubmittedResult): Promise<ResultDecision> {
   const { nodeKey, output, now, random } = result;
+  const limits: WorkLimits = result.limits ?? { perOrigin: 0, perPair: 0 };
   return store.transaction(async (tx) => {
     const job = await tx.jobs.get(result.jobId);
     if (!job) return { kind: 'not_found' };
@@ -135,11 +186,11 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
         await complete('verified', now);
         await tx.jobs.setVerification(twin.id, 'verified', now);
         await tx.rigs.recordCheck(nodeKey, true, now);
-        await creditVerified(tx, job, nodeKey, units, epoch);
-        if (twin.assignedNode) {
-          await tx.rigs.recordCheck(twin.assignedNode, true, now);
-          await creditVerified(tx, twin, twin.assignedNode, twin.units ?? 0, epoch);
-        }
+        if (twin.assignedNode) await tx.rigs.recordCheck(twin.assignedNode, true, now);
+        await creditVerifiedPair(tx, epoch, limits, [
+          { job, nodeKey, units },
+          { job: twin, nodeKey: twin.assignedNode, units: twin.units ?? 0 },
+        ]);
         await tx.sentinel.tally('crosscheck', 'passed', now);
         if (job.origin === 'seed') await bankAnswer(tx, job, output, group, now, random);
         break;
@@ -156,11 +207,11 @@ export async function acceptResult(store: Store, result: SubmittedResult): Promi
         await complete('verified', now);
         await tx.jobs.setVerification(winner.id, 'verified', now);
         await tx.rigs.recordCheck(nodeKey, true, now);
-        await creditVerified(tx, job, nodeKey, units, epoch);
-        if (winner.assignedNode) {
-          await tx.rigs.recordCheck(winner.assignedNode, true, now);
-          await creditVerified(tx, winner, winner.assignedNode, winner.units ?? 0, epoch);
-        }
+        if (winner.assignedNode) await tx.rigs.recordCheck(winner.assignedNode, true, now);
+        await creditVerifiedPair(tx, epoch, limits, [
+          { job, nodeKey, units },
+          { job: winner, nodeKey: winner.assignedNode, units: winner.units ?? 0 },
+        ]);
         for (const loser of answered.filter((other) => other.id !== winner.id)) {
           await tx.jobs.setVerification(loser.id, 'mismatch', null);
           if (!loser.assignedNode) continue;

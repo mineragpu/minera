@@ -7,6 +7,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Changed
 
+- **Paid work is limited per prompt source and per pair of rigs.** Prompts from one network can earn
+  rigs at most 2,000 paid units an epoch, and two rigs that verify each other at most 2,000 together,
+  so nobody can steer the rewards by feeding prompts to their own rigs. Work past a limit is still
+  recorded as verified and counts toward standing, but earns nothing. `REWARD_MAX_UNITS_PER_ORIGIN` and
+  `REWARD_MAX_UNITS_PER_PAIR` set the limits; `0` turns one off.
 - **Each paid unit earns at most 0.0000001 ETH per settlement.** The budget a settlement releases is
   the release limit capped at that rate for every paid unit, so a quiet hour cannot hand the whole
   release to a little work; the rest stays in the Burn Pool. The inputs document (now version 3)

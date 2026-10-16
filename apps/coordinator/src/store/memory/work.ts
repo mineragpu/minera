@@ -35,5 +35,14 @@ export function memoryWork(box: StateBox): WorkStore {
       }
       return work.sort((a, b) => (a.nodeKey < b.nodeKey ? -1 : 1));
     },
+
+    async limitUsed(key, epoch) {
+      return box.state.workLimits.get(`${key}|${epoch}`) ?? 0n;
+    },
+
+    async useLimit(key, epoch, units) {
+      const id = `${key}|${epoch}`;
+      box.state.workLimits.set(id, (box.state.workLimits.get(id) ?? 0n) + units);
+    },
   };
 }
