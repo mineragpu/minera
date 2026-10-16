@@ -1,4 +1,5 @@
 import type { PoolView } from '../chain/poolWatcher.ts';
+import type { TokenView } from '../chain/token.ts';
 import type { Config } from '../config.ts';
 import type { Random } from '../random.ts';
 import type { Store } from '../store/store.ts';
@@ -8,6 +9,8 @@ export interface RouteContext {
   config: Config;
   store: Store;
   pool: PoolView;
+  /** The token's supply, on the coordinator of the network the token lives on. */
+  token?: TokenView | null;
   clock: () => Date;
   random: Random;
 }

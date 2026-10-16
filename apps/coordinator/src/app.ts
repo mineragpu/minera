@@ -15,6 +15,7 @@ import { keepRawJsonBodies } from './routes/rawBody.ts';
 import { registerRigRoutes } from './routes/rigs.ts';
 import { registerSentinelRoute } from './routes/sentinel.ts';
 import { registerSettlementRoute } from './routes/settlements.ts';
+import { registerTokenRoutes } from './routes/token.ts';
 
 export interface AppOptions extends RouteContext {
   /** Tests turn logging off; the service logs at the configured level. */
@@ -72,6 +73,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerPoolRoute(app, context);
   registerSettlementRoute(app, context);
   registerClaimRoute(app, context);
+  registerTokenRoutes(app, context);
   registerPlaygroundRoutes(app, context);
   registerSentinelRoute(app, context);
   registerNodeRoutes(app, context);

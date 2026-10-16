@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { TOKEN, type Address } from '@minera/shared';
 import { buildApp } from './app.ts';
 import { createChainClient } from './chain/client.ts';
 import { indexNextRange } from './chain/indexer.ts';
@@ -6,6 +7,7 @@ import { afterRefusal, afterSuccess, initialLogRange, type LogRangeLimits } from
 import { readPoolSnapshot } from './chain/pool.ts';
 import { deploymentIsQuiet } from './chain/quiet.ts';
 import { createPoolWatcher } from './chain/poolWatcher.ts';
+import { createTokenWatcher, readTokenSupply } from './chain/token.ts';
 import { ConfigError, configSummary, loadConfig, type Config } from './config.ts';
 import { createSql } from './db/client.ts';
 import { migrate } from './db/migrate.ts';
@@ -56,7 +58,14 @@ async function start(config: Config): Promise<void> {
   const client = createChainClient(config.chain, config.rpcUrls.reveal());
   const { deployment } = config;
   const pool = createPoolWatcher(() => readPoolSnapshot(client, deployment.burnPool));
-  app = await buildApp({ logging: true, config, store, pool, clock: () => new Date(), random: cryptoRandom });
+  // The token lives on one network; only that network's coordinator reads and serves its supply.
+  const tokenRules = TOKEN.supply;
+  const tokenAddress = TOKEN.address as Address | null;
+  const token =
+    tokenRules && tokenAddress && tokenRules.chainId === config.chain.id
+      ? createTokenWatcher(() => readTokenSupply(client, tokenAddress, tokenRules))
+      : null;
+  app = await buildApp({ logging: true, config, store, pool, token, clock: () => new Date(), random: cryptoRandom });
   const log = app.log;
   log.info(configSummary(config), 'starting coordinator');
 
@@ -116,6 +125,19 @@ async function start(config: Config): Promise<void> {
         return poolMs;
       },
     }),
+    ...(token
+      ? [
+          startLoop({
+            name: 'token',
+            log,
+            retryMs: RETRY_MS,
+            run: async () => {
+              await token.refresh();
+              return poolMs;
+            },
+          }),
+        ]
+      : []),
     startLoop({
       name: 'janitor',
       log,

@@ -42,10 +42,12 @@ Every error has the same shape:
 | 400 | `invalid_request` | A path, query or body value failed validation. |
 | 404 | `not_found` | There is no such route. |
 | 404 | `rig_not_found`, `settlement_not_found`, `job_not_found` | The rig, settlement or job does not exist. |
+| 404 | `token_not_on_network` | The token does not live on this coordinator's network. |
 | 413 | `payload_too_large` | The body is over 256 KiB. |
 | 415 | `unsupported_media_type` | The body is not JSON. |
 | 429 | `rate_limited` | Too many requests. The message says when to try again. |
 | 503 | `busy` | Too many playground prompts are waiting. Try again in a minute. |
+| 503 | `not_ready` | The token's supply has not been read from the chain yet. Try again in a minute. |
 | 500 | `internal_error` | Something failed on the coordinator. |
 
 The signed node routes add their own codes; see [Node protocol](node-protocol.md#errors).
@@ -319,6 +321,53 @@ What an operator wallet can claim now, with the proof for the claim call.
 - `settlement` is `null` and `proof` is empty when no claimable settlement includes the wallet.
 - `pending` shows a newer settlement still inside its challenge delay, with the wallet's cumulative
   total in it and when it becomes claimable.
+
+## GET /v1/token
+
+The ${{token.symbol}} supply, read from the chain at one block. Served by the coordinator of the
+network the token lives on (mainnet); other coordinators answer `404 token_not_on_network`.
+
+```json
+{
+  "symbol": "MNRA",
+  "address": "0x811e6953bcdee5277de0f194e6e2fb1018ce33b4",
+  "chainId": 4663,
+  "decimals": 18,
+  "maxSupply": "1000000000",
+  "totalSupply": "979819169.319563440130725476",
+  "circulatingSupply": "959020210.8942280741800521",
+  "burned": "20180830.680436559869274524",
+  "burnAddresses": ["0x000000000000000000000000000000000000dEaD"],
+  "nonCirculating": [
+    {
+      "address": "0x912DDBBE43FdFbf39cEF17ee7EaE0b8f534f3B8b",
+      "label": "Project wallet: development and user rewards",
+      "balance": "20798958.425335365950673376"
+    }
+  ],
+  "asOf": { "block": "90128230", "time": "2026-10-16T13:10:00.000Z" },
+  "rules": {
+    "totalSupply": "Everything minted, less what the burn addresses hold.",
+    "circulatingSupply": "The total supply, less what the non-circulating wallets hold."
+  }
+}
+```
+
+- Amounts are whole tokens as decimal strings, exact to 18 decimals.
+- `maxSupply` is fixed: the token contract has no mint function.
+- Anyone can redo every figure with `totalSupply()` and `balanceOf()` on the token contract at
+  `asOf.block`.
+- The coordinator rereads the supply on the same interval as the Burn Pool. Until the first read it
+  answers `503 not_ready`.
+
+### GET /v1/token/total-supply, /v1/token/circulating-supply, /v1/token/max-supply
+
+The same figures as plain text, one number each (`text/plain`), for listing sites that read a
+supply from a URL:
+
+```text
+959020210.8942280741800521
+```
 
 ## GET /v1/sentinel
 

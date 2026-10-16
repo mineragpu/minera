@@ -5,6 +5,14 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ## [Unreleased]
 
+### Added
+
+- **Token supply on the API.** `GET /v1/token` reports the $MNRA supply read from the chain at one
+  block: max, total (minted less the burn address), circulating (total less the project wallet), the
+  burn and non-circulating addresses and their balances. `/v1/token/total-supply`,
+  `/v1/token/circulating-supply` and `/v1/token/max-supply` return each figure as a plain number for
+  listing sites. The counting rules live in `packages/shared/src/token.ts`.
+
 ## [1.1.0] - 2026-10-15
 
 Agents arrive: they can read the network and ask it for verified answers, and the node client gains
