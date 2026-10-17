@@ -44,6 +44,19 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 
 ## Run
 
+The quickest way is to pair with the Deploy page. Open it, connect the operator wallet and run the
+command it shows, which carries a one-time pairing code:
+
+```sh
+rig pair --code <code> --operator 0xYourWalletAddress --network mainnet --start --keep-model
+```
+
+`pair` creates the node key when there is none and hands the node address and deploy code to the
+page through the coordinator. The node key stays on this machine. Name the rig and deploy it on the
+page; the command waits until the rig is deployed, then starts the node.
+
+To set up by hand instead:
+
 1. **Create the node key and get the deploy code.**
 
    ```sh
@@ -69,21 +82,24 @@ later, and use `node packages/miner/src/cli.ts` wherever this guide writes `rig`
 4. **Start the node.**
 
    ```sh
-   rig start --coordinator https://api.mineragpu.tech
+   rig start
    ```
 
    The node says hello, runs a benchmark job, then sends heartbeats and runs the jobs they carry.
-   The coordinator URL is remembered per network, so later runs need only `rig start`. If the
+   It uses the network's coordinator; `--coordinator <url>` picks another, which is remembered per
+   network. If the
    network is unreachable, the node retries with a delay that doubles up to 60 seconds.
 
 ### Options
 
 | Option | Commands | Meaning |
 |---|---|---|
-| `--operator <wallet>` | `init`, `code` | The wallet that deploys and operates the rig. Required. |
+| `--operator <wallet>` | `init`, `code`, `pair` | The wallet that deploys and operates the rig. Required. |
+| `--code <code>` | `pair` | The one-time pairing code from the Deploy page. Required. |
+| `--start` | `pair` | Start the node once the rig is deployed. The `start` options below apply. |
 | `--network <testnet\|mainnet>` | all | The network to use. Defaults to the one chosen at `init`. |
 | `--force` | `init` | Replace an existing node key. |
-| `--coordinator <url>` | `start` | The coordinator URL. It must use https unless it is on this machine. |
+| `--coordinator <url>` | `start`, `pair` | The coordinator URL. It must use https unless it is on this machine. |
 | `--runtime-url <url>` | `status`, `start` | The model runtime. Defaults to `http://127.0.0.1:11434`. |
 | `--concurrency <1-4>` | `start` | How many jobs run at once. Defaults to 1. |
 | `--keep-model` | `start` | Download the model open jobs use when the runtime does not have it. |

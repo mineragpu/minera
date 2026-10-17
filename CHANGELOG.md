@@ -20,6 +20,19 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Deploy with one command: pair the GPU machine with the Deploy page.** The page now shows one
+  command, with the operator's address and a one-time pairing code in it. On Linux it runs the rig
+  script; on Windows or macOS it runs `rig pair`. The machine creates its node key when it has none
+  and hands the node address and deploy code to the page through the coordinator, which checks the
+  deploy code first. The page fills them in, shows the card, and after the deploy shows the rig
+  come online, while the machine waits for the deployment and starts the node on its own. Pasting
+  the node address and deploy code by hand still works. New routes: `POST /v1/pairings` and
+  `GET /v1/pairings/:code`; pairings expire after 6 hours.
+- **Node client 1.2.0: `rig pair --code <code> --operator <wallet> [--start]`.** It pairs the
+  machine with the Deploy page, waits until the rig is deployed and, with `--start`, starts the
+  node with the `start` options given. The rig script takes `PAIR` for the same flow and installs
+  1.2.0.
+
 - **Daily refills for the Burn Pool, listed on the Rewards page.** From October 17, 2026, a dedicated
   refill wallet tops up the mainnet Burn Pool every day as campaign 2, with the memo "daily refill".
   It holds only what the next refills need and has no role in the contracts. The Rewards page gains a

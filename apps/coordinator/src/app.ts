@@ -9,6 +9,7 @@ import { ApiError, registerErrorHandling } from './routes/errors.ts';
 import { registerHealthRoute } from './routes/health.ts';
 import { registerNetworkRoute } from './routes/network.ts';
 import { registerNodeRoutes } from './routes/node.ts';
+import { registerPairingRoutes } from './routes/pairings.ts';
 import { registerPlaygroundRoutes } from './routes/playground.ts';
 import { registerPoolRoute } from './routes/pool.ts';
 import { keepRawJsonBodies } from './routes/rawBody.ts';
@@ -78,6 +79,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerTokenRoutes(app, context);
   registerPlaygroundRoutes(app, context);
   registerSentinelRoute(app, context);
+  registerPairingRoutes(app, context);
   registerNodeRoutes(app, context);
   return app;
 }

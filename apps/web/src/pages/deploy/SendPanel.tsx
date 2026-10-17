@@ -20,6 +20,8 @@ interface SendPanelProps {
   transaction: Transaction;
   onSend: () => void;
   onStartOver: () => void;
+  /** The machine was paired with the page, so its node starts on its own once the rig is deployed. */
+  paired: boolean;
 }
 
 const BUTTON_LABELS = {
@@ -46,7 +48,7 @@ function deployedRig(receipt: Receipt, registry: Address): { nodeKey: Address; n
 }
 
 export function SendPanel(props: SendPanelProps) {
-  const { operator, nodeAddress, name, pair, registry, blocker, transaction, onSend, onStartOver } = props;
+  const { operator, nodeAddress, name, pair, registry, blocker, transaction, onSend, onStartOver, paired } = props;
   const { state } = transaction;
   const busy = state.phase === 'checking' || state.phase === 'confirming' || state.phase === 'pending';
   const done = state.phase === 'confirmed';
@@ -59,7 +61,7 @@ export function SendPanel(props: SendPanelProps) {
         <h2 className="panel__title" id="send-title">
           Send the deploy
         </h2>
-        <span className="status">Step 06</span>
+        <span className="status">Step 05</span>
       </div>
       <dl className="send-summary">
         <div>
@@ -68,7 +70,7 @@ export function SendPanel(props: SendPanelProps) {
         </div>
         <div>
           <dt>Node</dt>
-          <dd>{nodeAddress ? shortAddress(nodeAddress) : 'Not pasted yet'}</dd>
+          <dd>{nodeAddress ? shortAddress(nodeAddress) : 'Not connected yet'}</dd>
         </div>
         <div>
           <dt>Name</dt>
@@ -95,7 +97,7 @@ export function SendPanel(props: SendPanelProps) {
       </p>
       <TxStatus
         state={state}
-        confirmed={deployedKey && <DeployedNote nodeKey={deployedKey} name={rig?.name ?? name} />}
+        confirmed={deployedKey && <DeployedNote nodeKey={deployedKey} name={rig?.name ?? name} paired={paired} />}
       />
       {done && (
         <Button variant="ghost" size="sm" glint={false} onClick={onStartOver}>

@@ -166,14 +166,19 @@ flowchart LR
 
 ### Run a node
 
+Open the [Deploy page](https://mineragpu.tech/deploy) and connect your wallet. It shows one command
+for the GPU machine, with a one-time pairing code in it:
+
 ```sh
 npm install --global @minera-gpu/miner
-rig init --operator 0xYourWalletAddress --network mainnet
+rig pair --code <code> --operator 0xYourWalletAddress --network mainnet --start --keep-model
 ```
 
-Deploy the rig from that wallet on the [Deploy page](https://mineragpu.tech/deploy), then run
-`rig start --coordinator https://api.mineragpu.tech`. The [quickstart](https://mineragpu.tech/docs/quickstart)
-covers the requirements: a GPU, its driver, a local model runtime and Node.js 22 or later.
+The machine pairs with the page, which fills in its node address and deploy code. Deploy the rig
+from your wallet there, and the node starts on its own. On a Linux GPU machine, the page's command
+runs the [rig script](apps/web/public/rig.sh) instead, which also installs Node.js and a model
+runtime. The [quickstart](https://mineragpu.tech/docs/quickstart) covers the requirements: a GPU, its
+driver, a local model runtime and Node.js 22 or later.
 
 ## Mainnet contracts
 

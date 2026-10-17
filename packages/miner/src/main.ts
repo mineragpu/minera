@@ -6,6 +6,7 @@ import { parseCommandLine, USAGE } from './args.ts';
 import { codeCommand } from './commands/code.ts';
 import { EXIT, type CommandContext, type ExitCode } from './commands/context.ts';
 import { initCommand } from './commands/init.ts';
+import { pairCommand } from './commands/pair.ts';
 import { startCommand } from './commands/start.ts';
 import { statusCommand } from './commands/status.ts';
 import { detectGpu } from './gpu.ts';
@@ -73,6 +74,8 @@ export async function main(argv: readonly string[], environment: MainEnvironment
         return await initCommand(command, context);
       case 'code':
         return await codeCommand(command, context);
+      case 'pair':
+        return await pairCommand(command, context);
       case 'status':
         return await statusCommand(command, context);
       case 'start':

@@ -147,6 +147,7 @@ async function start(config: Config): Promise<void> {
         const swept = await sweepJobs(store, now, config.epochSeconds);
         if (swept.requeued > 0 || swept.expired > 0) log.info(swept, 'swept overdue jobs');
         await store.nonces.prune(now);
+        await store.pairings.prune(now);
         return JANITOR_MS;
       },
     }),

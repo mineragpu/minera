@@ -175,6 +175,30 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(await store.nonces.prune(at(11)), 0);
     });
 
+    it('keeps a pairing for its node key until it expires', async () => {
+      const code = 'a'.repeat(32);
+      const pairing = {
+        code,
+        nodeKey: RIG_1,
+        operator: OPERATOR_A,
+        deployCode: `0x${'11'.repeat(65)}` as const,
+        gpu: { model: 'Example GPU', vramMb: 8192 },
+        clientVersion: '1.2.0',
+        pairedAt: at(10),
+        expiresAt: at(20),
+      };
+      assert.equal(await store.pairings.put(pairing), true);
+      assert.deepEqual(await store.pairings.get(code, at(15)), pairing);
+      assert.equal(await store.pairings.put({ ...pairing, nodeKey: RIG_2 }), false);
+      const again = { ...pairing, gpu: null, pairedAt: at(12) };
+      assert.equal(await store.pairings.put(again), true);
+      assert.deepEqual(await store.pairings.get(code, at(15)), again);
+      assert.equal(await store.pairings.get(code, at(20)), null);
+      assert.equal(await store.pairings.get('b'.repeat(32), at(15)), null);
+      assert.equal(await store.pairings.prune(at(20)), 1);
+      assert.equal(await store.pairings.prune(at(20)), 0);
+    });
+
     it('offers jobs by model, target and qualification, keeping twins apart by operator', async () => {
       const rig1 = await store.rigs.get(RIG_1);
       const rig2 = await store.rigs.get(RIG_2);

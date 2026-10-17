@@ -5,6 +5,7 @@ import type {
   ClaimRecord,
   Entitlement,
   JobRecord,
+  PairingRecord,
   RigRecord,
   SettlementRecord,
   StrikeReason,
@@ -43,6 +44,7 @@ export interface MemoryState {
   tally: Map<string, number>;
   /** Paid units granted against a limit, keyed by `key|epoch`. */
   workLimits: Map<string, bigint>;
+  pairings: Map<string, PairingRecord>;
 }
 
 /** The state lives in a box so a failed transaction can swap it back for its snapshot. */
@@ -67,6 +69,7 @@ export function emptyState(): MemoryState {
     quarantines: new Set(),
     tally: new Map(),
     workLimits: new Map(),
+    pairings: new Map(),
   };
 }
 

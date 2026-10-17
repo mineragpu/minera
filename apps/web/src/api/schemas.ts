@@ -125,6 +125,18 @@ export const claimView = object({
   pending: nullable(object({ index: integer, cumulative: bigintString, claimableAt: nullable(timestamp) })),
 });
 
+/** A GPU machine paired with the Deploy page under the page's one-time code. */
+export const pairingView = object({
+  code: string,
+  nodeAddress: address,
+  operator: address,
+  deployCode: hex,
+  gpu: nullable(object({ model: string, vramMb: integer })),
+  clientVersion: string,
+  pairedAt: timestamp,
+  expiresAt: timestamp,
+});
+
 export const rewardsView = object({
   totals: nullable(
     object({
@@ -190,6 +202,7 @@ export type RigDetail = Decoded<typeof rigDetail>;
 export type PoolView = Decoded<typeof poolView>;
 export type ClaimView = Decoded<typeof claimView>;
 export type RewardsView = Decoded<typeof rewardsView>;
+export type PairingView = Decoded<typeof pairingView>;
 export type PlaygroundReceipt = Decoded<typeof playgroundReceipt>;
 export type PlaygroundJob = Decoded<typeof playgroundJob>;
 export type PlaygroundStatus = PlaygroundJob['status'];

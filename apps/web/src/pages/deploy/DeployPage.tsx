@@ -11,11 +11,13 @@ import { WalletPrompt } from '../../wallet/WalletPrompt.tsx';
 import { PageHead } from '../PageHead.tsx';
 import { CodeStep } from './CodeStep.tsx';
 import { FlowStep } from './FlowStep.tsx';
+import { MachineStep } from './MachineStep.tsx';
 import { NameStep } from './NameStep.tsx';
-import { NodeClientStep } from './NodeClientStep.tsx';
 import { PairStep } from './PairStep.tsx';
+import { renewPairingCode, sessionPairingCode } from './pairingCode.ts';
 import { SendPanel } from './SendPanel.tsx';
 import { useDeployCodeCheck } from './useDeployCodeCheck.ts';
+import { usePairing } from './usePairing.ts';
 import { useRigLookup } from './useRigLookup.ts';
 import { isValidName, parseDeployCode, parseNodeAddress, rigName } from './validation.ts';
 import '../../components/form.css';
@@ -29,11 +31,15 @@ export function DeployPage() {
   const [codeInput, setCodeInput] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [pairAddress, setPairAddress] = useState<Address>(ETH_PAIR);
+  const [pairingCode, setPairingCode] = useState(sessionPairingCode);
+  const [manual, setManual] = useState(false);
 
   const walletReady = status === 'connected' && address !== null && isCorrectNetwork;
   const operator = walletReady ? address : null;
-  const nodeAddress = parseNodeAddress(nodeInput);
-  const code = parseDeployCode(codeInput);
+  const pairing = usePairing(manual || !operator ? null : pairingCode);
+  const paired = pairing.state === 'paired' ? pairing.machine : null;
+  const nodeAddress = manual ? parseNodeAddress(nodeInput) : (paired?.nodeAddress ?? null);
+  const code = manual ? parseDeployCode(codeInput) : (paired?.deployCode ?? null);
   const check = useDeployCodeCheck(nodeAddress, code, operator);
   const lookup = useRigLookup(nodeAddress);
   const nameValid = isValidName(nameInput);
@@ -55,6 +61,7 @@ export function DeployPage() {
   let blocker: string | null = null;
   if (status !== 'connected') blocker = 'Connect your wallet first.';
   else if (!isCorrectNetwork) blocker = `Switch your wallet to ${ACTIVE_CHAIN.name} first.`;
+  else if (!manual && !nodeAddress) blocker = 'Run the command on the GPU machine and wait for it to connect.';
   else if (!nodeAddress) blocker = 'Paste the node address.';
   else if (!code) blocker = 'Paste the deploy code.';
   else if (check === 'mismatch') blocker = 'The deploy code does not match this node and wallet.';
@@ -78,6 +85,7 @@ export function DeployPage() {
     setCodeInput('');
     setNameInput('');
     setPairAddress(ETH_PAIR);
+    setPairingCode(renewPairingCode());
   };
 
   const codeReady = check === 'match' && lookup !== 'deployed';
@@ -85,35 +93,44 @@ export function DeployPage() {
   return (
     <div className="shell">
       <PageHead kicker="Deploy" title="Deploy a rig.">
-        Six steps and one transaction. Your wallet operates the rig, and the rig goes on the board about a minute
-        after the transaction lands.
+        One command on the GPU machine, then one transaction here. Your wallet operates the rig, and the rig goes on
+        the board about a minute after the transaction lands.
       </PageHead>
       <div className="deploy-flow page-body">
         <ol className="flow">
           <FlowStep number={1} title="Connect your wallet" done={walletReady}>
             <WalletPrompt reason="The wallet you connect operates the rig: it deploys it and receives its rewards." />
           </FlowStep>
-          <FlowStep number={2} title="Install and run the node client" done={nodeAddress !== null && code !== null}>
-            <NodeClientStep operator={operator} />
-          </FlowStep>
-          <FlowStep number={3} title="Paste the node address and deploy code" done={codeReady}>
-            <CodeStep
-              nodeInput={nodeInput}
-              codeInput={codeInput}
-              onNodeInput={setNodeInput}
-              onCodeInput={setCodeInput}
-              nodeAddress={nodeAddress}
-              code={code}
+          <FlowStep number={2} title="Set up the GPU machine" done={codeReady}>
+            <MachineStep
+              operator={operator}
+              code={pairingCode}
+              pairing={pairing}
               check={check}
-              lookup={lookup}
-              walletReady={walletReady}
+              manual={manual}
+              onManual={setManual}
+              onNewCode={() => setPairingCode(renewPairingCode())}
               locked={locked}
+              manualFields={
+                <CodeStep
+                  nodeInput={nodeInput}
+                  codeInput={codeInput}
+                  onNodeInput={setNodeInput}
+                  onCodeInput={setCodeInput}
+                  nodeAddress={nodeAddress}
+                  code={code}
+                  check={check}
+                  lookup={lookup}
+                  walletReady={walletReady}
+                  locked={locked}
+                />
+              }
             />
           </FlowStep>
-          <FlowStep number={4} title="Name the rig" done={nameValid}>
+          <FlowStep number={3} title="Name the rig" done={nameValid}>
             <NameStep value={nameInput} onChange={setNameInput} locked={locked} />
           </FlowStep>
-          <FlowStep number={5} title="Choose what it pairs with" done={blocker === null}>
+          <FlowStep number={4} title="Choose what it pairs with" done={blocker === null}>
             <PairStep value={pair.address} onChange={setPairAddress} locked={locked} />
           </FlowStep>
         </ol>
@@ -127,6 +144,7 @@ export function DeployPage() {
           transaction={transaction}
           onSend={send}
           onStartOver={startOver}
+          paired={!manual}
         />
       </div>
     </div>

@@ -33,9 +33,22 @@ This installs the `rig` command. `rig help` lists the commands and options, and 
 prints the installed version. To run from source instead, clone {{brand.repository}}, run `npm ci`
 with Node.js 22.18 or later, and use `node packages/miner/src/cli.ts` wherever this page writes `rig`.
 
-## 2. Create the node key
+## 2. Pair with the Deploy page, or create the node key
 
-Pass the address of the wallet that will operate the rig:
+The quickest way: open the [Deploy page](/deploy), connect the operator wallet and copy the command
+it shows. It carries a one-time pairing code:
+
+```sh
+rig pair --code <code> --operator 0xYourWalletAddress{{network.rigFlag}} --start --keep-model
+```
+
+`pair` creates the node key when there is none and hands the node address and deploy code to the
+page, which fills them in. Finish on the page; the command waits until the rig is deployed and,
+with `--start`, starts the node. The options of `start` apply after `--start`. Without it, `pair`
+stops once the rig is deployed, and you start the node as in step 5.
+
+To set up by hand instead, create the node key with the address of the wallet that will operate
+the rig:
 
 ```sh
 rig init --operator 0xYourWalletAddress{{network.rigFlag}}
@@ -60,8 +73,9 @@ the network, so later commands need no flag.
 
 ## 3. Deploy the rig
 
-Open the [Deploy page](/deploy), connect the operator wallet, paste the node address and the deploy
-code, name the rig, choose its pair and send one transaction. [Deploy a rig](deploy-a-rig.md) walks
+Open the [Deploy page](/deploy) and connect the operator wallet. A paired machine fills in the node
+address and the deploy code; otherwise paste them. Name the rig, choose its pair and send one
+transaction. [Deploy a rig](deploy-a-rig.md) walks
 through each step.
 
 ## 4. Check the machine

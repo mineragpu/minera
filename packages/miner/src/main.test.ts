@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { CHAINS, COORDINATORS, NODE_ROUTES, type Hex } from '@minera/shared';
+import { CHAINS, COORDINATORS, NODE_ROUTES, PAIRING_ROUTES, type Hex } from '@minera/shared';
 import { getAddress, recoverMessageAddress } from 'viem';
 import { deployDigest, deployTargetFor } from './deploy-code.ts';
 import { main, type MainEnvironment } from './main.ts';
@@ -236,6 +236,101 @@ describe('rig start', () => {
     } finally {
       await coordinator.close();
       await runtime.close();
+    }
+  });
+});
+
+describe('rig pair', () => {
+  const CODE = 'abcdef0123456789abcdef0123456789';
+
+  it('creates a key, pairs with the Deploy page and waits until the rig is deployed', async () => {
+    const { home, key } = fresh('pair');
+    let paired = false;
+    const coordinator = await startMockServer((request) => {
+      if (request.method === 'POST' && request.url === PAIRING_ROUTES.create) {
+        paired = true;
+        return { status: 201, json: {} };
+      }
+      if (request.url.startsWith('/v1/rigs/')) return paired ? { json: {} } : { status: 404, json: {} };
+      return { status: 404, json: {} };
+    });
+    try {
+      const result = await run(['pair', '--code', CODE, '--operator', OPERATOR, '--coordinator', coordinator.url], environment(home));
+      assert.equal(result.code, 0, result.err);
+      assert.ok(existsSync(key));
+      assert.match(result.out, /Paired with the Deploy page/);
+      assert.match(result.out, /The rig is deployed/);
+      assert.match(result.out, /rig start --network testnet/);
+
+      const post = coordinator.requests.find((request) => request.method === 'POST');
+      const body = JSON.parse(post?.body.toString('utf8') ?? '');
+      assert.equal(body.code, CODE);
+      assert.equal(body.operator, OPERATOR);
+      assert.deepEqual(body.gpu, { model: 'Card A', vramMb: 8192 });
+      assert.match(body.clientVersion, /^\d+\.\d+\.\d+$/);
+      const target = deployTargetFor('testnet');
+      assert.ok(target);
+      const signer = await recoverMessageAddress({
+        message: { raw: deployDigest(target.chainId, target.registry, OPERATOR) },
+        signature: body.deployCode as Hex,
+      });
+      assert.equal(signer, body.nodeAddress);
+      assert.ok(!JSON.stringify(body).includes(readFileSync(key, 'utf8').slice(0, 20)));
+    } finally {
+      await coordinator.close();
+    }
+  });
+
+  it('does not pair a rig that is already deployed', async () => {
+    const { home } = fresh('pair-deployed');
+    const coordinator = await startMockServer(() => ({ json: {} }));
+    try {
+      const result = await run(['pair', '--code', CODE, '--operator', OPERATOR, '--coordinator', coordinator.url], environment(home));
+      assert.equal(result.code, 0, result.err);
+      assert.match(result.out, /already deployed/);
+      assert.ok(coordinator.requests.every((request) => request.method === 'GET'));
+    } finally {
+      await coordinator.close();
+    }
+  });
+
+  it('says why the coordinator refused the pairing', async () => {
+    const { home } = fresh('pair-refused');
+    const coordinator = await startMockServer((request) =>
+      request.method === 'POST'
+        ? { status: 400, json: { error: { code: 'deploy_code_mismatch', message: 'The deploy code was not made by this node' } } }
+        : { status: 404, json: {} },
+    );
+    try {
+      const result = await run(['pair', '--code', CODE, '--operator', OPERATOR, '--coordinator', coordinator.url], environment(home));
+      assert.equal(result.code, 1);
+      assert.match(result.err, /refused the pairing \(HTTP 400: The deploy code was not made by this node\)/);
+    } finally {
+      await coordinator.close();
+    }
+  });
+
+  it('stops waiting on a signal', async () => {
+    const { home } = fresh('pair-stop');
+    let stop = (): void => undefined;
+    let posted = false;
+    const coordinator = await startMockServer((request) => {
+      if (request.method === 'POST') {
+        posted = true;
+        return { status: 201, json: {} };
+      }
+      if (posted) setImmediate(stop);
+      return { status: 404, json: {} };
+    });
+    try {
+      const env = environment(home, (fire) => {
+        stop = fire;
+      });
+      const result = await run(['pair', '--code', CODE, '--operator', OPERATOR, '--coordinator', coordinator.url], env);
+      assert.equal(result.code, 1);
+      assert.match(result.out, /Stopped waiting/);
+    } finally {
+      await coordinator.close();
     }
   });
 });

@@ -40,9 +40,12 @@ Every error has the same shape:
 | Status | Code | Meaning |
 |---|---|---|
 | 400 | `invalid_request` | A path, query or body value failed validation. |
+| 400 | `deploy_code_mismatch` | A pairing's deploy code was not made by its node for its operator on this network. |
 | 404 | `not_found` | There is no such route. |
 | 404 | `rig_not_found`, `settlement_not_found`, `job_not_found` | The rig, settlement or job does not exist. |
 | 404 | `token_not_on_network` | The token does not live on this coordinator's network. |
+| 404 | `pairing_not_found` | No machine has paired with this code yet, or the pairing expired. |
+| 409 | `pairing_taken` | Another machine already paired with this code. |
 | 413 | `payload_too_large` | The body is over 256 KiB. |
 | 415 | `unsupported_media_type` | The body is not JSON. |
 | 429 | `rate_limited` | Too many requests. The message says when to try again. |
@@ -501,6 +504,54 @@ A prompt's progress, its answer and how far the answer was checked.
 | `verification` | `pending`, `verified`, `unverified`, `mismatch` |
 | `output`, `rig` | `null` until no rig still holds the prompt |
 | `crossChecked` | Whether a second rig's answer was compared with this one |
+
+## POST /v1/pairings
+
+Hands a GPU machine to the Deploy page. `rig pair` sends it, under the one-time code the page made:
+
+```json
+{
+  "code": "0123456789abcdef0123456789abcdef",
+  "nodeAddress": "0x1111111111111111111111111111111111111111",
+  "operator": "0x52908400098527886e0f7030069857d2e4169ee7",
+  "deployCode": "0x…",
+  "gpu": { "model": "Example GPU", "vramMb": 8192 },
+  "clientVersion": "1.2.0"
+}
+```
+
+- `code` is 32 lowercase hexadecimal characters, 128 random bits made by the page.
+- `deployCode` must be the node's signature for `operator` on this network's registry, the same
+  check the registry makes; otherwise the answer is `400 deploy_code_mismatch`.
+- `gpu` is `null` when the machine found no card. The model is 1 to 128 printable characters.
+- The same node may send its pairing again, after a restart, and replaces it. Another node gets
+  `409 pairing_taken`.
+- Each address may send 10 pairings a minute.
+
+The answer is `201 Created` with the pairing, as `GET /v1/pairings/:code` returns it. Nothing in a
+pairing is secret: the deploy code only lets the operator deploy this node, and the node key never
+leaves the machine.
+
+## GET /v1/pairings/:code
+
+The machine paired under `code`, for the Deploy page to fill in. The page asks every few seconds
+until it answers.
+
+```json
+{
+  "code": "0123456789abcdef0123456789abcdef",
+  "nodeAddress": "0x1111111111111111111111111111111111111111",
+  "operator": "0x52908400098527886e0f7030069857d2e4169ee7",
+  "deployCode": "0x…",
+  "gpu": { "model": "Example GPU", "vramMb": 8192 },
+  "clientVersion": "1.2.0",
+  "pairedAt": "2026-10-17T07:00:00.000Z",
+  "expiresAt": "2026-10-17T13:00:00.000Z"
+}
+```
+
+It answers `404 pairing_not_found` until a machine pairs, and again once the pairing is 6 hours
+old.
 
 ## Node routes
 

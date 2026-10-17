@@ -1,10 +1,11 @@
 /** One typed fetcher per public coordinator route the site uses. */
 
-import { SENTINEL_ROUTE, type Address } from '@minera/shared';
+import { PAIRING_ROUTES, SENTINEL_ROUTE, type Address } from '@minera/shared';
 import { requestJson } from './client.ts';
 import {
   claimView,
   networkView,
+  pairingView,
   playgroundJob,
   playgroundReceipt,
   poolView,
@@ -14,6 +15,7 @@ import {
   sentinelView,
   type ClaimView,
   type NetworkView,
+  type PairingView,
   type PlaygroundJob,
   type PlaygroundReceipt,
   type PoolView,
@@ -62,6 +64,11 @@ export function fetchRewards(signal: AbortSignal): Promise<RewardsView> {
 
 export function fetchClaims(account: Address, signal: AbortSignal): Promise<ClaimView> {
   return requestJson(`/v1/claims/${account}`, claimView, { signal });
+}
+
+/** The machine paired under this code; a 404 means none has paired yet. */
+export function fetchPairing(code: string, signal: AbortSignal): Promise<PairingView> {
+  return requestJson(PAIRING_ROUTES.view(code), pairingView, { signal });
 }
 
 export function fetchSentinel(signal: AbortSignal): Promise<SentinelView> {

@@ -22,6 +22,7 @@ import type {
   NewCanary,
   NewJob,
   NodeReport,
+  PairingRecord,
   PublishedSettlement,
   RigListPage,
   RigListQuery,
@@ -180,9 +181,21 @@ export interface ChainStore {
   totalClaimed(): Promise<bigint>;
 }
 
+export interface PairingStore {
+  /**
+   * Save a machine's pairing. Resolves `false`, saving nothing, when another node key already holds
+   * the code; the same node key may save it again, after a restart, and replaces its own entry.
+   */
+  put(record: PairingRecord): Promise<boolean>;
+  /** The pairing under `code`, unless it has expired. */
+  get(code: string, now: Date): Promise<PairingRecord | null>;
+  prune(now: Date): Promise<number>;
+}
+
 export interface Store {
   rigs: RigStore;
   nonces: NonceStore;
+  pairings: PairingStore;
   jobs: JobStore;
   work: WorkStore;
   settlements: SettlementStore;

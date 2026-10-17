@@ -4,29 +4,41 @@
  */
 
 import { parseArgs } from 'node:util';
-import { isNetworkKey, type Address, type NetworkKey } from '@minera/shared';
+import { PAIRING_CODE_PATTERN, isNetworkKey, type Address, type NetworkKey } from '@minera/shared';
 import { getAddress, isAddress, parseEther } from 'viem';
 import { DEFAULT_RUNTIME_URL } from './runtime.ts';
 import { MAX_CONCURRENCY } from './scheduler.ts';
 import { checkServiceUrl } from './url.ts';
 
+export interface StartCommand {
+  name: 'start';
+  coordinator: string | null;
+  network: NetworkKey | null;
+  runtimeUrl: string;
+  concurrency: number;
+  /** Download the open-job model into the runtime when it is missing. */
+  keepModel: boolean;
+  /** Claim the operator's rewards once at least this much is claimable; null when off. */
+  autoClaimWei: bigint | null;
+  /** The chain endpoint for claims; null means the network's default. */
+  rpcUrl: string | null;
+}
+
 export type Command =
   | { name: 'init'; operator: Address; network: NetworkKey | null; force: boolean }
   | { name: 'code'; operator: Address; network: NetworkKey | null }
-  | { name: 'status'; network: NetworkKey | null; runtimeUrl: string }
   | {
-      name: 'start';
-      coordinator: string | null;
+      name: 'pair';
+      /** The one-time code from the Deploy page. */
+      code: string;
+      operator: Address;
       network: NetworkKey | null;
-      runtimeUrl: string;
-      concurrency: number;
-      /** Download the open-job model into the runtime when it is missing. */
-      keepModel: boolean;
-      /** Claim the operator's rewards once at least this much is claimable; null when off. */
-      autoClaimWei: bigint | null;
-      /** The chain endpoint for claims; null means the network's default. */
-      rpcUrl: string | null;
+      coordinator: string | null;
+      /** Start the node once the rig is deployed, with these options; null to stop there. */
+      start: StartCommand | null;
     }
+  | { name: 'status'; network: NetworkKey | null; runtimeUrl: string }
+  | StartCommand
   | { name: 'help' }
   | { name: 'version' };
 
@@ -44,14 +56,20 @@ export const USAGE = `Usage: rig <command> [options]
 Commands:
   init --operator <wallet>     Create this rig's node key and print its deploy code.
   code --operator <wallet>     Print the deploy code again, for another wallet or network.
+  pair --code <code> --operator <wallet>
+                               Hand this machine to the Deploy page, which shows the command with its
+                               code, and wait there until the rig is deployed. Creates the node key
+                               when there is none.
   status                       Show the node key, GPU, model runtime and coordinator.
-  start --coordinator <url>    Connect to the coordinator and run jobs until stopped.
+  start                        Connect to the network's coordinator and run jobs until stopped.
   help                         Show this help.
 
 Options:
   --network <testnet|mainnet>  The network to use. Defaults to the one chosen at init.
   --force                      With init: replace an existing node key.
-  --coordinator <url>          With start: the coordinator's https URL, remembered per network.
+  --start                      With pair: start the node as soon as the rig is deployed. The start
+                               options below apply to it.
+  --coordinator <url>          With start or pair: the coordinator's https URL, remembered per network.
   --runtime-url <url>          The local model runtime. Defaults to ${DEFAULT_RUNTIME_URL}.
   --concurrency <1-${MAX_CONCURRENCY}>          With start: how many jobs run at once. Defaults to 1.
   --keep-model                 With start: download the model open jobs use when the runtime lacks it.
@@ -65,8 +83,10 @@ Options:
 
 const OPTIONS = {
   operator: { type: 'string' },
+  code: { type: 'string' },
   network: { type: 'string' },
   force: { type: 'boolean' },
+  start: { type: 'boolean' },
   coordinator: { type: 'string' },
   'runtime-url': { type: 'string' },
   concurrency: { type: 'string' },
@@ -85,6 +105,18 @@ const GLOBAL_OPTIONS: readonly OptionName[] = ['quiet', 'json', 'help', 'version
 const COMMAND_OPTIONS: Readonly<Record<string, readonly OptionName[]>> = {
   init: ['operator', 'network', 'force'],
   code: ['operator', 'network'],
+  pair: [
+    'code',
+    'operator',
+    'network',
+    'coordinator',
+    'start',
+    'runtime-url',
+    'concurrency',
+    'keep-model',
+    'auto-claim',
+    'rpc-url',
+  ],
   status: ['network', 'runtime-url'],
   start: ['coordinator', 'network', 'runtime-url', 'concurrency', 'keep-model', 'auto-claim', 'rpc-url'],
   help: [],
@@ -106,6 +138,14 @@ function parseOperator(value: string | undefined): Address {
   }
   if (value.toLowerCase() === ZERO_ADDRESS) throw new UsageError('--operator cannot be the zero address.');
   return getAddress(value);
+}
+
+function parsePairingCode(value: string | undefined): string {
+  if (value === undefined) throw new UsageError('--code is required: copy the whole command from the Deploy page.');
+  if (!PAIRING_CODE_PATTERN.test(value)) {
+    throw new UsageError('--code must be the 32-character code from the Deploy page. Copy the whole command again.');
+  }
+  return value;
 }
 
 function parseNetwork(value: string | undefined): NetworkKey | null {
@@ -155,6 +195,30 @@ function parseErrorMessage(error: unknown): string {
   }
 }
 
+function coordinatorOption(value: string | undefined): string | null {
+  return value === undefined ? null : parseUrl(value, '--coordinator', true);
+}
+
+function startCommand(
+  values: Partial<Record<OptionName, string | boolean>>,
+  text: (option: OptionName) => string | undefined,
+  runtimeUrl: string,
+): StartCommand {
+  const autoClaimWei = parseClaimThreshold(text('auto-claim'));
+  const rpcUrl = text('rpc-url');
+  if (rpcUrl !== undefined && autoClaimWei === null) throw new UsageError('--rpc-url applies only with --auto-claim.');
+  return {
+    name: 'start',
+    coordinator: coordinatorOption(text('coordinator')),
+    network: parseNetwork(text('network')),
+    runtimeUrl,
+    concurrency: parseConcurrency(text('concurrency')),
+    keepModel: values['keep-model'] === true,
+    autoClaimWei,
+    rpcUrl: rpcUrl === undefined ? null : parseUrl(rpcUrl, '--rpc-url', true),
+  };
+}
+
 function toCommand(name: string, values: Partial<Record<OptionName, string | boolean>>): Command {
   const text = (option: OptionName): string | undefined => {
     const value = values[option];
@@ -178,24 +242,27 @@ function toCommand(name: string, values: Partial<Record<OptionName, string | boo
       };
     case 'code':
       return { name, operator: parseOperator(text('operator')), network: parseNetwork(text('network')) };
-    case 'status':
-      return { name, network: parseNetwork(text('network')), runtimeUrl };
-    case 'start': {
-      const coordinator = text('coordinator');
-      const autoClaimWei = parseClaimThreshold(text('auto-claim'));
-      const rpcUrl = text('rpc-url');
-      if (rpcUrl !== undefined && autoClaimWei === null) throw new UsageError('--rpc-url applies only with --auto-claim.');
+    case 'pair': {
+      const start = values.start === true ? startCommand(values, text, runtimeUrl) : null;
+      if (start === null) {
+        const startOnly = (['runtime-url', 'concurrency', 'keep-model', 'auto-claim', 'rpc-url'] as const).find(
+          (option) => values[option] !== undefined,
+        );
+        if (startOnly !== undefined) throw new UsageError(`--${startOnly} applies to pair only with --start.`);
+      }
       return {
         name,
-        coordinator: coordinator === undefined ? null : parseUrl(coordinator, '--coordinator', true),
+        code: parsePairingCode(text('code')),
+        operator: parseOperator(text('operator')),
         network: parseNetwork(text('network')),
-        runtimeUrl,
-        concurrency: parseConcurrency(text('concurrency')),
-        keepModel: values['keep-model'] === true,
-        autoClaimWei,
-        rpcUrl: rpcUrl === undefined ? null : parseUrl(rpcUrl, '--rpc-url', true),
+        coordinator: start?.coordinator ?? coordinatorOption(text('coordinator')),
+        start,
       };
     }
+    case 'status':
+      return { name, network: parseNetwork(text('network')), runtimeUrl };
+    case 'start':
+      return startCommand(values, text, runtimeUrl);
     default:
       return { name: 'help' };
   }

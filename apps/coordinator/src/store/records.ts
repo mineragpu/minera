@@ -4,6 +4,7 @@ import type {
   Hex,
   JobAssignment,
   JobKind,
+  PairingGpu,
   RigStanding,
   RuntimeInfo,
   Settlement,
@@ -293,4 +294,16 @@ export interface CampaignSummary {
   burns: number;
   firstBurnAt: Date;
   lastBurnAt: Date;
+}
+
+/** A GPU machine's node address and deploy code, waiting under the code the Deploy page made. */
+export interface PairingRecord {
+  code: string;
+  nodeKey: Address;
+  operator: Address;
+  deployCode: Hex;
+  gpu: PairingGpu | null;
+  clientVersion: string;
+  pairedAt: Date;
+  expiresAt: Date;
 }

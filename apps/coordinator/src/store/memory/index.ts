@@ -2,6 +2,7 @@ import type { Store } from '../store.ts';
 import { memoryChain } from './chain.ts';
 import { memoryJobs } from './jobs.ts';
 import { memoryNonces } from './nonces.ts';
+import { memoryPairings } from './pairings.ts';
 import { memoryRigs } from './rigs.ts';
 import { memorySentinel } from './sentinel.ts';
 import { memorySettlements } from './settlements.ts';
@@ -17,6 +18,7 @@ export function createMemoryStore(): Store {
   const parts = {
     rigs: memoryRigs(box),
     nonces: memoryNonces(box),
+    pairings: memoryPairings(box),
     jobs: memoryJobs(box),
     work: memoryWork(box),
     settlements: memorySettlements(box),

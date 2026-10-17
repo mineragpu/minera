@@ -109,6 +109,32 @@ describe('parseCommandLine', () => {
     assert.match(error(['status', '--verbose']), /Unknown option --verbose/);
   });
 
+  it('reads pair with the code from the Deploy page', () => {
+    const code = '0123456789abcdef0123456789abcdef';
+    assert.deepEqual(command(['pair', '--code', code, '--operator', OPERATOR, '--network', 'mainnet']), {
+      name: 'pair',
+      code,
+      operator: OPERATOR,
+      network: 'mainnet',
+      coordinator: null,
+      start: null,
+    });
+    const started = command(['pair', '--code', code, '--operator', OPERATOR, '--start', '--keep-model', '--auto-claim', '0.001']);
+    assert.ok(started.name === 'pair' && started.start !== null);
+    assert.deepEqual(
+      [started.start.keepModel, started.start.autoClaimWei, started.start.concurrency],
+      [true, 1_000_000_000_000_000n, 1],
+    );
+  });
+
+  it('rejects a pair without a valid code, or with start options but no --start', () => {
+    assert.match(error(['pair', '--operator', OPERATOR]), /--code is required/);
+    assert.match(error(['pair', '--code', 'ABCDEF', '--operator', OPERATOR]), /32-character code/);
+    assert.match(error(['pair', '--code', '0'.repeat(32)]), /--operator is required/);
+    assert.match(error(['pair', '--code', '0'.repeat(32), '--operator', OPERATOR, '--keep-model']), /--keep-model applies to pair only with --start/);
+    assert.match(error(['start', '--start']), /--start does not apply to start/);
+  });
+
   it('shows help and the version on request', () => {
     assert.deepEqual(command([]), { name: 'help' });
     assert.deepEqual(command(['help']), { name: 'help' });
