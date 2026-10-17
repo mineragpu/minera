@@ -125,6 +125,42 @@ export const claimView = object({
   pending: nullable(object({ index: integer, cumulative: bigintString, claimableAt: nullable(timestamp) })),
 });
 
+export const rewardsView = object({
+  totals: nullable(
+    object({
+      committed: bigintString,
+      claimed: bigintString,
+      unclaimed: bigintString,
+      inPool: bigintString,
+      accounts: integer,
+      settlements: integer,
+    }),
+  ),
+  pending: nullable(object({ index: integer, claimableAt: timestamp })),
+  epochEndsAt: timestamp,
+  settlements: array(
+    object({
+      index: integer,
+      added: bigintString,
+      total: bigintString,
+      vetoed: boolean,
+      txHash: nullable(hex),
+      publishedAt: nullable(timestamp),
+      claimableAt: nullable(timestamp),
+    }),
+  ),
+  earners: array(object({ account: address, earned: bigintString, claimed: bigintString, claimable: bigintString })),
+  rules: object({
+    maxWeiPerUnit: bigintString,
+    perOriginUnits: integer,
+    perPairUnits: integer,
+    probationPayBps: integer,
+    releaseBpsPerDay: nullable(bigintString),
+    challengeDelaySeconds: nullable(bigintString),
+    epochSeconds: integer,
+  }),
+});
+
 export const playgroundReceipt = object({ id: string, status: literal('queued') });
 
 export const playgroundJob = object({
@@ -153,6 +189,7 @@ export type RigSummary = RigBoard['rigs'][number];
 export type RigDetail = Decoded<typeof rigDetail>;
 export type PoolView = Decoded<typeof poolView>;
 export type ClaimView = Decoded<typeof claimView>;
+export type RewardsView = Decoded<typeof rewardsView>;
 export type PlaygroundReceipt = Decoded<typeof playgroundReceipt>;
 export type PlaygroundJob = Decoded<typeof playgroundJob>;
 export type PlaygroundStatus = PlaygroundJob['status'];

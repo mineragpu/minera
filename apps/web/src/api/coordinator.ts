@@ -8,6 +8,7 @@ import {
   playgroundJob,
   playgroundReceipt,
   poolView,
+  rewardsView,
   rigBoard,
   rigDetail,
   sentinelView,
@@ -16,6 +17,7 @@ import {
   type PlaygroundJob,
   type PlaygroundReceipt,
   type PoolView,
+  type RewardsView,
   type RigBoard,
   type RigDetail,
   type SentinelView,
@@ -52,6 +54,10 @@ export function fetchRig(nodeKey: Address, signal: AbortSignal): Promise<RigDeta
 
 export function fetchPool(signal: AbortSignal): Promise<PoolView> {
   return requestJson('/v1/pool', poolView, { signal });
+}
+
+export function fetchRewards(signal: AbortSignal): Promise<RewardsView> {
+  return requestJson('/v1/rewards', rewardsView, { signal });
 }
 
 export function fetchClaims(account: Address, signal: AbortSignal): Promise<ClaimView> {

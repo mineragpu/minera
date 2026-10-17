@@ -6,6 +6,7 @@ export type Route =
   | { name: 'deploy' }
   | { name: 'playground' }
   | { name: 'claim' }
+  | { name: 'rewards' }
   | { name: 'rig'; nodeKey: string }
   /** A null slug is the docs index. */
   | { name: 'docs'; slug: string | null }
@@ -19,6 +20,7 @@ export const PATHS = {
   deploy: '/deploy',
   playground: '/playground',
   claim: '/claim',
+  rewards: '/rewards',
   docs: '/docs',
 } as const;
 
@@ -44,6 +46,8 @@ export function matchRoute(pathname: string): Route {
       return { name: 'playground' };
     case PATHS.claim:
       return { name: 'claim' };
+    case PATHS.rewards:
+      return { name: 'rewards' };
     case PATHS.docs:
       return { name: 'docs', slug: null };
   }

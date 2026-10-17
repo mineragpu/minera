@@ -20,6 +20,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **A Rewards page on the site,** at `/rewards` and in the top bar: what has been committed to rigs,
+  claimed and left waiting, what is still in the pool, the operators who have earned with what each has
+  claimed and can claim now, the settlements with what each added and when it becomes claimable, a check
+  for any wallet, and the rules that decide the split. It reads `GET /v1/rewards`, a new route that
+  gathers all of it in one answer.
 - **A work bond contract, not deployed yet.** `RigBond` lets an operator lock ETH behind a rig. Leaving
   takes an unbonding delay during which the guardian can still slash the bond, and slashed ETH is
   burned into the Burn Pool, never paid to the guardian. `script/DeployBond.s.sol` deploys it with the

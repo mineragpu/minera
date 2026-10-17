@@ -17,6 +17,7 @@ interface NavLink {
 export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Launchpad', href: PATHS.launchpad, route: 'launchpad' },
   { label: 'Burn Pool', href: sectionPath('burn-pool'), section: 'burn-pool' },
+  { label: 'Rewards', href: PATHS.rewards, route: 'rewards' },
   { label: 'Playground', href: PATHS.playground, route: 'playground', section: 'playground' },
   { label: 'Claim', href: PATHS.claim, route: 'claim', needsWallet: true },
   { label: 'Docs', href: PATHS.docs, route: 'docs' },
@@ -41,6 +42,7 @@ export const FOOTER_GROUPS: readonly FooterGroup[] = [
       { label: 'Launchpad', href: PATHS.launchpad },
       { label: 'Deploy', href: PATHS.deploy },
       { label: 'Playground', href: PATHS.playground },
+      { label: 'Rewards', href: PATHS.rewards },
       { label: 'Claim', href: PATHS.claim },
     ],
   },

@@ -12,6 +12,7 @@ import './page.css';
 // so they load only when opened.
 const DeployPage = lazy(() => import('./deploy/DeployPage.tsx').then((module) => ({ default: module.DeployPage })));
 const ClaimPage = lazy(() => import('./claim/ClaimPage.tsx').then((module) => ({ default: module.ClaimPage })));
+const RewardsPage = lazy(() => import('./rewards/RewardsPage.tsx').then((module) => ({ default: module.RewardsPage })));
 const DocsPage = lazy(() => import('./docs/DocsPage.tsx').then((module) => ({ default: module.DocsPage })));
 
 function PageLoading() {
@@ -33,6 +34,8 @@ function Page({ route }: { route: Route }) {
       return <DeployPage />;
     case 'claim':
       return <ClaimPage />;
+    case 'rewards':
+      return <RewardsPage />;
     case 'playground':
       return <PlaygroundPage />;
     case 'rig':
