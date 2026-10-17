@@ -20,6 +20,11 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Daily refills for the Burn Pool, listed on the Rewards page.** From October 17, 2026, a dedicated
+  refill wallet tops up the mainnet Burn Pool every day as campaign 2, with the memo "daily refill".
+  It holds only what the next refills need and has no role in the contracts. The Rewards page gains a
+  Top-ups list of every deposit into the pool with its transaction, the home page shows campaign 02 as
+  live on mainnet, and *Campaigns* and *Contracts* in the docs describe the refill wallet.
 - **Run a rig without your own GPU.** A new docs page, *Where to run a rig*, compares the options:
   your own PC or Mac, a GPU rented by the hour from a marketplace or a cloud, or a dedicated server. A
   rig script served at `mineragpu.tech/rig.sh` sets up a rented Linux GPU machine with one command: it

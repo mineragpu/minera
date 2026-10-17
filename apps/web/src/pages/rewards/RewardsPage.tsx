@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { formatEther, getAddress, isAddress } from 'viem';
 import type { Address } from '@minera/shared';
-import { fetchClaims, fetchRewards } from '../../api/coordinator.ts';
-import type { ClaimView, RewardsView } from '../../api/schemas.ts';
+import { fetchClaims, fetchPool, fetchRewards } from '../../api/coordinator.ts';
+import type { ClaimView, PoolView, RewardsView } from '../../api/schemas.ts';
 import { usePoll } from '../../api/usePoll.ts';
 import { Button, ButtonLink } from '../../components/Button.tsx';
 import { LoadError } from '../../components/LoadError.tsx';
@@ -242,6 +242,45 @@ function Settlements({ rewards }: { rewards: RewardsView }) {
   );
 }
 
+function burnNote(burn: PoolView['burns'][number]): string {
+  if (burn.memo) return burn.memo;
+  return burn.campaignId === 0n ? 'Sent directly' : `Campaign ${burn.campaignId.toString()}`;
+}
+
+function TopUps({ pool }: { pool: PoolView }) {
+  if (pool.burns.length === 0) {
+    return <p className="rewards-empty">Nothing has been added to the Burn Pool yet.</p>;
+  }
+  return (
+    <div className="rewards-table" role="table" aria-label="Top-ups into the Burn Pool, newest first">
+      <div className="rewards-table__row rewards-table__head" role="row">
+        <span role="columnheader">When</span>
+        <span role="columnheader">Amount</span>
+        <span role="columnheader">Note</span>
+        <span role="columnheader">Transaction</span>
+      </div>
+      {pool.burns.map((burn) => (
+        <div className="rewards-table__row" role="row" key={burn.txHash}>
+          <span role="cell" data-label="When">
+            {formatDateTime(burn.time)}
+          </span>
+          <span role="cell" data-label="Amount">
+            {eth(burn.amount)}
+          </span>
+          <span role="cell" data-label="Note">
+            {burnNote(burn)}
+          </span>
+          <span role="cell" data-label="Transaction">
+            <a className="text-link" href={txUrl(burn.txHash)} target="_blank" rel="noreferrer">
+              {burn.txHash.slice(0, 10)}…
+            </a>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Rules({ rewards }: { rewards: RewardsView }) {
   const { rules } = rewards;
   const percent = rules.releaseBpsPerDay === null ? null : Number(rules.releaseBpsPerDay) / 100;
@@ -275,6 +314,7 @@ export function RewardsPage() {
   useDocumentTitle('Rewards');
   const rewards = usePoll(fetchRewards, { key: 'rewards', intervalMs: REFRESH_MS });
   const data = rewards.data ?? null;
+  const pool = usePoll(fetchPool, { key: 'pool', intervalMs: REFRESH_MS });
 
   return (
     <>
@@ -305,6 +345,15 @@ export function RewardsPage() {
                   </h2>
                   <Settlements rewards={data} />
                 </section>
+                {pool.data && (
+                  <section aria-labelledby="rewards-topups-title" className="rewards-section">
+                    <h2 className="rewards-h2" id="rewards-topups-title">
+                      Top-ups
+                    </h2>
+                    <p className="rewards-note">Every deposit into the Burn Pool, newest first, with its transaction.</p>
+                    <TopUps pool={pool.data} />
+                  </section>
+                )}
                 <Rules rewards={data} />
               </>
             )}

@@ -11,7 +11,7 @@ import { Skeleton } from '../components/Skeleton.tsx';
 import { formatScale, slabUnit } from '../components/vessel/scale.ts';
 import { Vessel } from '../components/vessel/Vessel.tsx';
 import { Words } from '../components/Words.tsx';
-import { PREVIEW_CAMPAIGN } from '../data/preview.ts';
+import { PREVIEW_CAMPAIGN, REFILL_CAMPAIGN } from '../data/preview.ts';
 import { formatAmount, formatCount, toFloat } from '../lib/amount.ts';
 import { revealRef } from '../motion/revealObserver.ts';
 import { useReveal } from '../motion/useReveal.ts';
@@ -19,6 +19,7 @@ import { useVesselFill } from '../motion/useVesselFill.ts';
 import './burn-pool.css';
 
 const REFRESH_MS = 30_000;
+const CAMPAIGN = ON_MAINNET ? REFILL_CAMPAIGN : PREVIEW_CAMPAIGN;
 
 type PoolState = NonNullable<PoolView['state']>;
 
@@ -68,8 +69,9 @@ export function BurnPool({ index }: { index: string }) {
             <Words>A pool that only fills.</Words>
           </h2>
           <p className="lede">
-            The project wallet can add to the Burn Pool at any time. Every deposit is one-way. Nothing in the
-            pool can be taken back out.
+            Any wallet can add to the Burn Pool at any time
+            {ON_MAINNET ? ', and a dedicated refill wallet tops it up every day' : ''}. Every deposit is one-way.
+            Nothing in the pool can be taken back out.
           </p>
         </div>
 
@@ -114,11 +116,11 @@ export function BurnPool({ index }: { index: string }) {
           <p className="band" ref={revealRef} data-reveal="fade-up">
             <span>
               <b>
-                Campaign {PREVIEW_CAMPAIGN.number} · {PREVIEW_CAMPAIGN.name}.
+                Campaign {CAMPAIGN.number} · {CAMPAIGN.name}.
               </b>{' '}
               {BRAND.rewardAllocation}{' '}
               {ON_MAINNET
-                ? 'The project wallet made the first burn on mainnet, and burns directly until the scheduled refills start.'
+                ? 'The project wallet made the first burn on mainnet. Since October 17, a dedicated refill wallet tops the pool up every day.'
                 : 'On testnet the project wallet burns into the pool directly.'}
             </span>
           </p>
@@ -178,7 +180,7 @@ export function BurnPool({ index }: { index: string }) {
           <ul className="iface" aria-label="What the Burn Pool can do">
             <li ref={revealRef} data-reveal="fade-up">
               <code>deposit</code>
-              <span>From the project wallet, at any time</span>
+              <span>From any wallet, at any time</span>
               <span className="state state--open">Open</span>
             </li>
             <li ref={revealRef} data-reveal="fade-up">

@@ -47,7 +47,8 @@
 
 .rewards-next p,
 .rewards-rules li,
-.rewards-empty {
+.rewards-empty,
+.rewards-note {
   color: var(--silver);
   font-size: var(--step--1);
 }

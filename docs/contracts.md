@@ -17,12 +17,16 @@ contracts are verified with an exact source match on Sourcify.
 | Rig registry | [`0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1`](https://robinhoodchain.blockscout.com/address/0xbe078e15cF90c21Bf23BCFBE94DBC9E44ceFd4d1) |
 | Guardian | [`0x90F4B2B88C3459555977B153ebA6BACB4420EADA`](https://robinhoodchain.blockscout.com/address/0x90F4B2B88C3459555977B153ebA6BACB4420EADA) |
 | Publisher | [`0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A`](https://robinhoodchain.blockscout.com/address/0xB677A0A954dBb26A0Fd7ec874d1c232D56e2c98A) |
+| Refill wallet | [`0xBe772A628aA04559A26F2Bb0fC6f5371c3239EdE`](https://robinhoodchain.blockscout.com/address/0xBe772A628aA04559A26F2Bb0fC6f5371c3239EdE) |
 
 Mainnet parameters: a 6-hour challenge delay, a 48-hour publisher rotation delay, a release limit
 of 10% of the uncommitted pool per day and a 24-hour pair listing delay. The guardian is a key used
 for nothing else ([final audit round](https://github.com/mineragpu/minera/blob/main/audits/2026-10-09-contracts-final-round.md)).
 The same deployer created the testnet contracts, so two mainnet addresses repeat testnet addresses
 that belong to different contracts there: check the chain ID before you send anything.
+
+The refill wallet is not a contract role. It tops the Burn Pool up every day as campaign 2 and holds
+only what the next refills need. See [Campaigns](campaigns.md#campaign-2-daily-refills).
 
 ## Testnet addresses
 
