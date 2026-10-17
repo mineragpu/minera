@@ -29,6 +29,11 @@ export const DOC_GROUPS: readonly DocGroup[] = [
         summary: 'Install the node client, create a node key, deploy the rig and start taking jobs.',
       },
       {
+        slug: 'where-to-run-a-rig',
+        title: 'Where to run a rig',
+        summary: 'Your own PC or Mac, or a GPU rented by the hour or the month, with a one-command setup.',
+      },
+      {
         slug: 'deploy-a-rig',
         title: 'Deploy a rig',
         summary: 'The Deploy page step by step: wallet, deploy code, name, pair and the transaction.',

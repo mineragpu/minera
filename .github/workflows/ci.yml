@@ -58,6 +58,11 @@ jobs:
       - name: Build
         run: npm run build --workspace @minera/web
 
+      - name: Check the rig script
+        run: |
+          bash -n apps/web/public/rig.sh
+          shellcheck --severity=warning apps/web/public/rig.sh
+
       - name: Build and smoke-test the node client package
         run: |
           npm run build --workspace @minera-gpu/miner

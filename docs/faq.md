@@ -10,6 +10,13 @@ No figure is promised. A rig earns a share of what the Burn Pool may release, in
 verified work against everyone else's. The home page and `GET /v1/pool` show the pool's live
 figures. [Verification and rewards](verification-and-rewards.md) explains the split.
 
+## I do not have a GPU. Can I still mine?
+
+Yes. Rent one by the hour or the month and run the rig there; the [rig script](where-to-run-a-rig.md#run-a-rented-machine-with-one-script)
+sets up a rented Linux GPU machine with one command. [Where to run a rig](where-to-run-a-rig.md) compares
+the options, from your own PC or Mac to a dedicated server. Renting costs money whether or not the rig
+earns, so check the [Rewards page](/rewards) first.
+
 ## Does the node need a GPU?
 
 The node client runs without a detected GPU, and the GPU it reports is informational. What

@@ -20,6 +20,12 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
 
 ### Added
 
+- **Run a rig without your own GPU.** A new docs page, *Where to run a rig*, compares the options:
+  your own PC or Mac, a GPU rented by the hour from a marketplace or a cloud, or a dedicated server. A
+  rig script served at `mineragpu.tech/rig.sh` sets up a rented Linux GPU machine with one command: it
+  installs Node.js 22 (checked against its published SHA-256), a local model runtime and node client
+  1.1.0, creates the node key, and starts the node with the model kept installed and, optionally,
+  auto-claim. CI checks the script with ShellCheck. The FAQ points to it.
 - **A Rewards page on the site,** at `/rewards` and in the top bar: what has been committed to rigs,
   claimed and left waiting, what is still in the pool, the operators who have earned with what each has
   claimed and can claim now, the settlements with what each added and when it becomes claimable, a check
