@@ -98,6 +98,11 @@ export function postgresChain(db: Queryable): ChainStore {
       };
     },
 
+    async totalClaimed() {
+      const [row] = await db<{ amount: string }[]>`SELECT COALESCE(sum(amount), 0) AS amount FROM claims`;
+      return toBigInt(row?.amount ?? 0);
+    },
+
     async claimedBy(account) {
       const [row] = await db<{ amount: string }[]>`
         SELECT COALESCE(sum(amount), 0) AS amount FROM claims WHERE account = ${account}

@@ -176,6 +176,8 @@ export interface ChainStore {
   /** The campaign of the newest burn that names one. */
   currentCampaign(): Promise<CampaignSummary | null>;
   claimedBy(account: Address): Promise<bigint>;
+  /** Everything claimed from the pool so far, summed from its Claimed events. */
+  totalClaimed(): Promise<bigint>;
 }
 
 export interface Store {

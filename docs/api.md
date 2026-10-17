@@ -327,6 +327,60 @@ What an operator wallet can claim now, with the proof for the claim call.
 - `pending` shows a newer settlement still inside its challenge delay, with the wallet's cumulative
   total in it and when it becomes claimable.
 
+## GET /v1/rewards
+
+Everything about the rewards in one place: what has been committed to rigs and claimed, who earned
+what, the recent settlements and the rules that decide the split.
+
+```json
+{
+  "totals": {
+    "committed": "770748148148148",
+    "claimed": "0",
+    "unclaimed": "770748148148148",
+    "inPool": "229251851851852",
+    "accounts": 2,
+    "settlements": 2
+  },
+  "pending": { "index": 2, "claimableAt": "2026-10-17T06:01:00.000Z" },
+  "epochEndsAt": "2026-10-17T02:00:00.000Z",
+  "settlements": [
+    {
+      "index": 2,
+      "added": "2600000000000",
+      "total": "770748148148148",
+      "vetoed": false,
+      "txHash": "0xdf9b…",
+      "publishedAt": "2026-10-17T00:01:00.000Z",
+      "claimableAt": "2026-10-17T06:01:00.000Z"
+    }
+  ],
+  "earners": [
+    { "account": "0x39ff…", "earned": "385374074074074", "claimed": "0", "claimable": "384074074074074" }
+  ],
+  "rules": {
+    "maxWeiPerUnit": "100000000000",
+    "perOriginUnits": 2000,
+    "perPairUnits": 2000,
+    "probationPayBps": 5000,
+    "releaseBpsPerDay": "1000",
+    "challengeDelaySeconds": "21600",
+    "epochSeconds": 3600
+  }
+}
+```
+
+- Amounts are in wei. `committed` is the total of the newest published settlement as the Burn Pool
+  reports it, `claimed` sums the pool's `Claimed` events, and `inPool` is what has been deposited
+  but not committed yet.
+- `settlements` lists the newest first; `added` is what each one added to the total committed.
+- `earners` lists up to 25 operator wallets by what they have earned as of the newest published
+  settlement. `claimable` is what each can claim now, from the newest settlement past its challenge
+  delay.
+- `pending` is the newest settlement still inside its challenge delay, or `null`.
+- `rules` are the values the coordinator and the pool use right now; see
+  [Verification and rewards](verification-and-rewards.md#limits-on-paid-work).
+
 ## GET /v1/token
 
 The ${{token.symbol}} supply, read from the chain at one block. Served by the coordinator of the

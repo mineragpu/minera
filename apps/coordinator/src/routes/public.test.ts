@@ -238,6 +238,70 @@ describe('public routes', () => {
     assert.equal((await get('/v1/claims/someone')).statusCode, 400);
   });
 
+  it('serves the rewards: totals, settlements, who earned what and the rules', async () => {
+    const plan = planSettlement({
+      pool: snapshot({ releasable: ETH }),
+      base: null,
+      fromEpoch: 0,
+      toEpoch: 5,
+      work: [
+        { nodeKey: RIG_1, operator: OPERATOR_A, verified: 1n, units: 1n },
+        { nodeKey: RIG_2, operator: OPERATOR_B, verified: 3n, units: 3n },
+      ],
+      chainId: 46630,
+      burnPool: address(0xf0),
+      epochSeconds: 3_600,
+      createdAt: harness.clock.now,
+    });
+    assert.equal(plan.kind, 'publish');
+    if (plan.kind !== 'publish') return;
+    await harness.store.settlements.createDraft(plan.draft);
+    await harness.store.settlements.recordPublished({
+      index: 1,
+      root: plan.draft.root,
+      total: plan.draft.total,
+      inputsDigest: plan.draft.inputsDigest,
+      txHash: `0x${'bb'.repeat(32)}` as Hex,
+      blockNumber: 7n,
+      publishedAt: new Date('2026-09-29T10:00:00Z'),
+      claimableAt: new Date('2026-09-29T10:30:00Z'),
+    });
+    await harness.store.chain.addClaim({
+      blockNumber: 8n,
+      blockTime: new Date('2026-09-29T11:00:00Z'),
+      txHash: `0x${'cc'.repeat(32)}` as Hex,
+      logIndex: 0,
+      account: OPERATOR_B,
+      index: 1,
+      amount: 10n ** 17n,
+      via: address(0),
+    });
+    const head = { index: 1, publishedAt: 1n, claimableAt: 2n, vetoed: false };
+    harness.pool.snapshot = snapshot({ totalBurned: 2n * ETH, committed: ETH, head, latest: head, settlementCount: 1 });
+
+    const body = (await get('/v1/rewards')).json();
+    assert.deepEqual(body.totals, {
+      committed: ETH.toString(),
+      claimed: (10n ** 17n).toString(),
+      unclaimed: (ETH - 10n ** 17n).toString(),
+      inPool: ETH.toString(),
+      accounts: 2,
+      settlements: 1,
+    });
+    assert.deepEqual(
+      body.settlements.map((settlement: { index: number; added: string }) => [settlement.index, settlement.added]),
+      [[1, ETH.toString()]],
+    );
+    assert.deepEqual(body.earners, [
+      { account: OPERATOR_B, earned: ((3n * ETH) / 4n).toString(), claimed: (10n ** 17n).toString(), claimable: ((3n * ETH) / 4n - 10n ** 17n).toString() },
+      { account: OPERATOR_A, earned: (ETH / 4n).toString(), claimed: '0', claimable: (ETH / 4n).toString() },
+    ]);
+    assert.equal(body.pending, null);
+    assert.deepEqual(body.rules.probationPayBps, 5_000);
+    assert.equal(typeof body.rules.maxWeiPerUnit, 'string');
+    assert.ok(Date.parse(body.epochEndsAt) > harness.clock.now.getTime());
+  });
+
   it('answers unknown routes and broken JSON with the same error shape', async () => {
     const missing = await get('/v2/everything');
     assert.deepEqual(missing.json(), { error: { code: 'not_found', message: 'There is no such route.' } });

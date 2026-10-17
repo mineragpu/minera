@@ -48,6 +48,10 @@ export function memoryChain(box: StateBox): ChainStore {
       return summary;
     },
 
+    async totalClaimed() {
+      return box.state.claims.reduce((sum, claim) => sum + claim.amount, 0n);
+    },
+
     async claimedBy(account) {
       return box.state.claims
         .filter((claim) => claim.account === account)
