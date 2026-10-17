@@ -137,6 +137,48 @@ export const pairingView = object({
   expiresAt: timestamp,
 });
 
+/** What a rented machine costs right now, per package. */
+export const rentalOffer = object({
+  available: boolean,
+  reason: nullable(string),
+  gpu: nullable(object({ model: string, vramMb: integer })),
+  unitSeconds: integer,
+  packages: array(object({ units: integer, usd: string, wei: bigintString })),
+  ethUsd: string,
+  payTo: address,
+  quoteSeconds: integer,
+});
+
+export const rentalView = object({
+  id: string,
+  parentId: nullable(string),
+  operator: address,
+  units: integer,
+  unitSeconds: integer,
+  priceWei: bigintString,
+  usd: string,
+  status: literal('quoted', 'expired', 'paid', 'starting', 'running', 'ended', 'failed', 'applied'),
+  payment: nullable(object({ to: address, value: bigintString, data: hex, expiresAt: timestamp })),
+  payTx: nullable(hex),
+  paidAt: nullable(timestamp),
+  gpu: nullable(string),
+  pairingCode: nullable(string),
+  startedAt: nullable(timestamp),
+  endsAt: nullable(timestamp),
+  note: nullable(string),
+  createdAt: timestamp,
+  refunds: array(
+    object({
+      wei: bigintString,
+      reason: literal('excess', 'late', 'short', 'unused'),
+      status: literal('pending', 'sent', 'done'),
+      txHash: nullable(hex),
+    }),
+  ),
+});
+
+export const rentalList = object({ rentals: array(rentalView) });
+
 export const rewardsView = object({
   totals: nullable(
     object({
@@ -203,6 +245,8 @@ export type PoolView = Decoded<typeof poolView>;
 export type ClaimView = Decoded<typeof claimView>;
 export type RewardsView = Decoded<typeof rewardsView>;
 export type PairingView = Decoded<typeof pairingView>;
+export type RentalOffer = Decoded<typeof rentalOffer>;
+export type RentalView = Decoded<typeof rentalView>;
 export type PlaygroundReceipt = Decoded<typeof playgroundReceipt>;
 export type PlaygroundJob = Decoded<typeof playgroundJob>;
 export type PlaygroundStatus = PlaygroundJob['status'];

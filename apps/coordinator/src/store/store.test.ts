@@ -175,6 +175,91 @@ function storeContract(name: string, open: () => Promise<Store>): void {
       assert.equal(await store.nonces.prune(at(11)), 0);
     });
 
+    it('keeps rentals and their refunds, one payment per rental', async () => {
+      const rental = {
+        id: '1'.repeat(32),
+        parentId: null,
+        operator: OPERATOR_A,
+        units: 7,
+        priceWei: 5_055_000_000_000_000n,
+        usdMicros: 20_220_000n,
+        ethUsdMicros: 4_000_000_000n,
+        quoteExpiresAt: at(15),
+        status: 'quoted' as const,
+        payTx: null,
+        payer: null,
+        paidWei: null,
+        paidAt: null,
+        instanceId: null,
+        gpu: null,
+        usdPerHourMicros: null,
+        launchedAt: null,
+        attempts: 0,
+        pairingCode: 'c'.repeat(32),
+        startedAt: null,
+        endsAt: null,
+        note: null,
+        createdAt: at(0),
+        updatedAt: at(0),
+      };
+      assert.equal(await store.rentals.create(rental), true);
+      assert.equal(await store.rentals.create(rental), false);
+      assert.deepEqual(await store.rentals.get(rental.id), rental);
+      assert.equal(await store.rentals.countOpenQuotes(OPERATOR_A, at(10)), 1);
+      assert.equal(await store.rentals.countOpenQuotes(OPERATOR_A, at(15)), 0);
+
+      const payTx = `0x${'ab'.repeat(32)}` as const;
+      const running = {
+        ...rental,
+        status: 'running' as const,
+        payTx,
+        payer: OPERATOR_B,
+        paidWei: rental.priceWei + 1n,
+        paidAt: at(2),
+        instanceId: '4242',
+        gpu: 'Example GPU',
+        usdPerHourMicros: 81_200n,
+        launchedAt: at(3),
+        attempts: 1,
+        startedAt: at(9),
+        endsAt: at(9 + 7 * 24 * 60),
+        note: 'Machine connected.',
+        updatedAt: at(9),
+      };
+      await store.rentals.save(running);
+      assert.deepEqual(await store.rentals.get(rental.id), running);
+      assert.deepEqual(await store.rentals.byPayment(payTx), running);
+      assert.equal(await store.rentals.countActive(), 1);
+      assert.deepEqual((await store.rentals.inStatus(['running', 'paid'], 10)).map((entry) => entry.id), [rental.id]);
+      assert.deepEqual((await store.rentals.byOperator(OPERATOR_A, 10)).map((entry) => entry.id), [rental.id]);
+      assert.deepEqual(await store.rentals.byOperator(OPERATOR_B, 10), []);
+
+      const other = { ...rental, id: '2'.repeat(32), createdAt: at(1), updatedAt: at(1) };
+      await store.rentals.create(other);
+      await assert.rejects(store.rentals.save({ ...other, payTx }));
+
+      const refund = {
+        id: `${rental.id}:excess`,
+        rentalId: rental.id,
+        recipient: OPERATOR_B,
+        wei: 1n,
+        reason: 'excess' as const,
+        rawTx: null,
+        txHash: null,
+        status: 'pending' as const,
+        createdAt: at(2),
+        updatedAt: at(2),
+      };
+      assert.equal(await store.rentals.addRefund(refund), true);
+      assert.equal(await store.rentals.addRefund(refund), false);
+      const sent = { ...refund, rawTx: '0x02ff' as const, txHash: payTx, status: 'sent' as const, updatedAt: at(3) };
+      await store.rentals.saveRefund(sent);
+      assert.deepEqual(await store.rentals.refundsFor(rental.id), [sent]);
+      assert.deepEqual(await store.rentals.openRefunds(5), [sent]);
+      await store.rentals.saveRefund({ ...sent, status: 'done' });
+      assert.deepEqual(await store.rentals.openRefunds(5), []);
+    });
+
     it('keeps a pairing for its node key until it expires', async () => {
       const code = 'a'.repeat(32);
       const pairing = {

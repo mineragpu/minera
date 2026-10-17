@@ -11,13 +11,15 @@ import { WalletPrompt } from '../../wallet/WalletPrompt.tsx';
 import { PageHead } from '../PageHead.tsx';
 import { CodeStep } from './CodeStep.tsx';
 import { FlowStep } from './FlowStep.tsx';
-import { MachineStep } from './MachineStep.tsx';
+import { MachineStep, type MachineSource } from './MachineStep.tsx';
 import { NameStep } from './NameStep.tsx';
 import { PairStep } from './PairStep.tsx';
 import { renewPairingCode, sessionPairingCode } from './pairingCode.ts';
+import { RentPanel } from './RentPanel.tsx';
 import { SendPanel } from './SendPanel.tsx';
 import { useDeployCodeCheck } from './useDeployCodeCheck.ts';
 import { usePairing } from './usePairing.ts';
+import { saveRentalId, savedRentalId, useRental, useRentalOffer } from './useRental.ts';
 import { useRigLookup } from './useRigLookup.ts';
 import { isValidName, parseDeployCode, parseNodeAddress, rigName } from './validation.ts';
 import '../../components/form.css';
@@ -27,16 +29,23 @@ export function DeployPage() {
   useDocumentTitle('Deploy a rig');
   const { status, address, isCorrectNetwork } = useWallet();
   const transaction = useTransaction();
+  const payment = useTransaction();
   const [nodeInput, setNodeInput] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [pairAddress, setPairAddress] = useState<Address>(ETH_PAIR);
   const [pairingCode, setPairingCode] = useState(sessionPairingCode);
   const [manual, setManual] = useState(false);
+  const [rentalId, setRentalId] = useState(savedRentalId);
+  const offer = useRentalOffer();
+  const rental = useRental(rentalId);
+  const [source, setSource] = useState<MachineSource>(() => (rentalId === null ? 'own' : 'rent'));
+  const renting = source === 'rent' && offer.state === 'ready';
 
   const walletReady = status === 'connected' && address !== null && isCorrectNetwork;
   const operator = walletReady ? address : null;
-  const pairing = usePairing(manual || !operator ? null : pairingCode);
+  const machineCode = renting ? (rental?.pairingCode ?? null) : pairingCode;
+  const pairing = usePairing(manual || !operator ? null : machineCode);
   const paired = pairing.state === 'paired' ? pairing.machine : null;
   const nodeAddress = manual ? parseNodeAddress(nodeInput) : (paired?.nodeAddress ?? null);
   const code = manual ? parseDeployCode(codeInput) : (paired?.deployCode ?? null);
@@ -61,6 +70,7 @@ export function DeployPage() {
   let blocker: string | null = null;
   if (status !== 'connected') blocker = 'Connect your wallet first.';
   else if (!isCorrectNetwork) blocker = `Switch your wallet to ${ACTIVE_CHAIN.name} first.`;
+  else if (!manual && !nodeAddress && renting) blocker = 'Rent a machine and wait for it to connect.';
   else if (!manual && !nodeAddress) blocker = 'Run the command on the GPU machine and wait for it to connect.';
   else if (!nodeAddress) blocker = 'Paste the node address.';
   else if (!code) blocker = 'Paste the deploy code.';
@@ -86,7 +96,13 @@ export function DeployPage() {
     setNameInput('');
     setPairAddress(ETH_PAIR);
     setPairingCode(renewPairingCode());
+    followRental(null);
   };
+
+  function followRental(id: string | null) {
+    saveRentalId(id);
+    setRentalId(id);
+  }
 
   const codeReady = check === 'match' && lookup !== 'deployed';
 
@@ -111,6 +127,13 @@ export function DeployPage() {
               onManual={setManual}
               onNewCode={() => setPairingCode(renewPairingCode())}
               locked={locked}
+              source={source}
+              onSource={setSource}
+              rentPanel={
+                offer.state === 'ready' ? (
+                  <RentPanel operator={operator} offer={offer.offer} rental={rental} onRental={followRental} payment={payment} />
+                ) : null
+              }
               manualFields={
                 <CodeStep
                   nodeInput={nodeInput}

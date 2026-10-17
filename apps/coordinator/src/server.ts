@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { TOKEN, type Address } from '@minera/shared';
 import { buildApp } from './app.ts';
@@ -15,6 +16,12 @@ import { sweepJobs } from './jobs/janitor.ts';
 import { errorSummary, type Logger } from './log.ts';
 import { startLoop, type Loop } from './loop.ts';
 import { cryptoRandom } from './random.ts';
+import { createMarketClient } from './rentals/market.ts';
+import { chainPaymentReader } from './rentals/payment.ts';
+import { cachedEthUsd, readEthUsd } from './rentals/price.ts';
+import { createRefundWallet } from './rentals/refunds.ts';
+import { createRentalService, type RentalDeps, type RentalLog } from './rentals/service.ts';
+import { createRentalWorker } from './rentals/worker.ts';
 import { seedCanaries } from './sentinel/canary.ts';
 import { SENTINEL_POLICY } from './sentinel/policy.ts';
 import { createPublisher } from './settlement/publisher.ts';
@@ -27,6 +34,7 @@ const MIN_LOG_RANGE = 10n;
 const LOG_RANGE_REGROW_AFTER = 20;
 const JANITOR_MS = 10_000;
 const SENTINEL_MS = 60_000;
+const RENTALS_MS = 30_000;
 const RETRY_MS = 30_000;
 const SHUTDOWN_TIMEOUT_MS = 20_000;
 
@@ -65,7 +73,35 @@ async function start(config: Config): Promise<void> {
     tokenRules && tokenAddress && tokenRules.chainId === config.chain.id
       ? createTokenWatcher(() => readTokenSupply(client, tokenAddress, tokenRules))
       : null;
-  app = await buildApp({ logging: true, config, store, pool, token, clock: () => new Date(), random: cryptoRandom });
+  // Rentals log through the app's logger, which exists only once the app is built.
+  const rentalLog: RentalLog = {
+    info: (details, message) => app?.log.info(details, message),
+    warn: (details, message) => app?.log.warn(details, message),
+    error: (details, message) => app?.log.error(details, message),
+  };
+  const rentalDeps: RentalDeps | null = config.rentals
+    ? {
+        store,
+        config: config.rentals,
+        network: config.network,
+        market: createMarketClient(config.rentals.market),
+        ethUsd: cachedEthUsd(() => readEthUsd(config.rentals?.ethUsdSources ?? [])),
+        payments: chainPaymentReader(client),
+        newId: () => randomBytes(16).toString('hex'),
+        log: rentalLog,
+      }
+    : null;
+  const rentals = rentalDeps ? createRentalService(rentalDeps) : null;
+  app = await buildApp({
+    logging: true,
+    config,
+    store,
+    pool,
+    token,
+    rentals,
+    clock: () => new Date(),
+    random: cryptoRandom,
+  });
   const log = app.log;
   log.info(configSummary(config), 'starting coordinator');
 
@@ -163,6 +199,26 @@ async function start(config: Config): Promise<void> {
         return SENTINEL_MS;
       },
     }),
+    ...(rentalDeps && rentals && config.rentals
+      ? [
+          startLoop({
+            name: 'rentals',
+            log,
+            retryMs: RETRY_MS,
+            run: (() => {
+              const worker = createRentalWorker({
+                ...rentalDeps,
+                service: rentals,
+                wallet: createRefundWallet(config.rentals.refundKey, config.chain, config.rpcUrls.reveal(), client),
+              });
+              return async () => {
+                await worker.step(new Date());
+                return RENTALS_MS;
+              };
+            })(),
+          }),
+        ]
+      : []),
     startLoop({
       name: 'settlement',
       log,

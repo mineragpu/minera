@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Address, Hex } from '@minera/shared';
+import { toHex } from 'viem';
 import { ACTIVE_CHAIN } from '../config/network.ts';
 import { useWallet } from '../wallet/useWallet.ts';
 import { describeTransactionError } from './revert.ts';
@@ -17,6 +18,8 @@ export type TransactionState =
 interface TransactionRequest {
   to: Address;
   data: Hex;
+  /** Wei to send with the call; none when left out. */
+  value?: bigint;
 }
 
 export interface Transaction {
@@ -38,7 +41,7 @@ export function useTransaction(): Transaction {
   useEffect(() => () => controller.current?.abort(), []);
 
   const send = useCallback(
-    async ({ to, data }: TransactionRequest) => {
+    async ({ to, data, value }: TransactionRequest) => {
       if (!wallet || !address) return;
       controller.current?.abort();
       const current = new AbortController();
@@ -55,9 +58,10 @@ export function useTransaction(): Transaction {
           update({ phase: 'failed', message: WRONG_NETWORK, hash: null });
           return;
         }
-        await call(provider, { from: address, to, data });
+        const request = { from: address, to, data, ...(value === undefined ? {} : { value: toHex(value) }) };
+        await call(provider, request);
         update({ phase: 'confirming' });
-        hash = await sendTransaction(provider, { from: address, to, data });
+        hash = await sendTransaction(provider, request);
         update({ phase: 'pending', hash });
         const receipt = await waitForReceipt(provider, hash, current.signal);
         if (receipt.status === 'reverted') update({ phase: 'failed', message: REVERTED, hash });

@@ -86,6 +86,24 @@ guardian's veto.
   the fresh quote less 1%; with thin liquidity, a claim fails rather than filling below it.
 - Tokenized stocks are not available to US persons.
 
+### Rented machines
+
+Where the network rents GPU machines from the Deploy page, the coordinator rents them from a GPU
+marketplace on the renter's behalf. See [Where to run a rig](where-to-run-a-rig.md#rent-a-gpu-on-the-deploy-page).
+
+- **You trust the coordinator with the payment.** A rental is paid in ETH to the rental address,
+  and the coordinator launches the machine only after it has checked the payment on chain: a
+  transfer to that address whose data is the rental's id, mined before the quote expired.
+- **Refunds come from a separate hot wallet** the coordinator holds, which keeps only a small float.
+  A refund is never more than the rental's payment, and each one is signed and saved before it is
+  sent, so a restart cannot send it twice. If the float runs out, refunds wait until it is topped up.
+- **The marketplace and the machine's host** can stop or read a rented machine. The node key of a
+  rented rig is only as private as that host; it cannot move funds, and rewards always go to the
+  operator wallet.
+- **Spending is capped.** The coordinator refuses machines above an hourly price cap and holds at
+  most a set number of rentals at once, and it destroys any machine on its marketplace account that
+  no rental holds.
+
 ### The site
 
 The site reads the chain through your wallet and the coordinator, and uses the contract addresses

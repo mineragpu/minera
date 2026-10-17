@@ -12,6 +12,7 @@ import { registerNodeRoutes } from './routes/node.ts';
 import { registerPairingRoutes } from './routes/pairings.ts';
 import { registerPlaygroundRoutes } from './routes/playground.ts';
 import { registerPoolRoute } from './routes/pool.ts';
+import { registerRentalRoutes } from './routes/rentals.ts';
 import { keepRawJsonBodies } from './routes/rawBody.ts';
 import { registerRewardsRoute } from './routes/rewards.ts';
 import { registerRigRoutes } from './routes/rigs.ts';
@@ -80,6 +81,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerPlaygroundRoutes(app, context);
   registerSentinelRoute(app, context);
   registerPairingRoutes(app, context);
+  registerRentalRoutes(app, context);
   registerNodeRoutes(app, context);
   return app;
 }

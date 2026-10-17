@@ -307,3 +307,68 @@ export interface PairingRecord {
   pairedAt: Date;
   expiresAt: Date;
 }
+
+/**
+ * - `quoted`: waiting for its payment until the quote expires.
+ * - `expired`: the quote ran out unpaid.
+ * - `paid`: the payment is confirmed; a machine is being found.
+ * - `starting`: a machine was launched and has not paired yet.
+ * - `running`: the machine paired with the Deploy page; the rental's time runs.
+ * - `ended`: the time ran out and the machine was destroyed.
+ * - `failed`: no machine could be kept running; the unused part was refunded.
+ * - `applied`: an extension whose units were added to its parent.
+ */
+export type RentalStatus = 'quoted' | 'expired' | 'paid' | 'starting' | 'running' | 'ended' | 'failed' | 'applied';
+
+export interface RentalRecord {
+  /** 32 hexadecimal characters; also the payment transaction's data. */
+  id: string;
+  /** The rental an extension adds units to; null for a rental of its own. */
+  parentId: string | null;
+  operator: Address;
+  /** Rental units bought: days, except on a test network. */
+  units: number;
+  priceWei: bigint;
+  /** The quoted price in millionths of a US dollar, and the ETH price it was converted at. */
+  usdMicros: bigint;
+  ethUsdMicros: bigint;
+  quoteExpiresAt: Date;
+  status: RentalStatus;
+  payTx: Hex | null;
+  payer: Address | null;
+  paidWei: bigint | null;
+  paidAt: Date | null;
+  /** The marketplace's machine, its card and what it costs an hour, once launched. */
+  instanceId: string | null;
+  gpu: string | null;
+  usdPerHourMicros: bigint | null;
+  launchedAt: Date | null;
+  /** Machines launched for this rental so far. */
+  attempts: number;
+  /** The code the machine pairs with the Deploy page under. */
+  pairingCode: string;
+  startedAt: Date | null;
+  endsAt: Date | null;
+  /** The latest word for the renter, such as why a machine was replaced. */
+  note: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type RefundReason = 'excess' | 'late' | 'short' | 'unused';
+export type RefundStatus = 'pending' | 'sent' | 'done';
+
+export interface RefundRecord {
+  /** One refund per rental and reason. */
+  id: string;
+  rentalId: string;
+  recipient: Address;
+  wei: bigint;
+  reason: RefundReason;
+  /** The signed transaction, kept before it is first broadcast, and its hash. */
+  rawTx: Hex | null;
+  txHash: Hex | null;
+  status: RefundStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}

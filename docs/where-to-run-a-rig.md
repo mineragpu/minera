@@ -1,7 +1,7 @@
 # Where to run a rig
 
-A rig is any machine with a GPU that runs the node client. You bring the GPU: your own, or one you
-rent by the hour or the month. The network does not care which, because Sentinel measures what the
+A rig is any machine with a GPU that runs the node client. You bring the GPU: your own, one you
+rent by the hour or the month, or one the Deploy page rents for you. The network does not care which, because Sentinel measures what the
 machine actually does instead of trusting what it reports.
 
 ## What a rig needs
@@ -19,6 +19,7 @@ machine actually does instead of trusting what it reports.
 
 | Option | Good for | What it costs | How to start |
 |---|---|---|---|
+| **A machine rented on the Deploy page** | No machine and no terminal | A package price in ETH | [Rent a GPU](#rent-a-gpu-on-the-deploy-page) |
 | **Your own PC** with an NVIDIA or AMD card, on Windows or Linux | Anyone with a gaming or work GPU | Electricity | [Quickstart](quickstart.md) |
 | **A Mac with Apple silicon** | Mac owners; the runtime uses the built-in GPU | Electricity | [Quickstart](quickstart.md); the speed floor decides |
 | **A GPU marketplace**, by the hour | The lowest price; small cards are enough | From a few cents an hour | [The rig script](#run-a-rented-machine-with-one-script) |
@@ -41,6 +42,41 @@ keeps its identity and its standing, so a rig that comes back is the same rig.
 
 Renting costs money whether or not the rig earns. Rewards depend on verified work and on what the
 Burn Pool releases, so check the [Rewards page](/rewards) for what rigs earn today before you rent.
+
+## Rent a GPU on the Deploy page
+
+The [Deploy page](/deploy) can rent a GPU machine for you, so you need no machine and no terminal.
+Where the network offers it, step 2 shows **Rent a GPU**:
+
+1. Connect the operator wallet and pick how long to rent: 1, 7 or 30 days.
+2. Press Pay and confirm in your wallet. The payment is one ETH transfer to the rental address,
+   carrying the rental's id as its data. The price holds for 15 minutes.
+3. The network finds a machine within its price cap, starts it and runs the
+   [rig script](#run-a-rented-machine-with-one-script) on it. This takes 5 to 15 minutes. The
+   machine pairs with the page on its own.
+4. Name the rig, choose its pair and deploy it, as with any machine. The node starts by itself.
+
+The rental's time starts when the machine connects to the page. When it ends, the machine is shut
+down; you can extend a running rental from the page before then. The page shows each rental's
+state and time left for the connected wallet.
+
+**The price** is the machine's hourly cost for the whole package plus its downloads, with a margin
+for ETH price moves and machines that fail to start, converted to ETH at the current price. It is
+shown before you pay.
+
+**Refunds** go back to the wallet that paid, automatically:
+
+| What happened | Refund |
+|---|---|
+| No machine within the price cap was free for 30 minutes, or 3 machines failed to start | All of it |
+| The machine stopped and stayed down for 15 minutes | The unused part of the time |
+| The payment was less than the price, or arrived after the quote expired | All of it |
+| The payment was more than the price | The difference |
+| An extension was paid after its rental ended | All of it |
+
+Renting costs the price whether or not the rig earns, so check what rigs earn on the
+[Rewards page](/rewards) first. A rented machine's host can read its disk, so its node key is only
+as private as that host; the key cannot move funds, and rewards always go to the operator wallet.
 
 ## Run a rented machine with one script
 

@@ -28,6 +28,16 @@ upgrade. Versions follow semantic versioning, and each release is a signed git t
   come online, while the machine waits for the deployment and starts the node on its own. Pasting
   the node address and deploy code by hand still works. New routes: `POST /v1/pairings` and
   `GET /v1/pairings/:code`; pairings expire after 6 hours.
+- **Rent a GPU on the Deploy page.** Where a network turns rentals on, step 2 of the Deploy page
+  offers a machine for 1, 7 or 30 days, priced in ETH from the machine's hourly cost. The renter pays
+  once from the operator wallet, with the rental's id as the transaction's data; the coordinator
+  checks the payment on chain, launches the machine on a GPU marketplace with the rig script, and
+  the machine pairs with the page on its own. It is shut down when the time ends, and a running
+  rental can be extended. Anything paid for and not received is refunded automatically from a
+  separate hot wallet: a machine that never starts, the unused time of one that stops, short, late
+  and excess payments. Spending is capped by an hourly price limit and a limit on rentals at once,
+  and machines no rental holds are destroyed. New routes under `/v1/rentals`; rentals are off
+  unless `RENTALS=on` and their settings are present.
 - **Node client 1.2.0: `rig pair --code <code> --operator <wallet> [--start]`.** It pairs the
   machine with the Deploy page, waits until the rig is deployed and, with `--start`, starts the
   node with the `start` options given. The rig script takes `PAIR` for the same flow and installs

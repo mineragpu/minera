@@ -12,6 +12,7 @@ const { package: PACKAGE, command: CLI } = BRAND.nodeClient;
 const PLACEHOLDER = '0xYourWalletAddress';
 
 type System = 'linux' | 'other';
+export type MachineSource = 'own' | 'rent';
 
 interface MachineStepProps {
   operator: Address | null;
@@ -25,6 +26,10 @@ interface MachineStepProps {
   /** The paste-by-hand fields, shown in manual mode. */
   manualFields: ReactNode;
   locked: boolean;
+  source: MachineSource;
+  onSource: (source: MachineSource) => void;
+  /** The rental panel; null where the network does not rent machines. */
+  rentPanel: ReactNode | null;
 }
 
 function commandLines(system: System, wallet: string, code: string): string[] {
@@ -100,9 +105,30 @@ function MachineStatus({ pairing, check, operator }: Pick<MachineStepProps, 'pai
  * The node address and deploy code arrive on their own; pasting them by hand stays possible.
  */
 export function MachineStep(props: MachineStepProps) {
-  const { operator, code, pairing, manual, onManual, onNewCode, manualFields, locked } = props;
+  const { operator, code, pairing, manual, onManual, onNewCode, manualFields, locked, source, onSource, rentPanel } = props;
   const [system, setSystem] = useState<System>('linux');
   const wallet = operator ?? PLACEHOLDER;
+
+  const sourceSwitch = rentPanel !== null && (
+    <div className="seg machine__source" role="group" aria-label="Where the rig runs">
+      <button type="button" aria-pressed={source === 'own'} onClick={() => onSource('own')} disabled={locked}>
+        Your own GPU
+      </button>
+      <button type="button" aria-pressed={source === 'rent'} onClick={() => onSource('rent')} disabled={locked}>
+        Rent a GPU
+      </button>
+    </div>
+  );
+
+  if (source === 'rent' && rentPanel !== null) {
+    return (
+      <>
+        {sourceSwitch}
+        {rentPanel}
+        {operator && pairing.state !== 'off' && <MachineStatus pairing={pairing} check={props.check} operator={operator} />}
+      </>
+    );
+  }
 
   if (manual) {
     return (
@@ -120,6 +146,7 @@ export function MachineStep(props: MachineStepProps) {
 
   return (
     <>
+      {sourceSwitch}
       <p className="flow-step__text">
         Run one command on the machine with the GPU, your own or a rented one. It installs what the rig needs and pairs
         the machine with this page. After you deploy, the node starts on its own.

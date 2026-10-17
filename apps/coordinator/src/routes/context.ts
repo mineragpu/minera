@@ -2,6 +2,7 @@ import type { PoolView } from '../chain/poolWatcher.ts';
 import type { TokenView } from '../chain/token.ts';
 import type { Config } from '../config.ts';
 import type { Random } from '../random.ts';
+import type { RentalService } from '../rentals/service.ts';
 import type { Store } from '../store/store.ts';
 
 /** What every route module is built from; tests swap in a memory store and a fixed clock. */
@@ -13,6 +14,8 @@ export interface RouteContext {
   token?: TokenView | null;
   clock: () => Date;
   random: Random;
+  /** Renting GPU machines, on a coordinator configured for it. */
+  rentals?: RentalService | null;
 }
 
 /** A rig counts as online when it was heard from within three heartbeats. */

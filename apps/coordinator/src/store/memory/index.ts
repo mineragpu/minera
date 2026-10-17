@@ -3,6 +3,7 @@ import { memoryChain } from './chain.ts';
 import { memoryJobs } from './jobs.ts';
 import { memoryNonces } from './nonces.ts';
 import { memoryPairings } from './pairings.ts';
+import { memoryRentals } from './rentals.ts';
 import { memoryRigs } from './rigs.ts';
 import { memorySentinel } from './sentinel.ts';
 import { memorySettlements } from './settlements.ts';
@@ -19,6 +20,7 @@ export function createMemoryStore(): Store {
     rigs: memoryRigs(box),
     nonces: memoryNonces(box),
     pairings: memoryPairings(box),
+    rentals: memoryRentals(box),
     jobs: memoryJobs(box),
     work: memoryWork(box),
     settlements: memorySettlements(box),

@@ -4,6 +4,7 @@ import { postgresChain } from './chain.ts';
 import { postgresJobs } from './jobs.ts';
 import { postgresNonces } from './nonces.ts';
 import { postgresPairings } from './pairings.ts';
+import { postgresRentals } from './rentals.ts';
 import { postgresRigs } from './rigs.ts';
 import { postgresSentinel } from './sentinel.ts';
 import { postgresSettlements } from './settlements.ts';
@@ -17,6 +18,7 @@ function parts(db: Queryable): Omit<Store, 'transaction'> {
     rigs: postgresRigs(db),
     nonces: postgresNonces(db),
     pairings: postgresPairings(db),
+    rentals: postgresRentals(db),
     jobs: postgresJobs(db),
     work: postgresWork(db),
     settlements: postgresSettlements(db),

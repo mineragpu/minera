@@ -11,6 +11,8 @@ interface CallRequest {
   from?: Address;
   to: Address;
   data: Hex;
+  /** Wei to send, as a hex quantity. */
+  value?: Hex;
 }
 
 export interface Receipt {
@@ -42,7 +44,7 @@ export async function call(provider: Eip1193Provider, request: CallRequest): Pro
   return result;
 }
 
-export async function sendTransaction(provider: Eip1193Provider, request: Required<CallRequest>): Promise<Hex> {
+export async function sendTransaction(provider: Eip1193Provider, request: CallRequest & { from: Address }): Promise<Hex> {
   const hash = await provider.request({ method: 'eth_sendTransaction', params: [request] });
   if (!isHex(hash) || hash.length !== 66) throw new Error('The wallet returned a malformed transaction hash.');
   return hash;

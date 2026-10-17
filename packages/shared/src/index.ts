@@ -25,6 +25,14 @@ export type { TokenInfo, TokenSupplyRules } from './token.ts';
 export { ETH_PAIR, PAIR_LISTINGS, findPair, pairListingFor } from './pairs.ts';
 export { PAIRING_CODE_PATTERN, PAIRING_ROUTES, PAIRING_TTL_SECONDS } from './pairing.ts';
 export type { PairingGpu, PairingRequest, PairingView } from './pairing.ts';
+export { RENTAL_ID_PATTERN, RENTAL_PACKAGES, RENTAL_ROUTES } from './rentals.ts';
+export type {
+  CreateRentalRequest,
+  RentalOfferView,
+  RentalRefundView,
+  RentalStatusView,
+  RentalView,
+} from './rentals.ts';
 export type { PairAsset, PairKind, PairListing } from './pairs.ts';
 export {
   MAX_CLOCK_SKEW_SECONDS,

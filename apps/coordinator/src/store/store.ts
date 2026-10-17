@@ -24,6 +24,9 @@ import type {
   NodeReport,
   PairingRecord,
   PublishedSettlement,
+  RefundRecord,
+  RentalRecord,
+  RentalStatus,
   RigListPage,
   RigListQuery,
   RigRecord,
@@ -192,10 +195,35 @@ export interface PairingStore {
   prune(now: Date): Promise<number>;
 }
 
+export interface RentalStore {
+  /** Resolves `false` when a rental with this id exists already. */
+  create(record: RentalRecord): Promise<boolean>;
+  get(id: string): Promise<RentalRecord | null>;
+  /** Replaces the record with the same id. A payment transaction can pay for one rental only. */
+  save(record: RentalRecord): Promise<void>;
+  /** An operator's rentals and extensions, newest first. */
+  byOperator(operator: Address, limit: number): Promise<RentalRecord[]>;
+  /** Rentals in any of these states, oldest first. */
+  inStatus(statuses: readonly RentalStatus[], limit: number): Promise<RentalRecord[]>;
+  /** The rental that was paid with this transaction, if any. */
+  byPayment(txHash: Hex): Promise<RentalRecord | null>;
+  /** Rentals, not extensions, that hold or are about to hold a machine: paid, starting or running. */
+  countActive(): Promise<number>;
+  /** Quotes this operator has not paid that have not expired. */
+  countOpenQuotes(operator: Address, now: Date): Promise<number>;
+  /** Saves a refund unless one with its id exists; resolves whether it was saved. */
+  addRefund(refund: RefundRecord): Promise<boolean>;
+  saveRefund(refund: RefundRecord): Promise<void>;
+  refundsFor(rentalId: string): Promise<RefundRecord[]>;
+  /** Refunds not confirmed yet, oldest first. */
+  openRefunds(limit: number): Promise<RefundRecord[]>;
+}
+
 export interface Store {
   rigs: RigStore;
   nonces: NonceStore;
   pairings: PairingStore;
+  rentals: RentalStore;
   jobs: JobStore;
   work: WorkStore;
   settlements: SettlementStore;

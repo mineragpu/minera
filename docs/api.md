@@ -41,17 +41,23 @@ Every error has the same shape:
 |---|---|---|
 | 400 | `invalid_request` | A path, query or body value failed validation. |
 | 400 | `deploy_code_mismatch` | A pairing's deploy code was not made by its node for its operator on this network. |
+| 400 | `invalid_package`, `invalid_payment` | A rental of a length not on offer, or a transaction that is not this rental's payment. |
 | 404 | `not_found` | There is no such route. |
 | 404 | `rig_not_found`, `settlement_not_found`, `job_not_found` | The rig, settlement or job does not exist. |
 | 404 | `token_not_on_network` | The token does not live on this coordinator's network. |
 | 404 | `pairing_not_found` | No machine has paired with this code yet, or the pairing expired. |
+| 404 | `rentals_off` | This network does not rent GPU machines. |
+| 404 | `rental_not_found` | There is no rental with this id. |
 | 409 | `pairing_taken` | Another machine already paired with this code. |
+| 409 | `no_slot`, `rental_not_active`, `already_paid`, `payment_used` | Every rental slot is taken; the rental to extend is not running; the rental or the transaction is already paid for. |
 | 413 | `payload_too_large` | The body is over 256 KiB. |
 | 415 | `unsupported_media_type` | The body is not JSON. |
+| 429 | `too_many_quotes` | The wallet has 3 unpaid quotes open. |
 | 429 | `rate_limited` | Too many requests. The message says when to try again. |
+| 500 | `internal_error` | Something failed on the coordinator. |
+| 503 | `no_machine`, `price_unavailable`, `market_unavailable` | No machine is on offer within the price cap, or the ETH price or the marketplace cannot be read. Try again later. |
 | 503 | `busy` | Too many playground prompts are waiting. Try again in a minute. |
 | 503 | `not_ready` | The token's supply has not been read from the chain yet. Try again in a minute. |
-| 500 | `internal_error` | Something failed on the coordinator. |
 
 The signed node routes add their own codes; see [Node protocol](node-protocol.md#errors).
 
@@ -552,6 +558,90 @@ until it answers.
 
 It answers `404 pairing_not_found` until a machine pairs, and again once the pairing is 6 hours
 old.
+
+## Rentals
+
+Renting a GPU machine from the Deploy page; see [Where to run a rig](where-to-run-a-rig.md#rent-a-gpu-on-the-deploy-page).
+Every route answers `404 rentals_off` on a network that does not rent machines. Amounts are wei as
+decimal strings; `units` are days, except on a test network where `unitSeconds` says otherwise.
+
+### GET /v1/rentals/offer
+
+What a rental costs right now:
+
+```json
+{
+  "available": true,
+  "reason": null,
+  "gpu": { "model": "Example GPU", "vramMb": 12288 },
+  "unitSeconds": 86400,
+  "packages": [
+    { "units": 1, "usd": "2.94", "wei": "735000000000000" },
+    { "units": 7, "usd": "20.22", "wei": "5055000000000000" },
+    { "units": 30, "usd": "86.46", "wei": "21615000000000000" }
+  ],
+  "ethUsd": "4000.00",
+  "payTo": "0x…",
+  "quoteSeconds": 900
+}
+```
+
+`available` is false, with a `reason`, when no machine is on offer within the price cap or every
+rental slot is taken.
+
+### POST /v1/rentals
+
+A quote, valid for `quoteSeconds`: `{ "operator": "0x…", "units": 7 }`, with `"parentId"` to extend a
+running rental by that many units. The answer is `201 Created` with the rental, whose `payment`
+says what to send: `value` wei to `to`, with `data` as the transaction's data. Each address may
+ask for 10 quotes a minute.
+
+### POST /v1/rentals/:id/payment
+
+`{ "txHash": "0x…" }`, sent as soon as the wallet returns the hash. While the transaction is not
+mined the answer is `202 Accepted` and the coordinator keeps checking it; once mined it is `200`
+with the rental paid, or, for a short or late payment, expired with a refund queued.
+
+### GET /v1/rentals/:id and GET /v1/rentals?operator=0x…
+
+One rental, or a wallet's 20 newest:
+
+```json
+{
+  "id": "0123456789abcdef0123456789abcdef",
+  "parentId": null,
+  "operator": "0x…",
+  "units": 7,
+  "unitSeconds": 86400,
+  "priceWei": "5055000000000000",
+  "usd": "20.22",
+  "status": "running",
+  "payment": null,
+  "payTx": "0x…",
+  "paidAt": "2026-10-17T08:02:00.000Z",
+  "gpu": "Example GPU",
+  "pairingCode": "fedcba9876543210fedcba9876543210",
+  "startedAt": "2026-10-17T08:11:00.000Z",
+  "endsAt": "2026-10-24T08:11:00.000Z",
+  "note": "Machine connected. Deploy the rig on the Deploy page; the node starts on its own.",
+  "createdAt": "2026-10-17T08:00:00.000Z",
+  "refunds": []
+}
+```
+
+| `status` | Meaning |
+|---|---|
+| `quoted` | Waiting for the payment. |
+| `expired` | Not paid in time, or paid short or late; any payment is refunded. |
+| `paid` | Paid; a machine is being found. |
+| `starting` | A machine is starting; `pairingCode` is the code it pairs under. |
+| `running` | The machine paired; the time runs until `endsAt`. |
+| `ended` | The time ran out and the machine was shut down. |
+| `failed` | No machine could be kept running; the unused part is refunded. |
+| `applied` | An extension whose units were added to its rental. |
+
+Each refund lists its `wei`, its `reason` (`excess`, `short`, `late` or `unused`), its `status`
+(`pending`, `sent`, `done`) and, once sent, its `txHash`.
 
 ## Node routes
 
